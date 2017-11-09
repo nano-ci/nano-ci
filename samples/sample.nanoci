@@ -1,0 +1,58 @@
+project: "Sample nano-ci project"
+repos:
+  - tag: main-repo
+    type: git
+    src: https://example.com/repo/nanoci.git
+    auth:
+      login: abc
+      password: abc
+      ssh: /path/to/key
+      ssh-passcode: passcode
+  - tag: another-repo
+    type: hg
+stages:
+  - tag: build
+    jobs:
+      - tag: checkout-and-build
+        tasks:
+          - type: source-control
+            repo: main-repo
+            action: checkout
+            workdir: relative/path/
+          - type: make
+            makefile: relative/path/to/makefile
+            args: -a -b -c
+        artifacts:
+          - tag: art1
+            path: relative/path
+            pattern: *.*
+  - tag: unit-tests
+    jobs:
+      - tag: unit-tests
+        tasks:
+          - type: artifact
+            tag: art1
+            path: relative/path
+          - type: junit
+            args: -a -b -c
+  - tag: func-tests
+    jobs:
+      - tag: dummy
+variables:
+  - tag: var1
+    value: abc
+  - tag: var2
+    value: ${var1}-def
+feature-branches:
+  enabled: true
+  master-branches:
+    - name: master
+      pattern: dev/master/*
+      branch-merge:
+        model: update-branch-from-master
+        push-on-success: false
+    - name: release
+      pattern: release/r-1/*
+      branch-merge:
+        model: update-master-from-branch
+        push-on-success: true
