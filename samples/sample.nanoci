@@ -1,4 +1,4 @@
-project: "Sample nano-ci project"
+name: Sample nano-ci project
 repos:
   - tag: main-repo
     type: git
