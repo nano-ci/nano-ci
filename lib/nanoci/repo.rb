@@ -9,8 +9,7 @@ class Nanoci
 
     ##
     # Type of the repo, e.g. 'git', 'svn', etc.
-    # Repo provider class must override the accessor and return proper value
-    attr_reader   :type
+    attr_accessor :type
 
     ##
     # URI that points to repo storage (on http server, file path, etc.)
@@ -18,20 +17,28 @@ class Nanoci
 
     ##
     # Object specifies authentication against repo
-    attr_reader   :auth
+    attr_accessor   :auth
 
     ##
     # Collection of capabilities requred to run
     # a job against the repo on an agent
-    # Repo provider class must override the accessor and return proper value
     attr_reader   :required_agent_capabilities
 
     def initialize
-      @tag = nil
+      @tag  = nil
       @type = 'unknown'
-      @src = nil
+      @src  = nil
       @auth = nil
       @required_agent_capabilities = []
+    end
+
+    def self.from_hash(hash)
+      repo = Repo.new
+      repo.tag  = hash['tag']
+      repo.type = hash['type']
+      repo.src  = hash['src']
+      repo.auth = hash['auth']
+      repo
     end
   end
 end

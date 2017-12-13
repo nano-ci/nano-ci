@@ -11,5 +11,12 @@ class Nanoci
       @path = nil
       @pattern = nil
     end
+
+    def self.from_hash(hash)
+      artifact = Artifact.new
+      artifact.tag = hash['tag']
+      artifact.path = hash['path']
+      artifact.pattern = Regexp.new(hash['pattern']) unless hash['pattern'].nil?
+    end
   end
 end

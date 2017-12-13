@@ -10,5 +10,11 @@ class Nanoci
       @tag = nil
       @value = nil
     end
+
+    def self.from_hash(hash)
+      variable = Variable.new
+      variable.tag = hash['tag']
+      variable.value = hash['value']
+    end
   end
 end
