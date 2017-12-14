@@ -11,7 +11,7 @@ require 'pp'
 class Nanoci
   def self.main(args)
     options = Options.parse(args)
-    if (not options.project.nil?)
+    unless options.project.nil?
       project_src = YAML.load_file options.project
       project = Project.from_hash(project_src)
       pp project

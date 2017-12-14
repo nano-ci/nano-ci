@@ -22,11 +22,13 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
-	spec.metadata['allowed_push_host'] = "TODO: Set to 'http://mygemserver.com'"
+  spec.metadata['allowed_push_host'] = "TODO: Set to 'http://mygemserver.com'"
 
-	spec.add_runtime_dependency 'trollop', '~> 2.1'
+  spec.add_runtime_dependency 'trollop', '~> 2.1'
 
   spec.add_development_dependency 'bundler', '~> 1.15'
   spec.add_development_dependency 'rake', '~> 10.0'
   spec.add_development_dependency 'rspec', '~> 3.0'
+	spec.add_development_dependency 'ruby-debug-ide'
+	spec.add_development_dependency 'debase'
 end
