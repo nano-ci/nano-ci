@@ -9,6 +9,10 @@ repos:
       password: abc
       ssh: /path/to/key
       ssh-passcode: passcode
+    triggers:
+      - type: poll
+        interval: 120
+        schedule: "0 0 1 ? * 1#2"
   - tag: another-repo
     type: hg
 stages:

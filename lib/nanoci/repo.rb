@@ -17,28 +17,23 @@ class Nanoci
 
     ##
     # Object specifies authentication against repo
-    attr_accessor   :auth
+    attr_accessor :auth
+
+    ##
+    # Array of triggers
+    attr_accessor :triggers
 
     ##
     # Collection of capabilities requred to run
     # a job against the repo on an agent
-    attr_reader   :required_agent_capabilities
+    attr_reader     :required_agent_capabilities
 
-    def initialize
-      @tag  = nil
-      @type = 'unknown'
-      @src  = nil
-      @auth = nil
+    def initialize(hash = {})
+      @tag  = hash['tag']
+      @type = hash['type'] || 'unknown'
+      @src  = hash['src']
+      @auth = hash['auth']
       @required_agent_capabilities = []
-    end
-
-    def self.from_hash(hash)
-      repo = Repo.new
-      repo.tag  = hash['tag']
-      repo.type = hash['type']
-      repo.src  = hash['src']
-      repo.auth = hash['auth']
-      repo
     end
   end
 end

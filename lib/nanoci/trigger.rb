@@ -1,5 +1,5 @@
 class Nanoci
-  class Task
+  class Trigger
     attr_accessor :type
 
     def initialize(hash = {})
