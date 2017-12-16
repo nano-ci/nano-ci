@@ -2,6 +2,12 @@ class Nanoci
   ##
   # Source control repository
   class Repo
+    @types = {}
+
+    def self.types
+      @types
+    end
+
     ##
     # Tag is an id used to identify repo of a project
     # Repo tag must be unique

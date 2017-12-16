@@ -32,7 +32,10 @@ class Nanoci
     end
 
     def self.read_repo(hash)
-      repo = Repo.new(hash)
+      type = hash['type']
+      repo_class = Repo.types[type]
+      raise "Unknown repo type #{type}" if repo_class.nil?
+      repo = repo_class.new(hash)
       repo.triggers = read_triggers(hash, 'triggers')
       repo
     end
