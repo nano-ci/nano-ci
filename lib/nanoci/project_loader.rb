@@ -43,12 +43,9 @@ class Nanoci
 
     def self.read_trigger(hash)
       type = hash['type']
-      case type
-      when 'poll'
-        Triggers::PollTrigger.new(hash)
-      else
-        raise "Unknown trigger type #{type}"
-      end
+      trigger_class = Trigger.types[type]
+      raise "Unknown trigger type #{type}" if trigger_class.nil?
+      trigger_class.new(hash)
     end
 
     def self.read_stages(hash, field)

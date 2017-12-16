@@ -22,5 +22,7 @@ class Nanoci
         end
       end
     end
+
+    Trigger.types['poll'] = PollTrigger
   end
 end

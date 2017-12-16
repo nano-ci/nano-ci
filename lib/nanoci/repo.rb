@@ -40,7 +40,7 @@ class Nanoci
     # Detect changes in source
     # Returns true is there are new changes; false otherwise
     def detect_changes
-      false
+      true
     end
   end
 end

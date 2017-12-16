@@ -1,5 +1,11 @@
 class Nanoci
   class Trigger
+    @types = {}
+
+    def self.types
+      @types
+    end
+
     attr_accessor :type
 
     def initialize(hash = {})
