@@ -8,15 +8,19 @@ class Nanoci
   class Project
     attr_accessor :name
     attr_accessor :tag
-    attr_accessor   :repos
-    attr_accessor   :stages
-    attr_accessor   :variables
+    attr_accessor :repos
+    attr_accessor :stages
+    attr_accessor :variables
 
     def initialize(hash = {})
       @name = hash['name']
       @repos = []
       @stages = []
       @variables = []
+    end
+
+    def trigger_build(trigger)
+      puts "Project #{name} build is triggerred by #{trigger} at #{Time.now}"
     end
   end
 end

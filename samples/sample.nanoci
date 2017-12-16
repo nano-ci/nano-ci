@@ -11,7 +11,7 @@ repos:
       ssh-passcode: passcode
     triggers:
       - type: poll
-        interval: 120
+        interval: 5
         schedule: "0 0 1 ? * 1#2"
   - tag: another-repo
     type: hg

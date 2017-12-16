@@ -1,3 +1,4 @@
+require 'eventmachine'
 require 'yaml'
 
 require 'nanoci/options'
@@ -11,6 +12,13 @@ class Nanoci
   def self.main(args)
     options = Options.parse(args)
     project = ProjectLoader.load(options.project) unless options.project.nil?
-    pp project
+
+    EventMachine.run do
+      project.repos.each do |repo|
+        repo.triggers.each do |trigger|
+          trigger.run(repo, project)
+        end
+      end
+    end
   end
 end

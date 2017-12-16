@@ -26,7 +26,7 @@ class Nanoci
     ##
     # Collection of capabilities requred to run
     # a job against the repo on an agent
-    attr_reader     :required_agent_capabilities
+    attr_reader   :required_agent_capabilities
 
     def initialize(hash = {})
       @tag  = hash['tag']
@@ -34,6 +34,13 @@ class Nanoci
       @src  = hash['src']
       @auth = hash['auth']
       @required_agent_capabilities = []
+    end
+
+    ##
+    # Detect changes in source
+    # Returns true is there are new changes; false otherwise
+    def detect_changes
+      false
     end
   end
 end

@@ -1,3 +1,5 @@
+require 'eventmachine'
+
 require 'nanoci/trigger'
 
 class Nanoci
@@ -8,10 +10,17 @@ class Nanoci
 
       def initialize(hash = {})
         super(hash)
-
         @interval = hash['interval']
         @schedule = hash['schedule']
       end
+
+      def run(*args)
+        super
+
+        EventMachine.add_periodic_timer(interval) do
+          @project.trigger_build(self) if @repo.detect_changes
+        end
+      end
     end
-end
+  end
 end

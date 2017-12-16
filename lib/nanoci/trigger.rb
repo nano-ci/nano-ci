@@ -5,5 +5,10 @@ class Nanoci
     def initialize(hash = {})
       @type = hash['type']
     end
+
+    def run(repo, project)
+      @repo = repo
+      @project = project
+    end
   end
 end
