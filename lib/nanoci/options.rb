@@ -15,10 +15,12 @@ class Nanoci
 
     attr_accessor :dryrun
     attr_accessor :project
+    attr_accessor :plugins_path
 
     def initialize(opts)
       self.dryrun = opts[:dry_run]
       self.project = opts[:project]
+      self.plugins_path = File.expand_path opts[:plugins_path]
     end
 
     def self.parse(options)
@@ -26,6 +28,7 @@ class Nanoci
         banner BANNER
         opt :dry_run, 'Run dry-run'
         opt :project, 'Path to project definition', :type => :string
+        opt :plugins_path, 'Path to plugins', :type => :string
       end
 
       args = Options.new(opts)

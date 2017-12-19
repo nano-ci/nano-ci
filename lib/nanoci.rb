@@ -2,6 +2,7 @@ require 'eventmachine'
 require 'yaml'
 
 require 'nanoci/options'
+require 'nanoci/plugin_loader'
 require 'nanoci/project_loader'
 
 require 'pp'
@@ -11,6 +12,9 @@ require 'pp'
 class Nanoci
   def self.main(args)
     options = Options.parse(args)
+
+    PluginLoader.load(options.plugins_path)
+
     project = ProjectLoader.load(options.project) unless options.project.nil?
 
     EventMachine.run do

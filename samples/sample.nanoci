@@ -13,8 +13,6 @@ repos:
       - type: poll
         interval: 5
         schedule: "0 0 1 ? * 1#2"
-  - tag: another-repo
-    type: hg
 stages:
   - tag: build
     jobs:
