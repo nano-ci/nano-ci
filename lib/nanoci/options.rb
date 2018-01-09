@@ -13,27 +13,24 @@ class Nanoci
     EOS
              .freeze
 
-    attr_accessor :dryrun
+    attr_accessor :config
     attr_accessor :project
-    attr_accessor :plugins_path
 
     def initialize(opts)
-      self.dryrun = opts[:dry_run]
+      self.config = opts[:config]
       self.project = opts[:project]
-      self.plugins_path = File.expand_path opts[:plugins_path]
     end
 
     def self.parse(options)
       opts = Trollop.options(options) do
         banner BANNER
-        opt :dry_run, 'Run dry-run'
+        opt :config, 'Path to nano-ci config', :type => :string
         opt :project, 'Path to project definition', :type => :string
-        opt :plugins_path, 'Path to plugins', :type => :string
       end
 
       args = Options.new(opts)
 
-      Trollop.die :project, 'is requried' if args.dryrun && args.project.nil?
+      Trollop.die :project, 'is requried' if args.project.nil?
 
       args.project = File.expand_path(args.project) unless args.project.nil?
 

@@ -1,0 +1,6 @@
+plugins_path: 'lib/nanoci/plugins'
+local_agents:
+  capabilities:
+    - 'tools.git': 'C:\Program Files\Git\cmd\git.exe'
+  agents:
+    - name: 'Local Agent #1'

@@ -1,6 +1,5 @@
-require 'nanoci/repo'
-require 'nanoci/stage'
-require 'nanoci/variable'
+require 'nanoci'
+require 'nanoci/build'
 
 class Nanoci
   ##
@@ -14,13 +13,15 @@ class Nanoci
 
     def initialize(hash = {})
       @name = hash['name']
-      @repos = []
+      @tag = hash['tag']
+      @repos = {}
       @stages = []
       @variables = []
     end
 
     def trigger_build(trigger)
-      puts "Project #{name} build is triggerred by #{trigger} at #{Time.now}"
+      build = Build.new(self, trigger, [])
+      Nanoci.run_build(build)
     end
   end
 end

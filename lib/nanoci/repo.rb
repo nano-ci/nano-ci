@@ -48,5 +48,11 @@ class Nanoci
     def detect_changes
       true
     end
+
+    ##
+    # Returns commit id of tip of tree
+    def current_commit
+      ''
+    end
   end
 end

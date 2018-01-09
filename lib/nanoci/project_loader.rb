@@ -28,7 +28,7 @@ class Nanoci
     end
 
     def self.read_repos(hash, field)
-      read_array(hash, field, method(:read_repo))
+      Hash[read_array(hash, field, method(:read_repo)).map {|v| [v.tag, v]}]
     end
 
     def self.read_repo(hash)
@@ -77,7 +77,10 @@ class Nanoci
     end
 
     def self.read_task(hash)
-      Task.new(hash)
+      type = hash['type']
+      task_class = Task.types[type]
+      raise "Unknown task type #{type}" if task_class.nil?
+      task_class.new(hash)
     end
 
     def self.read_artifacts(hash, field)
