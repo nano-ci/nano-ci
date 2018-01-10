@@ -1,3 +1,5 @@
+require 'nanoci/build'
+
 class Nanoci
   class BuildJob
     attr_accessor :definition
@@ -5,6 +7,7 @@ class Nanoci
 
     def initialize(definition)
       @definition = definition
+      @state = Build::State::UNKNOWN
     end
 
     def required_agent_capabilities
