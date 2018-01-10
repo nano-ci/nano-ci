@@ -5,6 +5,7 @@ class Nanoci
     end
 
     def local_agents
+      return nil if @src['local_agents'].nil?
       LocalAgentsConfig.new(@src['local_agents'])
     end
 
