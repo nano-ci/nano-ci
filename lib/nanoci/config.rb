@@ -22,25 +22,25 @@ class Nanoci
       end
 
       def capabilities
-        @src['capabilities'] || []
+        Set.new(@src['capabilities'] || [])
       end
 
       def agents
+        (@src['agents'] || []).map { |x| LocalAgentConfig.new(x) }
+      end
+    end
 
+    class LocalAgentConfig
+      def initialize(src)
+        @src = src
       end
 
-      class LocalAgentConfig
-        def initialize(src)
-          @src = src
-        end
+      def name
+        @src['name']
+      end
 
-        def name
-          @src['name']
-        end
-
-        def capabilities
-          @src['capabilites'] || []
-        end
+      def capabilities
+        Set.new(@src['capabilities'] || [])
       end
     end
   end

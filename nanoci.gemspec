@@ -25,11 +25,12 @@ Gem::Specification.new do |spec|
   spec.metadata['allowed_push_host'] = "TODO: Set to 'http://mygemserver.com'"
 
   spec.add_runtime_dependency 'trollop', '~> 2.1'
-  spec.add_runtime_dependency 'eventmachine', '~> 1.2'
+  spec.add_runtime_dependency 'eventmachine', '1.2.5'
 
   spec.add_development_dependency 'bundler', '~> 1.15'
   spec.add_development_dependency 'rake', '~> 10.0'
   spec.add_development_dependency 'rspec', '~> 3.0'
   spec.add_development_dependency 'ruby-debug-ide'
   spec.add_development_dependency 'debase'
+  spec.add_development_dependency 'simplecov', '~> 0.15'
 end

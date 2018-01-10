@@ -6,7 +6,7 @@ class Nanoci
 
     def initialize(config, capabilities)
       @name = config.name
-      @capabilities = (config.capabilities + capabilities).to_set
+      @capabilities = config.capabilities + capabilities
       @current_job = nil
     end
 

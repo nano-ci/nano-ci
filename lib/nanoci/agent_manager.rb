@@ -9,9 +9,10 @@ class Nanoci
     end
 
     def find_agent(required_agent_capabilities)
-      @agents
-        .find { |a| a.current_job.nil? }
-        .find { |a| a.capabilities.superset(required_agent_capabilities) }
+      @agents.find do |a|
+        a.capabilities.superset?(required_agent_capabilities) &&
+          a.current_job.nil?
+      end
     end
   end
 end
