@@ -156,6 +156,17 @@ RSpec.describe Nanoci::Build do
     expect(build.commits['repo-1']).to eq 'abcdef'
   end
 
+  it 'initial state is QUEUED' do
+    project = Nanoci::Project.new('tag' => 'project-test', 'name' => 'test project')
+    job = Nanoci::Job.new(project, 'tag' => 'test-job')
+    stage = Nanoci::Stage.new('tag' => 'test')
+    stage.jobs = [job]
+    project.stages = [stage]
+    build = Nanoci::Build.run(project, nil, {})
+
+    expect(build.state).to eq Nanoci::Build::State::QUEUED
+  end
+
   it 'state is equal to current stage state' do
     project = Nanoci::Project.new('tag' => 'project-test', 'name' => 'test project')
     job = Nanoci::Job.new(project, 'tag' => 'test-job')
@@ -164,7 +175,7 @@ RSpec.describe Nanoci::Build do
     project.stages = [stage]
     build = Nanoci::Build.run(project, nil, {})
 
-    expect(build.current_stage.state).to eq Nanoci::Build::State::UNKNOWN
+    expect(build.current_stage.state).to eq Nanoci::Build::State::QUEUED
     expect(build.state).to eq build.current_stage.state
 
     build.current_stage.jobs[0].state = Nanoci::Build::State::FAILED

@@ -14,7 +14,9 @@ class Nanoci
     class << self
       def run(project, trigger, env_variables)
         variables = expand_variables(project.variables, env_variables)
-        Build.new(project, trigger, variables)
+        build = Build.new(project, trigger, variables)
+        build.current_stage.jobs.each { |j| j.state = State::QUEUED }
+        build
       end
 
       attr_accessor :project_build_numbers
