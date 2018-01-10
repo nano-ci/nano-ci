@@ -16,7 +16,7 @@ class Nanoci
       @tag = hash['tag']
       @repos = {}
       @stages = []
-      @variables = []
+      @variables = {}
     end
 
     def trigger_build(trigger)

@@ -42,7 +42,7 @@ RSpec.describe Nanoci::BuildStage do
     expect(build_stage.state).to eq(Nanoci::Build::State::QUEUED)
   end
 
-  it 'to be RUNNING if at least one job is RUNNING and no UNDEFINED' do
+  it 'to be RUNNING if at least one job is RUNNING and no UNDEFINED or QUEUED' do
     project = Nanoci::Project.new('tag' => 'test', 'name' => 'test project')
     stage = Nanoci::Stage.new('tag' => 'test')
     stage.jobs = [
@@ -56,7 +56,7 @@ RSpec.describe Nanoci::BuildStage do
     expect(build_stage.state).to eq(Nanoci::Build::State::RUNNING)
   end
 
-  it 'to be ABORTED if at least one job is ABORTED and no UNDEFINED or RUNNING' do
+  it 'to be ABORTED if at least one job is ABORTED and no UNDEFINED, QUEUED or RUNNING' do
     project = Nanoci::Project.new('tag' => 'test', 'name' => 'test project')
     stage = Nanoci::Stage.new('tag' => 'test')
     stage.jobs = [
@@ -70,7 +70,7 @@ RSpec.describe Nanoci::BuildStage do
     expect(build_stage.state).to eq(Nanoci::Build::State::ABORTED)
   end
 
-  it 'to be FAILED if at least one job is FAILED and no UNDEFINED, RUNNING or ABORTED' do
+  it 'to be FAILED if at least one job is FAILED and no UNDEFINED, QUEUED, RUNNING or ABORTED' do
     project = Nanoci::Project.new('tag' => 'test', 'name' => 'test project')
     stage = Nanoci::Stage.new('tag' => 'test')
     stage.jobs = [

@@ -12,7 +12,17 @@ class Nanoci
     end
 
     class << self
+      def run(project, trigger, env_variables)
+        variables = expand_variables(project.variables, env_variables)
+        Build.new(project, trigger, variables)
+      end
+
       attr_accessor :project_build_numbers
+
+      def expand_variables(project_variables, env_variables)
+        all_variables = project_variables.merge(env_variables)
+        all_variables.map { |k, v| [k, v.expand(all_variables)] }.to_h
+      end
 
       def next_number(project_tag)
         self.project_build_numbers ||= {}
@@ -41,29 +51,20 @@ class Nanoci
     end
 
     def state
-      State.UNKNOWN if current_stage.nil?
-      current_stage.jobs.select(&:state).min
-    end
-
-    def initialize(project, trigger, env_variables)
-      @project = project
-      @trigger = trigger
-      @variables = expand_variables(@project.variables, env_variables)
-    end
-
-    def run
-      self.start_time = Time.now
-      number = Build.next_number(project.tag)
-      self.tag = "#{project.tag}-#{number}"
-      self.current_stage = BuildStage.new(project.stages[0])
-      self.commits = project.repos.map { |r| [r.tag, r.current_commit] }.to_h
+      current_stage&.state || State::UNKNOWN
     end
 
     private
 
-    def expand_variables(project_variables, env_variables)
-      all_variables = project_variables + env_variables
-      all_variables.map { |v| v.expand(all_variables) }
+    def initialize(project, trigger, variables)
+      @project = project
+      @trigger = trigger
+      @variables = variables
+      @start_time = Time.now
+      self.number = Build.next_number(@project.tag)
+      @tag = "#{@project.tag}-#{number}"
+      @current_stage = BuildStage.new(@project.stages[0])
+      @commits = @project.repos.map { |r| [r.tag, r.current_commit] }.to_h
     end
   end
 end
