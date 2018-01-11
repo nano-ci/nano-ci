@@ -3,7 +3,7 @@ require 'eventmachine'
 require 'nanoci/build'
 
 class Nanoci
-  class JobScheduler
+  class BuildScheduler
     attr_accessor :builds
 
     def initialize(agents_manager)

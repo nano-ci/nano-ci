@@ -1,31 +1,31 @@
 require 'spec_helper'
 
 require 'nanoci/build'
-require 'nanoci/job_scheduler'
+require 'nanoci/build_scheduler'
 
-RSpec.describe Nanoci::JobScheduler do
+RSpec.describe Nanoci::BuildScheduler do
   it 'stores build in builds collection when build is run' do
-    job_scheduler = Nanoci::JobScheduler.new(nil)
+    build_scheduler = Nanoci::BuildScheduler.new(nil)
     build = double('build')
     allow(build).to receive(:run)
 
-    job_scheduler.run_build(build)
+    build_scheduler.run_build(build)
 
-    expect(job_scheduler.builds).to include build
+    expect(build_scheduler.builds).to include build
   end
 
   it 'runs the build  when method run_build called' do
-    job_scheduler = Nanoci::JobScheduler.new(nil)
+    build_scheduler = Nanoci::BuildScheduler.new(nil)
     build = double('build')
     allow(build).to receive(:run)
 
-    job_scheduler.run_build(build)
+    build_scheduler.run_build(build)
 
     expect(build).to have_received(:run)
   end
 
   it 'queued_builds returns array of builds in state QUEUED' do
-    job_scheduler = Nanoci::JobScheduler.new(nil)
+    build_scheduler = Nanoci::BuildScheduler.new(nil)
     queued_build = double('queued_build')
     allow(queued_build).to receive(:run)
     allow(queued_build).to receive(:state).and_return(Nanoci::Build::State::QUEUED)
@@ -34,15 +34,15 @@ RSpec.describe Nanoci::JobScheduler do
     allow(running_build).to receive(:run)
     allow(running_build).to receive(:state).and_return(Nanoci::Build::State::RUNNING)
 
-    job_scheduler.run_build(queued_build)
-    job_scheduler.run_build(running_build)
+    build_scheduler.run_build(queued_build)
+    build_scheduler.run_build(running_build)
 
-    expect(job_scheduler.queued_builds).to include queued_build
-    expect(job_scheduler.queued_builds).not_to include running_build
+    expect(build_scheduler.queued_builds).to include queued_build
+    expect(build_scheduler.queued_builds).not_to include running_build
   end
 
   it 'queued_builds returns array of jobs in state QUEUED' do
-    job_scheduler = Nanoci::JobScheduler.new(nil)
+    build_scheduler = Nanoci::BuildScheduler.new(nil)
     build = double('build')
     allow(build).to receive(:run)
     allow(build).to receive(:state)
@@ -58,8 +58,8 @@ RSpec.describe Nanoci::JobScheduler do
 
     allow(build).to receive(:current_stage).and_return(stage)
 
-    expect(job_scheduler.queued_jobs(build)).to include queued_job
-    expect(job_scheduler.queued_jobs(build)).not_to include running_job
+    expect(build_scheduler.queued_jobs(build)).to include queued_job
+    expect(build_scheduler.queued_jobs(build)).not_to include running_job
   end
 
   it 'schedule_build runs scheduled jobs only on capable agents' do
@@ -85,8 +85,8 @@ RSpec.describe Nanoci::JobScheduler do
     allow(build).to receive(:state).and_return(Nanoci::Build::State::QUEUED)
     allow(build).to receive(:current_stage).and_return(stage)
 
-    job_scheduler = Nanoci::JobScheduler.new(agent_manager)
-    job_scheduler.schedule_build(build)
+    build_scheduler = Nanoci::BuildScheduler.new(agent_manager)
+    build_scheduler.schedule_build(build)
 
     expect(agent).to have_received(:run_job).with queued_job
     expect(agent).not_to have_received(:run_job).with queued_unavailable_job
@@ -115,9 +115,9 @@ RSpec.describe Nanoci::JobScheduler do
     allow(build).to receive(:state).and_return(Nanoci::Build::State::QUEUED)
     allow(build).to receive(:current_stage).and_return(stage)
 
-    job_scheduler = Nanoci::JobScheduler.new(agent_manager)
-    job_scheduler.run_build(build)
-    job_scheduler.schedule_builds
+    build_scheduler = Nanoci::BuildScheduler.new(agent_manager)
+    build_scheduler.run_build(build)
+    build_scheduler.schedule_builds
 
     expect(agent).to have_received(:run_job).with queued_job
     expect(agent).not_to have_received(:run_job).with queued_unavailable_job
