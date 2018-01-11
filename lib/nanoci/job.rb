@@ -18,7 +18,7 @@ class Nanoci
     end
 
     def required_agent_capabilities
-      @tasks.map { |x| x.required_agent_capabilities(@project)}
+      @tasks.map { |x| x.required_agent_capabilities(@project) }.reduce(:merge)
     end
   end
 end
