@@ -1,0 +1,125 @@
+require 'spec_helper'
+
+require 'nanoci/build'
+require 'nanoci/job_scheduler'
+
+RSpec.describe Nanoci::JobScheduler do
+  it 'stores build in builds collection when build is run' do
+    job_scheduler = Nanoci::JobScheduler.new(nil)
+    build = double('build')
+    allow(build).to receive(:run)
+
+    job_scheduler.run_build(build)
+
+    expect(job_scheduler.builds).to include build
+  end
+
+  it 'runs the build  when method run_build called' do
+    job_scheduler = Nanoci::JobScheduler.new(nil)
+    build = double('build')
+    allow(build).to receive(:run)
+
+    job_scheduler.run_build(build)
+
+    expect(build).to have_received(:run)
+  end
+
+  it 'queued_builds returns array of builds in state QUEUED' do
+    job_scheduler = Nanoci::JobScheduler.new(nil)
+    queued_build = double('queued_build')
+    allow(queued_build).to receive(:run)
+    allow(queued_build).to receive(:state).and_return(Nanoci::Build::State::QUEUED)
+
+    running_build = double('running_build')
+    allow(running_build).to receive(:run)
+    allow(running_build).to receive(:state).and_return(Nanoci::Build::State::RUNNING)
+
+    job_scheduler.run_build(queued_build)
+    job_scheduler.run_build(running_build)
+
+    expect(job_scheduler.queued_builds).to include queued_build
+    expect(job_scheduler.queued_builds).not_to include running_build
+  end
+
+  it 'queued_builds returns array of jobs in state QUEUED' do
+    job_scheduler = Nanoci::JobScheduler.new(nil)
+    build = double('build')
+    allow(build).to receive(:run)
+    allow(build).to receive(:state)
+
+    queued_job = double('queued_job')
+    allow(queued_job).to receive(:state).and_return(Nanoci::Build::State::QUEUED)
+
+    running_job = double('running_job')
+    allow(running_job).to receive(:state).and_return(Nanoci::Build::State::RUNNING)
+
+    stage = double('stage')
+    allow(stage).to receive(:jobs).and_return([queued_job, running_job])
+
+    allow(build).to receive(:current_stage).and_return(stage)
+
+    expect(job_scheduler.queued_jobs(build)).to include queued_job
+    expect(job_scheduler.queued_jobs(build)).not_to include running_job
+  end
+
+  it 'schedule_build runs scheduled jobs only on capable agents' do
+    agent = double(agent)
+    allow(agent).to receive(:run_job)
+
+    agent_manager = double('agent_manager')
+    allow(agent_manager).to receive(:find_agent).and_return(agent, nil)
+
+    queued_job = double('queued_job')
+    allow(queued_job).to receive(:state).and_return(Nanoci::Build::State::QUEUED)
+    allow(queued_job).to receive(:required_agent_capabilities)
+
+    queued_unavailable_job = double('queued_unavailable_job')
+    allow(queued_unavailable_job).to receive(:state).and_return(Nanoci::Build::State::QUEUED)
+    allow(queued_unavailable_job).to receive(:required_agent_capabilities)
+
+    stage = double('stage')
+    allow(stage).to receive(:jobs).and_return([queued_job])
+
+    build = double('queued_build')
+    allow(build).to receive(:run)
+    allow(build).to receive(:state).and_return(Nanoci::Build::State::QUEUED)
+    allow(build).to receive(:current_stage).and_return(stage)
+
+    job_scheduler = Nanoci::JobScheduler.new(agent_manager)
+    job_scheduler.schedule_build(build)
+
+    expect(agent).to have_received(:run_job).with queued_job
+    expect(agent).not_to have_received(:run_job).with queued_unavailable_job
+  end
+
+  it 'schedule_builds runs scheduled jobs only on capable agents' do
+    agent = double(agent)
+    allow(agent).to receive(:run_job)
+
+    agent_manager = double('agent_manager')
+    allow(agent_manager).to receive(:find_agent).and_return(agent, nil)
+
+    queued_job = double('queued_job')
+    allow(queued_job).to receive(:state).and_return(Nanoci::Build::State::QUEUED)
+    allow(queued_job).to receive(:required_agent_capabilities)
+
+    queued_unavailable_job = double('queued_unavailable_job')
+    allow(queued_unavailable_job).to receive(:state).and_return(Nanoci::Build::State::QUEUED)
+    allow(queued_unavailable_job).to receive(:required_agent_capabilities)
+
+    stage = double('stage')
+    allow(stage).to receive(:jobs).and_return([queued_job])
+
+    build = double('queued_build')
+    allow(build).to receive(:run)
+    allow(build).to receive(:state).and_return(Nanoci::Build::State::QUEUED)
+    allow(build).to receive(:current_stage).and_return(stage)
+
+    job_scheduler = Nanoci::JobScheduler.new(agent_manager)
+    job_scheduler.run_build(build)
+    job_scheduler.schedule_builds
+
+    expect(agent).to have_received(:run_job).with queued_job
+    expect(agent).not_to have_received(:run_job).with queued_unavailable_job
+  end
+end
