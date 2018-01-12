@@ -18,10 +18,5 @@ class Nanoci
       @stages = []
       @variables = {}
     end
-
-    def trigger_build(trigger)
-      build = Build.new(self, trigger, [])
-      Nanoci.run_build(build)
-    end
   end
 end

@@ -2,6 +2,7 @@ require 'eventmachine'
 require 'yaml'
 
 require 'nanoci/agent_manager'
+require 'nanoci/build_scheduler'
 require 'nanoci/config'
 require 'nanoci/options'
 require 'nanoci/plugin_loader'
@@ -12,7 +13,7 @@ require 'nanoci/project_loader'
 class Nanoci
   class << self
     attr_accessor :agent_manager
-    attr_accessor :job_scheduler
+    attr_accessor :build_scheduler
   end
 
   def self.main(args)
@@ -23,11 +24,11 @@ class Nanoci
 
     PluginLoader.load(File.expand_path(config.plugins_path))
 
-    project = ProjectLoader.load(options.project) unless options.project.nil?
-
+    project = ProjectLoader.load(options.project)
     EventMachine.run do
-      run_triggers(project)
-      run_job_scheduler(config.job_scheduler_interval)
+      run_build_scheduler(config.job_scheduler_interval)
+
+      run_triggers(project, build_scheduler)
     end
   end
 
@@ -35,19 +36,19 @@ class Nanoci
     self.agent_manager = AgentManager.new(config.local_agents)
   end
 
-  def self.run_triggers(project)
+  def self.run_triggers(project, build_scheduler)
     project.repos.each do |repo|
-      repo.triggers.each { |trigger| trigger.run(repo, project) }
+      repo.triggers.each { |trigger| trigger.run(repo, project, build_scheduler) }
     end
   end
 
   def self.run_job_scheduler(interval)
-    self.job_scheduler = JobScheduler.new(self.agents_manager)
+    self.build_scheduler = BuildScheduler.new(agents_manager)
     job.scheduler.run(interval)
   end
 
   def self.run_build(build)
-    self.job_scheduler.run_build(build)
+    job_scheduler.run_build(build)
     puts "Starting build #{build.tag} at #{build.start_time}"
   end
 end
