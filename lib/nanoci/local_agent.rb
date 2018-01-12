@@ -6,7 +6,7 @@ class Nanoci
     def run_job(job)
       super(job)
 
-      job.state = Build.State::RUNNING
+      job.state = Build::State::RUNNING
     end
   end
 end
