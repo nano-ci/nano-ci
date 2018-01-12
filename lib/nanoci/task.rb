@@ -13,7 +13,7 @@ class Nanoci
     end
 
     def required_agent_capabilities(_project)
-      []
+      Set[]
     end
   end
 end
