@@ -66,7 +66,8 @@ class Nanoci
       self.number = Build.next_number(@project.tag)
       @tag = "#{@project.tag}-#{number}"
       @current_stage = BuildStage.new(@project.stages[0])
-      @commits = @project.repos.map { |r| [r.tag, r.current_commit] }.to_h
+      @commits = Hash[@project.repos
+                              .map { |t, r| [t, r.current_commit] }]
     end
   end
 end

@@ -92,7 +92,7 @@ class Nanoci
     end
 
     def self.read_variables(hash, field)
-      read_array(hash, field, method(:read_variable))
+      Hash[read_array(hash, field, method(:read_variable)).map {|v| [v.tag, v]}]
     end
 
     def self.read_variable(hash)

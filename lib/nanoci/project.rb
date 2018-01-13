@@ -7,9 +7,21 @@ class Nanoci
   class Project
     attr_accessor :name
     attr_accessor :tag
-    attr_accessor :repos
     attr_accessor :stages
-    attr_accessor :variables
+
+    attr_reader :repos
+
+    def repos=(value)
+      raise 'value is not a Hash' unless value.is_a? Hash
+      @repos = value
+    end
+
+    attr_reader :variables
+
+    def variables=(value)
+      raise 'value is not a Hash' unless value.is_a? Hash
+      @variables = value
+    end
 
     def initialize(hash = {})
       @name = hash['name']

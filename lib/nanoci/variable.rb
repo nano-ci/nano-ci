@@ -6,7 +6,7 @@ class Nanoci
     attr_accessor :tag
     attr_accessor :value
 
-    PATTERN = /$\{[^\}]+\}/
+    PATTERN = /\$\{([^\}]+)\}/
 
     def initialize(hash = {})
       @tag = hash['tag']
@@ -16,8 +16,8 @@ class Nanoci
     def expand(variables)
       result = value
       until (match = PATTERN.match(result)).nil?
-        raise "Cycle in expanding variable #{tag}" if match[0] == tag
-        result = value.replace(match[0], variables[match[1]] || '')
+        raise "Cycle in expanding variable #{tag}" if match[1] == tag
+        result = value.sub(match[0], variables[match[1]]&.value || '')
       end
       result
     end
