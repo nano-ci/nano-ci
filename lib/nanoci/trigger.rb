@@ -12,9 +12,6 @@ class Nanoci
       @type = hash['type']
     end
 
-    def run(repo, project)
-      @repo = repo
-      @project = project
-    end
+    def run(repo, project) end
   end
 end
