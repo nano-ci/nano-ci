@@ -147,9 +147,7 @@ RSpec.describe Nanoci::Build do
     stage = Nanoci::Stage.new('tag' => 'test')
     stage.jobs = [job]
     project.stages = [stage]
-    project.repos = [
-      TestRepo.new('tag' => 'repo-1')
-    ]
+    project.repos = { 'repo-1' => TestRepo.new('tag' => 'repo-1') }
     trigger = Nanoci::Trigger.new
     build = Nanoci::Build.run(project, trigger, {})
     expect(build.commits).to include 'repo-1'

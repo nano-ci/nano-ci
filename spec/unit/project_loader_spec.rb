@@ -37,8 +37,9 @@ RSpec.describe Nanoci::ProjectLoader do
     expect(project.stages[0].tag).to eq 'build'
     expect(project.stages[1].tag).to eq 'unit-tests'
     expect(project.stages[2].tag).to eq 'func-tests'
+    expect(project.variables).to be_a Hash
     expect(project.variables.length).to eq 2
-    expect(project.variables[0].tag).to eq 'var1'
-    expect(project.variables[1].tag).to eq 'var2'
+    expect(project.variables['var1'].value).to eq 'abc'
+    expect(project.variables['var2'].value).to eq '${var1}-def'
   end
 end
