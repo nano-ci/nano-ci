@@ -17,7 +17,7 @@ class Nanoci
 
     def self.read_project(hash)
       project = Project.new(hash)
-      project.repos = read_repos(hash, 'repos')
+      project.repos = read_repos(project, hash, 'repos')
       project.stages = read_stages(hash, 'stages')
       project.variables = read_variables(hash, 'variables')
       project
@@ -27,28 +27,28 @@ class Nanoci
       (hash[field] || []).map { |x| map.call(x) }
     end
 
-    def self.read_repos(hash, field)
-      Hash[read_array(hash, field, method(:read_repo)).map {|v| [v.tag, v]}]
+    def self.read_repos(project, hash, field)
+      Hash[read_array(hash, field, ->(h) { read_repo(project, h) }).map {|v| [v.tag, v]}]
     end
 
-    def self.read_repo(hash)
+    def self.read_repo(project, hash)
       type = hash['type']
       repo_class = Repo.types[type]
       raise "Unknown repo type #{type}" if repo_class.nil?
       repo = repo_class.new(hash)
-      repo.triggers = read_triggers(hash, 'triggers')
+      repo.triggers = read_triggers(repo, project, hash, 'triggers')
       repo
     end
 
-    def self.read_triggers(hash, field)
-      read_array(hash, field, method(:read_trigger))
+    def self.read_triggers(repo, project, hash, field)
+      read_array(hash, field, ->(h) { read_trigger(repo, project, h) } )
     end
 
-    def self.read_trigger(hash)
+    def self.read_trigger(repo, project, hash)
       type = hash['type']
       trigger_class = Trigger.types[type]
       raise "Unknown trigger type #{type}" if trigger_class.nil?
-      trigger_class.new(hash)
+      trigger_class.new(repo, project, hash)
     end
 
     def self.read_stages(hash, field)

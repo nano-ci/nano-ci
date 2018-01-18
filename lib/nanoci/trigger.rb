@@ -8,10 +8,12 @@ class Nanoci
 
     attr_accessor :type
 
-    def initialize(hash = {})
+    def initialize(repo, project, hash = {})
+      @repo = repo
+      @project = project
       @type = hash['type']
     end
 
-    def run(repo, project) end
+    def run ; end
   end
 end

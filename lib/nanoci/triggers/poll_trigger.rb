@@ -8,13 +8,13 @@ class Nanoci
       attr_accessor :interval
       attr_accessor :schedule
 
-      def initialize(hash = {})
-        super(hash)
+      def initialize(repo, project, hash = {})
+        super(repo, project, hash)
         @interval = hash['interval']
         @schedule = hash['schedule']
       end
 
-      def run(*args)
+      def run
         super
 
         EventMachine.add_periodic_timer(interval) do
