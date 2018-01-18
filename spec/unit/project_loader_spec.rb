@@ -12,8 +12,6 @@ class ProjectLoaderTestRepo < Nanoci::Repo
   end
 end
 
-Nanoci::Repo.types['git'] = ProjectLoaderTestRepo
-
 class ProjectLoaderTestTask < Nanoci::Task
   attr_accessor :data
   def initialize(data)
@@ -28,6 +26,17 @@ Nanoci::Task.types['make'] = ProjectLoaderTestTask
 Nanoci::Task.types['source-control'] = ProjectLoaderTestTask
 
 RSpec.describe Nanoci::ProjectLoader do
+  original_git_repo = nil
+
+  before(:all) do
+    original_git_repo = Nanoci::Repo.types['git']
+    Nanoci::Repo.types['git'] = ProjectLoaderTestRepo
+  end
+
+  after(:all) do
+    Nanoci::Repo.types['git'] = original_git_repo
+  end
+
   it 'reads project properties from yaml' do
     project = Nanoci::ProjectLoader.load('samples/sample.nanoci')
 
