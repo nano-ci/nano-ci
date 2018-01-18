@@ -108,7 +108,7 @@ RSpec.describe Nanoci::BuildScheduler do
     allow(queued_unavailable_job).to receive(:required_agent_capabilities)
 
     stage = double('stage')
-    allow(stage).to receive(:jobs).and_return([queued_job])
+    allow(stage).to receive(:jobs).and_return([queued_job, queued_unavailable_job])
 
     build = double('queued_build')
     allow(build).to receive(:run)
@@ -121,5 +121,43 @@ RSpec.describe Nanoci::BuildScheduler do
 
     expect(agent).to have_received(:run_job).with queued_job
     expect(agent).not_to have_received(:run_job).with queued_unavailable_job
+  end
+
+  it 'adds periodic timer when run' do
+    event_machine = class_double(EventMachine).as_stubbed_const
+    expect(event_machine).to receive(:add_periodic_timer).with(5)
+
+    build_scheduler = Nanoci::BuildScheduler.new(nil)
+    build_scheduler.run(5)
+  end
+
+  it 'shedules build when timer fires' do
+    agent = double(agent)
+    allow(agent).to receive(:run_job)
+
+    agent_manager = double('agent_manager')
+    allow(agent_manager).to receive(:find_agent).and_return(agent)
+
+    queued_job = double('queued_job')
+    allow(queued_job).to receive(:state).and_return(Nanoci::Build::State::QUEUED)
+    allow(queued_job).to receive(:required_agent_capabilities)
+
+    stage = double('stage')
+    allow(stage).to receive(:jobs).and_return([queued_job])
+
+    build = double('queued_build')
+    allow(build).to receive(:run)
+    allow(build).to receive(:state).and_return(Nanoci::Build::State::QUEUED)
+    allow(build).to receive(:current_stage).and_return(stage)
+
+    build_scheduler = Nanoci::BuildScheduler.new(agent_manager)
+    build_scheduler.run_build(build)
+
+    event_machine = class_double(EventMachine).as_stubbed_const
+    allow(event_machine).to receive(:add_periodic_timer).and_yield
+
+    build_scheduler.run(1)
+
+    expect(agent).to have_received(:run_job).with queued_job
   end
 end
