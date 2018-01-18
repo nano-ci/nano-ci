@@ -15,9 +15,9 @@ class Nanoci
       end
 
       def required_agent_capabilities(project)
-        repo = project[repo_tag]
+        repo = project.repos[repo_tag]
         rase "Missing repo definition #{repo_tag}" if repo.nil?
-        super.required_capabilities(project) + repo.required_agent_capabilities
+        super(project) + repo.required_agent_capabilities
       end
     end
 
