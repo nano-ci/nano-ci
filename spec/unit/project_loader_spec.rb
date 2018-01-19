@@ -38,7 +38,7 @@ RSpec.describe Nanoci::ProjectLoader do
   end
 
   it 'reads project properties from yaml' do
-    project = Nanoci::ProjectLoader.load('samples/sample.nanoci')
+    project = Nanoci::ProjectLoader.new.load('samples/sample.nanoci')
 
     expect(project).not_to be_nil
     expect(project.repos).to include 'main-repo'

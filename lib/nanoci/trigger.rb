@@ -14,6 +14,12 @@ class Nanoci
       @type = hash['type']
     end
 
-    def run ; end
+    def run(build_scheduler)
+      @build_scheduler = build_scheduler
+    end
+
+    def trigger_build
+      @build_scheduler.trigger_build(@project, self) if @repo.detect_changes
+    end
   end
 end

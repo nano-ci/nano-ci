@@ -1,4 +1,5 @@
 require 'eventmachine'
+require 'logging'
 require 'yaml'
 
 require 'nanoci/agent_manager'
@@ -24,7 +25,7 @@ class Nanoci
 
     PluginLoader.load(File.expand_path(config.plugins_path))
 
-    project = ProjectLoader.load(options.project)
+    project = ProjectLoader.new.load(options.project)
     EventMachine.run do
       run_build_scheduler(config.job_scheduler_interval)
 
@@ -37,14 +38,14 @@ class Nanoci
   end
 
   def self.run_triggers(project, build_scheduler)
-    project.repos.each do |repo|
-      repo.triggers.each { |trigger| trigger.run(repo, project, build_scheduler) }
+    project.repos.each do |key, repo|
+      repo.triggers.each { |trigger| trigger.run(build_scheduler) }
     end
   end
 
-  def self.run_job_scheduler(interval)
-    self.build_scheduler = BuildScheduler.new(agents_manager)
-    job.scheduler.run(interval)
+  def self.run_build_scheduler(interval)
+    self.build_scheduler = BuildScheduler.new(agent_manager)
+    build_scheduler.run(interval)
   end
 
   def self.run_build(build)

@@ -11,6 +11,11 @@ class Nanoci
       @builds = []
     end
 
+    def trigger_build(project, trigger)
+      build = Nanoci::Build.new(project, trigger, {})
+      run_build(build)
+    end
+
     def run_build(build)
       @builds.push(build)
       build.run
