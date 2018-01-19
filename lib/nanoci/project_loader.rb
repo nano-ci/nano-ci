@@ -6,6 +6,7 @@ require 'nanoci/repo'
 require 'nanoci/triggers/poll_trigger'
 require 'nanoci/stage'
 require 'nanoci/task'
+require 'nanoci/tasks/all'
 require 'nanoci/variable'
 
 class Nanoci
