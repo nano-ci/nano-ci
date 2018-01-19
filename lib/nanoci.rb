@@ -36,6 +36,8 @@ class Nanoci
     project = ProjectLoader.new.load(options.project)
     @log.info "read project #{project.tag}"
 
+    @log.info 'nano-ci is running'
+
     EventMachine.run do
       run_build_scheduler(config.job_scheduler_interval)
 

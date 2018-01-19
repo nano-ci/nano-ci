@@ -1,3 +1,4 @@
+require 'logging'
 require 'eventmachine'
 
 require 'nanoci/build'
@@ -7,11 +8,13 @@ class Nanoci
     attr_accessor :builds
 
     def initialize(agents_manager)
+      @log = Logging.logger[self]
       @agents_manager = agents_manager
       @builds = []
     end
 
     def trigger_build(project, trigger)
+      @log.info "a new build of project #{project.tag} triggered by #{trigger}"
       build = Nanoci::Build.run(project, trigger, {})
       run_build(build)
     end

@@ -1,3 +1,5 @@
+require 'logging'
+
 require 'nanoci/build_stage'
 
 class Nanoci
@@ -59,6 +61,7 @@ class Nanoci
     private
 
     def initialize(project, trigger, variables)
+      @log = Logging.logger[self]
       @project = project
       @trigger = trigger
       @variables = variables
@@ -68,6 +71,10 @@ class Nanoci
       @current_stage = BuildStage.new(@project.stages[0])
       @commits = Hash[@project.repos
                               .map { |t, r| [t, r.current_commit] }]
+
+      @log.info "build #{tag} started at #{start_time}"
+      @log.info "commits:\n #{commits}"
+      @log.info "variables: \n #{variables}"
     end
   end
 end
