@@ -26,13 +26,13 @@ class Nanoci
     def read_project(hash)
       project = Project.new(hash)
       project.repos = read_repos(project, hash, 'repos')
-      project.stages = read_stages(hash, 'stages')
+      project.stages = read_stages(project, hash, 'stages')
       project.variables = read_variables(hash, 'variables')
       project
     end
 
     def read_array(hash, field, map)
-      (hash[field] || []).map { |x| map.call(x) }
+      (hash[field] || []).map { |x| map.call(x) }.reject { |x| x.nil? }
     end
 
     def read_repos(project, hash, field)
@@ -44,7 +44,7 @@ class Nanoci
       repo_class = Repo.types[type]
       if repo_class.nil?
         log.warn "Unknown repo type #{type}"
-        return
+        return nil
       end
       repo = repo_class.new(hash)
       repo.triggers = read_triggers(repo, project, hash, 'triggers')
@@ -60,27 +60,27 @@ class Nanoci
       trigger_class = Trigger.types[type]
       if trigger_class.nil?
         log.warn "Unknown trigger type #{type}"
-        return
+        return nil
       end
       trigger_class.new(repo, project, hash)
     end
 
-    def read_stages(hash, field)
-      read_array(hash, field, method(:read_stage))
+    def read_stages(project, hash, field)
+      read_array(hash, field, ->(h) { read_stage(project, h)} )
     end
 
-    def read_stage(hash)
+    def read_stage(project, hash)
       stage = Stage.new(hash)
-      stage.jobs = read_jobs(hash, 'jobs')
+      stage.jobs = read_jobs(project, hash, 'jobs')
       stage
     end
 
-    def read_jobs(hash, field)
-      read_array(hash, field, method(:read_job))
+    def read_jobs(project, hash, field)
+      read_array(hash, field, ->(h) { read_job(project, h) } )
     end
 
-    def read_job(hash)
-      job = Job.new(hash)
+    def read_job(project, hash)
+      job = Job.new(project, hash)
       job.tasks = read_tasks(hash, 'tasks')
       job.artifacts = read_artifacts(hash, 'artfacts')
       job
@@ -95,7 +95,7 @@ class Nanoci
       task_class = Task.types[type]
       if task_class.nil?
         log.warn "Unknown task type #{type}"
-        return
+        return nil
       end
       task_class.new(hash)
     end
