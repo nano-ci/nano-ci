@@ -7,27 +7,15 @@ RSpec.describe Nanoci::BuildScheduler do
   it 'stores build in builds collection when build is run' do
     build_scheduler = Nanoci::BuildScheduler.new(nil)
     build = double('build')
-    allow(build).to receive(:run)
 
     build_scheduler.run_build(build)
 
     expect(build_scheduler.builds).to include build
   end
 
-  it 'runs the build  when method run_build called' do
-    build_scheduler = Nanoci::BuildScheduler.new(nil)
-    build = double('build')
-    allow(build).to receive(:run)
-
-    build_scheduler.run_build(build)
-
-    expect(build).to have_received(:run)
-  end
-
   it 'queued_builds returns array of builds in state QUEUED' do
     build_scheduler = Nanoci::BuildScheduler.new(nil)
     queued_build = double('queued_build')
-    allow(queued_build).to receive(:run)
     allow(queued_build).to receive(:state).and_return(Nanoci::Build::State::QUEUED)
 
     running_build = double('running_build')
@@ -44,7 +32,6 @@ RSpec.describe Nanoci::BuildScheduler do
   it 'queued_builds returns array of jobs in state QUEUED' do
     build_scheduler = Nanoci::BuildScheduler.new(nil)
     build = double('build')
-    allow(build).to receive(:run)
     allow(build).to receive(:state)
 
     queued_job = double('queued_job')
@@ -81,7 +68,6 @@ RSpec.describe Nanoci::BuildScheduler do
     allow(stage).to receive(:jobs).and_return([queued_job])
 
     build = double('queued_build')
-    allow(build).to receive(:run)
     allow(build).to receive(:state).and_return(Nanoci::Build::State::QUEUED)
     allow(build).to receive(:current_stage).and_return(stage)
 
@@ -111,7 +97,6 @@ RSpec.describe Nanoci::BuildScheduler do
     allow(stage).to receive(:jobs).and_return([queued_job, queued_unavailable_job])
 
     build = double('queued_build')
-    allow(build).to receive(:run)
     allow(build).to receive(:state).and_return(Nanoci::Build::State::QUEUED)
     allow(build).to receive(:current_stage).and_return(stage)
 

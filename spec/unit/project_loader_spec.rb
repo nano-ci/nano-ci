@@ -44,6 +44,8 @@ RSpec.describe Nanoci::ProjectLoader do
     expect(project.repos).to include 'main-repo'
     expect(project.stages.length).to eq 3
     expect(project.stages[0].tag).to eq 'build'
+    expect(project.stages[0].jobs[0].project).to eq project
+    expect(project.stages[0].jobs[0].tag).to eq 'checkout-and-build'
     expect(project.stages[1].tag).to eq 'unit-tests'
     expect(project.stages[2].tag).to eq 'func-tests'
     expect(project.variables).to be_a Hash

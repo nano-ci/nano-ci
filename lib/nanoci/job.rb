@@ -1,4 +1,4 @@
-require 'nanoci/artifact'
+require 'nanoci/project'
 require 'nanoci/task'
 
 class Nanoci

@@ -1,5 +1,4 @@
 require 'nanoci'
-require 'nanoci/build'
 
 class Nanoci
   ##
