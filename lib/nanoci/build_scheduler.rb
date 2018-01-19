@@ -30,15 +30,21 @@ class Nanoci
     end
 
     def schedule_builds
+      @log.debug 'scheduling the builds...'
       queued_builds.each do |b|
         schedule_build(b)
       end
+      @log.debug 'processed all builds in the queue'
     end
 
     def schedule_build(build)
       queued_jobs(build).each_entry do |j|
+        @log.debug "looking for a capable agent to run the job #{build.tag}-#{j.definition.tag}"
         agent = @agents_manager.find_agent(j.required_agent_capabilities)
-        next if agent.nil?
+        if agent.nil?
+          @log.info "no agents available to run the job #{build.tag}-#{j.definition.tag}"
+          next
+        end
         agent.run_job(j)
       end
     end
