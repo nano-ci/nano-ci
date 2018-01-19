@@ -1,4 +1,5 @@
 require 'eventmachine'
+require 'logging'
 
 require 'nanoci/build'
 require 'nanoci/trigger'
@@ -11,6 +12,9 @@ class Nanoci
 
       def initialize(repo, project, hash = {})
         super(repo, project, hash)
+
+        @log = Logging.logger[self]
+
         @interval = hash['interval']
         @schedule = hash['schedule']
       end
@@ -19,6 +23,7 @@ class Nanoci
         super(build_scheduler)
 
         EventMachine.add_periodic_timer(interval) do
+          @log.info "checking repo #{@repo.tag} for new changes"
           trigger_build
         end
       end
