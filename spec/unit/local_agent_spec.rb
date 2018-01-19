@@ -9,6 +9,7 @@ RSpec.describe Nanoci::LocalAgent do
     allow(job).to receive(:state=) do |s|
       expect(s).to eq Nanoci::Build::State::RUNNING
     end
+    allow(job).to receive(:tag).and_return('abc-1-def')
 
     config = double('config')
     allow(config).to receive(:name).and_return('test agent')

@@ -14,7 +14,7 @@ class Nanoci
     end
 
     def run_job(job)
-      @log.info "running job #{job.definition.tag} on #{name}"
+      @log.info "running job #{job.tag} on #{name}"
       self.current_job = job
     end
   end

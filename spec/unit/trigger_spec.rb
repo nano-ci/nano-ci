@@ -11,6 +11,7 @@ RSpec.describe Nanoci::Trigger do
   it 'calls build_scheduler.trigger_build is repo.detect_changes returns true' do
     repo = double('repo')
     allow(repo).to receive(:detect_changes).and_return(true)
+    allow(repo).to receive(:tag).and_return('abc')
     project = double('project')
 
     trigger = Nanoci::Trigger.new(repo, project, 'interval' => 5)

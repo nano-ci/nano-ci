@@ -14,13 +14,17 @@ class Nanoci
     end
 
     def trigger_build(project, trigger)
+      if builds.any? { |x| x.project.tag == project.tag}
+        @log.warn "cannot start another build for the project #{project.tag}"
+        return
+      end
       @log.info "a new build of project #{project.tag} triggered by #{trigger}"
       build = Nanoci::Build.run(project, trigger, {})
       run_build(build)
     end
 
     def run_build(build)
-      @builds.push(build)
+      builds.push(build)
     end
 
     def run(interval)
@@ -39,10 +43,10 @@ class Nanoci
 
     def schedule_build(build)
       queued_jobs(build).each_entry do |j|
-        @log.debug "looking for a capable agent to run the job #{build.tag}-#{j.definition.tag}"
+        @log.debug "looking for a capable agent to run the job #{build.tag}-#{j.tag}"
         agent = @agents_manager.find_agent(j.required_agent_capabilities)
         if agent.nil?
-          @log.info "no agents available to run the job #{build.tag}-#{j.definition.tag}"
+          @log.info "no agents available to run the job #{build.tag}-#{j.tag}"
           next
         end
         agent.run_job(j)

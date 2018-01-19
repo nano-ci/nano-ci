@@ -5,6 +5,10 @@ class Nanoci
     attr_accessor :definition
     attr_accessor :state
 
+    def tag
+      definition.tag
+    end
+
     def initialize(definition)
       @definition = definition
       @state = Build::State::UNKNOWN

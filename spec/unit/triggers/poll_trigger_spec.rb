@@ -23,6 +23,7 @@ RSpec.describe Nanoci::Triggers::PollTrigger do
   it 'calls build_scheduler.trigger_build is repo.detect_changes returns true' do
     repo = double('repo')
     allow(repo).to receive(:detect_changes).and_return(true)
+    allow(repo).to receive(:tag).and_return('abc')
     project = double('project')
 
     trigger = Nanoci::Triggers::PollTrigger.new(repo, project, 'interval' => 5)
@@ -38,6 +39,7 @@ RSpec.describe Nanoci::Triggers::PollTrigger do
   it 'does not call project.trigger_build is repo.detect_changes returns false' do
     repo = double('repo')
     allow(repo).to receive(:detect_changes).and_return(false)
+    allow(repo).to receive(:tag).and_return('abc')
     project = double('project')
 
     trigger = Nanoci::Triggers::PollTrigger.new(repo, project, 'interval' => 5)

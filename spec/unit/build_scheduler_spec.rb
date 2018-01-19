@@ -17,10 +17,12 @@ RSpec.describe Nanoci::BuildScheduler do
     build_scheduler = Nanoci::BuildScheduler.new(nil)
     queued_build = double('queued_build')
     allow(queued_build).to receive(:state).and_return(Nanoci::Build::State::QUEUED)
+    allow(queued_build).to receive(:tag).and_return('abc-1')
 
     running_build = double('running_build')
     allow(running_build).to receive(:run)
     allow(running_build).to receive(:state).and_return(Nanoci::Build::State::RUNNING)
+    allow(running_build).to receive(:tag).and_return('abc-1')
 
     build_scheduler.run_build(queued_build)
     build_scheduler.run_build(running_build)
@@ -59,10 +61,12 @@ RSpec.describe Nanoci::BuildScheduler do
     queued_job = double('queued_job')
     allow(queued_job).to receive(:state).and_return(Nanoci::Build::State::QUEUED)
     allow(queued_job).to receive(:required_agent_capabilities)
+    allow(queued_job).to receive(:tag).and_return('abc-1-def')
 
     queued_unavailable_job = double('queued_unavailable_job')
     allow(queued_unavailable_job).to receive(:state).and_return(Nanoci::Build::State::QUEUED)
     allow(queued_unavailable_job).to receive(:required_agent_capabilities)
+    allow(queued_unavailable_job).to receive(:tag).and_return('abc-1-def')
 
     stage = double('stage')
     allow(stage).to receive(:jobs).and_return([queued_job])
@@ -70,6 +74,7 @@ RSpec.describe Nanoci::BuildScheduler do
     build = double('queued_build')
     allow(build).to receive(:state).and_return(Nanoci::Build::State::QUEUED)
     allow(build).to receive(:current_stage).and_return(stage)
+    allow(build).to receive(:tag).and_return('abc-1')
 
     build_scheduler = Nanoci::BuildScheduler.new(agent_manager)
     build_scheduler.schedule_build(build)
@@ -88,10 +93,12 @@ RSpec.describe Nanoci::BuildScheduler do
     queued_job = double('queued_job')
     allow(queued_job).to receive(:state).and_return(Nanoci::Build::State::QUEUED)
     allow(queued_job).to receive(:required_agent_capabilities)
+    allow(queued_job).to receive(:tag).and_return('abc-1-def')
 
     queued_unavailable_job = double('queued_unavailable_job')
     allow(queued_unavailable_job).to receive(:state).and_return(Nanoci::Build::State::QUEUED)
     allow(queued_unavailable_job).to receive(:required_agent_capabilities)
+    allow(queued_unavailable_job).to receive(:tag).and_return('abc-1-def')
 
     stage = double('stage')
     allow(stage).to receive(:jobs).and_return([queued_job, queued_unavailable_job])
@@ -99,6 +106,7 @@ RSpec.describe Nanoci::BuildScheduler do
     build = double('queued_build')
     allow(build).to receive(:state).and_return(Nanoci::Build::State::QUEUED)
     allow(build).to receive(:current_stage).and_return(stage)
+    allow(build).to receive(:tag).and_return('abc-1')
 
     build_scheduler = Nanoci::BuildScheduler.new(agent_manager)
     build_scheduler.run_build(build)
@@ -126,6 +134,7 @@ RSpec.describe Nanoci::BuildScheduler do
     queued_job = double('queued_job')
     allow(queued_job).to receive(:state).and_return(Nanoci::Build::State::QUEUED)
     allow(queued_job).to receive(:required_agent_capabilities)
+    allow(queued_job).to receive(:tag).and_return('abc-1-def')
 
     stage = double('stage')
     allow(stage).to receive(:jobs).and_return([queued_job])
@@ -134,6 +143,7 @@ RSpec.describe Nanoci::BuildScheduler do
     allow(build).to receive(:run)
     allow(build).to receive(:state).and_return(Nanoci::Build::State::QUEUED)
     allow(build).to receive(:current_stage).and_return(stage)
+    allow(build).to receive(:tag).and_return('abc-1')
 
     build_scheduler = Nanoci::BuildScheduler.new(agent_manager)
     build_scheduler.run_build(build)
@@ -144,5 +154,26 @@ RSpec.describe Nanoci::BuildScheduler do
     build_scheduler.run(1)
 
     expect(agent).to have_received(:run_job).with queued_job
+  end
+
+  it 'does not triggers multiple builds for the same project' do
+    build_scheduler = Nanoci::BuildScheduler.new(nil)
+    project = double('project')
+    allow(project).to receive(:tag).and_return 'project-abc'
+    allow(project).to receive(:variables).and_return({})
+    queued_job = double('queued_job')
+    allow(queued_job).to receive(:state).and_return(Nanoci::Build::State::QUEUED)
+    allow(queued_job).to receive(:required_agent_capabilities)
+    allow(queued_job).to receive(:tag).and_return('abc-1-def')
+
+    stage = double('stage')
+    allow(stage).to receive(:jobs).and_return([queued_job])
+    allow(project).to receive(:stages).and_return([stage])
+    allow(project).to receive(:repos).and_return({})
+
+    build_scheduler.trigger_build(project, nil)
+    build_scheduler.trigger_build(project, nil)
+
+    expect(build_scheduler.builds.length).to eq 1
   end
 end

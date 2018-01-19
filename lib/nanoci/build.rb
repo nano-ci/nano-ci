@@ -42,6 +42,7 @@ class Nanoci
     attr_accessor :trigger
     attr_accessor :start_time
     attr_accessor :end_time
+    attr_accessor :stages
     attr_accessor :current_stage
     attr_accessor :commits
     attr_accessor :variables
@@ -68,7 +69,8 @@ class Nanoci
       @start_time = Time.now
       self.number = Build.next_number(@project.tag)
       @tag = "#{@project.tag}-#{number}"
-      @current_stage = BuildStage.new(@project.stages[0])
+      @stages = @project.stages.map { |x| BuildStage.new(x) }
+      @current_stage = @stages[0]
       @commits = Hash[@project.repos
                               .map { |t, r| [t, r.current_commit] }]
 
