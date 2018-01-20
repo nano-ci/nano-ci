@@ -23,7 +23,12 @@ class Nanoci
       end
 
       def capabilities
-        Set.new(@src['capabilities'] || [])
+        Set.new (@src['capabilities'] || []).map do |x|
+          case x
+          when String then AgentCapability.new(x, nil)
+          when Hash then AgentCapability.new(x.entries[0][0], x.entries[0][1])
+          end
+        end
       end
 
       def agents
@@ -41,7 +46,12 @@ class Nanoci
       end
 
       def capabilities
-        Set.new(@src['capabilities'] || [])
+        Set.new (@src['capabilities'] || []).map do |x|
+          case x
+          when String then AgentCapability.new(x, nil)
+          when Hash then AgentCapability.new(x.entries[0][0], x.entries[0][1])
+          end
+        end
       end
     end
   end

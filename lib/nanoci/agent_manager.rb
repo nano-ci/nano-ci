@@ -1,3 +1,5 @@
+require 'set'
+
 require 'nanoci/local_agent'
 
 class Nanoci
@@ -10,7 +12,8 @@ class Nanoci
 
     def find_agent(required_agent_capabilities)
       @agents.find do |a|
-        a.capabilities.superset?(required_agent_capabilities) &&
+        a.capabilities.map(&:name).to_set
+         .superset?(required_agent_capabilities) &&
           a.current_job.nil?
       end
     end

@@ -1,5 +1,6 @@
 require 'spec_helper'
 
+require 'nanoci/agent_capability'
 require 'nanoci/config'
 
 RSpec.describe Nanoci::Config do
@@ -42,10 +43,11 @@ RSpec.describe Nanoci::Config::LocalAgentsConfig do
   end
 
   it 'property capabilities returns set with values from src' do
-    config = Nanoci::Config::LocalAgentsConfig.new('capabilities' => ['abc'])
+    config = Nanoci::Config::LocalAgentsConfig.new('capabilities' => ['abc', {'def' => 'ghi'}])
     expect(config.capabilities).to be_a(Set)
-    expect(config.capabilities.length).to eq 1
-    expect(config.capabilities).to include 'abc'
+    expect(config.capabilities.length).to eq 2
+    expect(config.capabilities).to include Nanoci::AgentCapability.new('abc', nil)
+    expect(config.capabilities).to include Nanoci::AgentCapability.new('def', 'ghi')
   end
 
   it 'property agents returns empty array if the src value is absent' do
@@ -70,8 +72,9 @@ RSpec.describe Nanoci::Config::LocalAgentConfig do
   end
 
   it 'property capabilities returns a set with the src values' do
-    config = Nanoci::Config::LocalAgentConfig.new('capabilities' => ['abc'])
+    config = Nanoci::Config::LocalAgentConfig.new('capabilities' => ['abc', { 'def' => 'ghi' }])
     expect(config.capabilities).to be_a(Set)
-    expect(config.capabilities).to include 'abc'
+    expect(config.capabilities).to include Nanoci::AgentCapability.new('abc', nil)
+    expect(config.capabilities).to include Nanoci::AgentCapability.new('def', 'ghi')
   end
 end

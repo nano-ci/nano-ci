@@ -22,7 +22,7 @@ RSpec.describe Nanoci::Agent do
     )
 
     agent = Nanoci::Agent.new(config, Set[])
-    expect(agent.capabilities).to include('test.cap')
+    expect(agent.capabilities).to include Nanoci::AgentCapability.new('test.cap', nil)
   end
 
   it 'merges agent capabilities from config with common capabilities' do
@@ -31,8 +31,8 @@ RSpec.describe Nanoci::Agent do
       'capabilities' => ['test.cap']
     )
 
-    agent = Nanoci::Agent.new(config, Set['test.common'])
-    expect(agent.capabilities).to include('test.common')
+    agent = Nanoci::Agent.new(config, Set[Nanoci::AgentCapability.new('test.common', nil)])
+    expect(agent.capabilities).to include Nanoci::AgentCapability.new('test.common', nil)
   end
 
   it 'sets current job when it runs a job' do

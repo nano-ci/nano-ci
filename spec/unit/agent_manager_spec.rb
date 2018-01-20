@@ -27,7 +27,7 @@ RSpec.describe Nanoci::AgentManager do
     )
 
     agent_manager = Nanoci::AgentManager.new(config)
-    expect(agent_manager.agents[0].capabilities).to include('test')
+    expect(agent_manager.agents[0].capabilities).to include Nanoci::AgentCapability.new('test', nil)
   end
 
   it 'find agent with requested capabilities' do
