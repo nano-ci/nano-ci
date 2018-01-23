@@ -14,6 +14,7 @@ RSpec.describe Nanoci::LocalAgent do
     config = double('config')
     allow(config).to receive(:name).and_return('test agent')
     allow(config).to receive(:capabilities).and_return(Set['test'])
+    allow(config).to receive(:workdir).and_return('/abc')
     local_agent = Nanoci::LocalAgent.new(config, Set[])
     local_agent.run_job(job)
   end

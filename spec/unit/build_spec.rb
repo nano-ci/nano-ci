@@ -181,4 +181,17 @@ RSpec.describe Nanoci::Build do
     expect(build.current_stage.state).to eq Nanoci::Build::State::FAILED
     expect(build.state).to eq build.current_stage.state
   end
+
+  it 'workdir equals to agent workdir + build tag' do
+    project = Nanoci::Project.new('tag' => 'project-path-test', 'name' => 'test project')
+    job = Nanoci::Job.new(project, 'tag' => 'test-job')
+    stage = Nanoci::Stage.new('tag' => 'test')
+    stage.jobs = [job]
+    project.stages = [stage]
+    build = Nanoci::Build.run(project, nil, {})
+    agent = double('agent')
+    allow(agent).to receive(:workdir).and_return '/abc'
+
+    expect(build.workdir(agent)).to eq '/abc/project-path-test-1'
+  end
 end

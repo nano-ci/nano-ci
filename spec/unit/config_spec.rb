@@ -71,6 +71,11 @@ RSpec.describe Nanoci::Config::LocalAgentConfig do
     expect(config.capabilities.length).to eq 0
   end
 
+  it 'property workdir returns a value from src' do
+    config = Nanoci::Config::LocalAgentConfig.new('workdir' => '/abc')
+    expect(config.workdir).to eq '/abc'
+  end
+
   it 'property capabilities returns a set with the src values' do
     config = Nanoci::Config::LocalAgentConfig.new('capabilities' => ['abc', { 'def' => 'ghi' }])
     expect(config.capabilities).to be_a(Set)

@@ -59,6 +59,10 @@ class Nanoci
       current_stage&.state || State::UNKNOWN
     end
 
+    def workdir(agent)
+      File.join(agent.workdir, tag)
+    end
+
     private
 
     def initialize(project, trigger, variables)

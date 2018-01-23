@@ -53,6 +53,10 @@ class Nanoci
           end
         end
       end
+
+      def workdir
+        @src['workdir']
+      end
     end
   end
 end

@@ -41,4 +41,20 @@ RSpec.describe Nanoci::Tasks::TaskSourceControl do
     task = Nanoci::Tasks::TaskSourceControl.new('repo' => 'abc')
     expect { task.execute(build, nil) }.to raise_error 'Missing repo definition abc'
   end
+
+  it 'execute chdirs to working dir' do
+    repo = double('repo')
+
+    project = double('project')
+    allow(project).to receive(:repos).and_return({ 'abc' => repo })
+
+    build = double('build')
+    allow(build).to receive(:project).and_return(project)
+    agent = double('agent')
+    allow(build).to receive(:workdir).and_return('/def/project-1')
+    task = Nanoci::Tasks::TaskSourceControl.new('repo' => 'abc', 'workdir' => 'abc')
+    dir_double = class_double(Dir).as_stubbed_const
+    expect(dir_double).to receive(:chdir).with('/def/project-1/abc')
+    task.execute(build, agent)
+  end
 end

@@ -25,7 +25,7 @@ class Nanoci
       def execute(build, agent)
         repo = build.project.repos[repo_tag]
         raise "Missing repo definition #{repo_tag}" if repo.nil?
-        Dir.chdir(build.workdir, workdir) do
+        Dir.chdir(File.join(build.workdir(agent), workdir)) do
           case action
           when 'checkout'
             execute_checkout(repo, agent)

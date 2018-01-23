@@ -25,6 +25,17 @@ RSpec.describe Nanoci::Agent do
     expect(agent.capabilities).to include Nanoci::AgentCapability.new('test.cap', nil)
   end
 
+  it 'reads workdir from config' do
+    config = Nanoci::Config::LocalAgentConfig.new(
+      'name' => 'test',
+      'capabilities' => ['test.cap'],
+      'workdir' => '/abc'
+    )
+
+    agent = Nanoci::Agent.new(config, Set[])
+    expect(agent.workdir).to eq '/abc'
+  end
+
   it 'merges agent capabilities from config with common capabilities' do
     config = Nanoci::Config::LocalAgentConfig.new(
       'name' => 'test',
