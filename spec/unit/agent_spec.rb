@@ -11,7 +11,7 @@ RSpec.describe Nanoci::Agent do
       'name' => 'test'
     )
 
-    agent = Nanoci::Agent.new(config, Set[])
+    agent = Nanoci::Agent.new(config, {})
     expect(agent.name).to eq('test')
   end
 
@@ -21,8 +21,8 @@ RSpec.describe Nanoci::Agent do
       'capabilities' => ['test.cap']
     )
 
-    agent = Nanoci::Agent.new(config, Set[])
-    expect(agent.capabilities).to include Nanoci::AgentCapability.new('test.cap', nil)
+    agent = Nanoci::Agent.new(config, {})
+    expect(agent.capability?('test.cap')).to be true
   end
 
   it 'reads workdir from config' do
@@ -32,7 +32,7 @@ RSpec.describe Nanoci::Agent do
       'workdir' => '/abc'
     )
 
-    agent = Nanoci::Agent.new(config, Set[])
+    agent = Nanoci::Agent.new(config, {})
     expect(agent.workdir).to eq '/abc'
   end
 
@@ -42,8 +42,8 @@ RSpec.describe Nanoci::Agent do
       'capabilities' => ['test.cap']
     )
 
-    agent = Nanoci::Agent.new(config, Set[Nanoci::AgentCapability.new('test.common', nil)])
-    expect(agent.capabilities).to include Nanoci::AgentCapability.new('test.common', nil)
+    agent = Nanoci::Agent.new(config, 'test.common' => Nanoci::AgentCapability.new('test.common', nil))
+    expect(agent.capability?('test.common')).to be true
   end
 
   it 'sets current job when it runs a job' do
@@ -51,7 +51,7 @@ RSpec.describe Nanoci::Agent do
       'name' => 'test'
     )
 
-    agent = Nanoci::Agent.new(config, Set[])
+    agent = Nanoci::Agent.new(config, {})
     job = Nanoci::BuildJob.new(Nanoci::Job.new('tag' => 'test'))
     agent.run_job(job)
     expect(agent.current_job).not_to be_nil

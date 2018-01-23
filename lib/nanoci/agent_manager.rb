@@ -12,9 +12,7 @@ class Nanoci
 
     def find_agent(required_agent_capabilities)
       @agents.find do |a|
-        a.capabilities.map(&:name).to_set
-         .superset?(required_agent_capabilities) &&
-          a.current_job.nil?
+        a.capabilities?(required_agent_capabilities) && a.current_job.nil?
       end
     end
   end

@@ -38,16 +38,18 @@ end
 RSpec.describe Nanoci::Config::LocalAgentsConfig do
   it 'property capabilities returns empty set if the src value is absent' do
     config = Nanoci::Config::LocalAgentsConfig.new({})
-    expect(config.capabilities).to be_a(Set)
+    expect(config.capabilities).to be_a(Hash)
     expect(config.capabilities.length).to eq 0
   end
 
   it 'property capabilities returns set with values from src' do
     config = Nanoci::Config::LocalAgentsConfig.new('capabilities' => ['abc', {'def' => 'ghi'}])
-    expect(config.capabilities).to be_a(Set)
+    expect(config.capabilities).to be_a(Hash)
     expect(config.capabilities.length).to eq 2
-    expect(config.capabilities).to include Nanoci::AgentCapability.new('abc', nil)
-    expect(config.capabilities).to include Nanoci::AgentCapability.new('def', 'ghi')
+    expect(config.capabilities.key?('abc')).to be true
+    expect(config.capabilities['abc'].value).to be nil
+    expect(config.capabilities.key?('def')).to be true
+    expect(config.capabilities['def'].value).to eq 'ghi'
   end
 
   it 'property agents returns empty array if the src value is absent' do
@@ -67,7 +69,7 @@ end
 RSpec.describe Nanoci::Config::LocalAgentConfig do
   it 'property capabilities returns an empty set if the src value is absent' do
     config = Nanoci::Config::LocalAgentConfig.new({})
-    expect(config.capabilities).to be_a(Set)
+    expect(config.capabilities).to be_a(Hash)
     expect(config.capabilities.length).to eq 0
   end
 
@@ -78,8 +80,10 @@ RSpec.describe Nanoci::Config::LocalAgentConfig do
 
   it 'property capabilities returns a set with the src values' do
     config = Nanoci::Config::LocalAgentConfig.new('capabilities' => ['abc', { 'def' => 'ghi' }])
-    expect(config.capabilities).to be_a(Set)
-    expect(config.capabilities).to include Nanoci::AgentCapability.new('abc', nil)
-    expect(config.capabilities).to include Nanoci::AgentCapability.new('def', 'ghi')
+    expect(config.capabilities).to be_a(Hash)
+    expect(config.capabilities.key?('abc')).to be true
+    expect(config.capabilities['abc'].value).to eq nil
+    expect(config.capabilities.key?('def')).to be true
+    expect(config.capabilities['def'].value).to eq 'ghi'
   end
 end
