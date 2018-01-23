@@ -18,6 +18,11 @@ RSpec.describe Nanoci::Tasks::TaskSourceControl do
     expect(task.workdir).to eq '/home/project'
   end
 
+  it 'saves branch from src' do
+    task = Nanoci::Tasks::TaskSourceControl.new('branch' => 'master')
+    expect(task.branch).to eq 'master'
+  end
+
   it 'returns required_agent_capabilities from project repo' do
     task = Nanoci::Tasks::TaskSourceControl.new('repo' => 'abc')
     repo = double('repo')
@@ -25,5 +30,15 @@ RSpec.describe Nanoci::Tasks::TaskSourceControl do
     project = double('project')
     expect(project).to receive(:repos).and_return('abc' => repo)
     expect(task.required_agent_capabilities(project)).to include('def')
+  end
+
+  it 'execute fails if repo is missing' do
+    project = double('project')
+    allow(project).to receive(:repos).and_return({ })
+
+    build = double('build')
+    allow(build).to receive(:project).and_return(project)
+    task = Nanoci::Tasks::TaskSourceControl.new('repo' => 'abc')
+    expect { task.execute(build, nil) }.to raise_error 'Missing repo definition abc'
   end
 end

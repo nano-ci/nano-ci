@@ -6,18 +6,36 @@ class Nanoci
       attr_accessor :repo_tag
       attr_accessor :action
       attr_accessor :workdir
+      attr_accessor :branch
 
       def initialize(hash = {})
         super(hash)
         @repo_tag = hash['repo']
         @action = hash['action']
         @workdir = hash['workdir']
+        @branch = hash['branch']
       end
 
       def required_agent_capabilities(project)
         repo = project.repos[repo_tag]
-        rase "Missing repo definition #{repo_tag}" if repo.nil?
+        raise "Missing repo definition #{repo_tag}" if repo.nil?
         super(project) + repo.required_agent_capabilities
+      end
+
+      def execute(build, agent)
+        repo = build.project.repos[repo_tag]
+        raise "Missing repo definition #{repo_tag}" if repo.nil?
+        Dir.chdir(build.workdir, workdir) do
+          case action
+          when 'checkout'
+            execute_checkout(repo, agent)
+          end
+        end
+      end
+
+      def execute_checkout(repo, agent)
+        repo.clone unless repo.exists?
+        repo.checkout branch
       end
     end
 

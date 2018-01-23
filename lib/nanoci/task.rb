@@ -15,5 +15,7 @@ class Nanoci
     def required_agent_capabilities(_project)
       Set[]
     end
+
+    def execute(build, agent); end
   end
 end
