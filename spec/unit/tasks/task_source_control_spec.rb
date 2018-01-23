@@ -46,7 +46,7 @@ RSpec.describe Nanoci::Tasks::TaskSourceControl do
     repo = double('repo')
 
     project = double('project')
-    allow(project).to receive(:repos).and_return({ 'abc' => repo })
+    allow(project).to receive(:repos).and_return('abc' => repo)
 
     build = double('build')
     allow(build).to receive(:project).and_return(project)
@@ -56,5 +56,83 @@ RSpec.describe Nanoci::Tasks::TaskSourceControl do
     dir_double = class_double(Dir).as_stubbed_const
     expect(dir_double).to receive(:chdir).with('/def/project-1/abc')
     task.execute(build, agent)
+  end
+
+  it 'execute calls checkout with branch' do
+    repo = double('repo')
+    allow(repo).to receive(:exists?).and_return true
+    expect(repo).to receive(:checkout).with('master')
+
+    project = double('project')
+    allow(project).to receive(:repos).and_return('abc' => repo)
+
+    build = double('build')
+    allow(build).to receive(:project).and_return(project)
+    agent = double('agent')
+    allow(build).to receive(:workdir).and_return('/def/project-1')
+    task = Nanoci::Tasks::TaskSourceControl.new(
+      'repo' => 'abc',
+      'workdir' => 'abc',
+      'branch' => 'master',
+      'action' => 'checkout'
+    )
+    dir_double = class_double(Dir).as_stubbed_const
+    allow(dir_double).to receive(:chdir).and_yield
+    task.execute(build, agent)
+  end
+
+  it 'execute_checkout calls checkout with branch' do
+    repo = double('repo')
+    allow(repo).to receive(:exists?).and_return true
+    expect(repo).to receive(:checkout).with('master')
+
+    agent = double('agent')
+
+    task = Nanoci::Tasks::TaskSourceControl.new(
+      'repo' => 'abc',
+      'workdir' => 'abc',
+      'branch' => 'master',
+      'action' => 'checkout'
+    )
+    dir_double = class_double(Dir).as_stubbed_const
+    allow(dir_double).to receive(:chdir).and_yield
+    task.execute_checkout(repo, agent)
+  end
+
+  it 'execute_checkout tests for repo existence' do
+    repo = double('repo')
+    expect(repo).to receive(:exists?).and_return true
+    allow(repo).to receive(:checkout)
+
+    agent = double('agent')
+
+    task = Nanoci::Tasks::TaskSourceControl.new(
+      'repo' => 'abc',
+      'workdir' => 'abc',
+      'branch' => 'master',
+      'action' => 'checkout'
+    )
+    dir_double = class_double(Dir).as_stubbed_const
+    allow(dir_double).to receive(:chdir).and_yield
+    task.execute_checkout(repo, agent)
+  end
+
+  it 'execute_checkout clones repo is not exist' do
+    repo = double('repo')
+    allow(repo).to receive(:exists?).and_return false
+    expect(repo).to receive(:clone)
+    allow(repo).to receive(:checkout)
+
+    agent = double('agent')
+
+    task = Nanoci::Tasks::TaskSourceControl.new(
+      'repo' => 'abc',
+      'workdir' => 'abc',
+      'branch' => 'master',
+      'action' => 'checkout'
+    )
+    dir_double = class_double(Dir).as_stubbed_const
+    allow(dir_double).to receive(:chdir).and_yield
+    task.execute_checkout(repo, agent)
   end
 end
