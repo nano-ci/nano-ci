@@ -1,6 +1,5 @@
 require 'spec_helper'
 
-require 'nanoci/agent_capability'
 require 'nanoci/config'
 
 RSpec.describe Nanoci::Config do
@@ -47,9 +46,9 @@ RSpec.describe Nanoci::Config::LocalAgentsConfig do
     expect(config.capabilities).to be_a(Hash)
     expect(config.capabilities.length).to eq 2
     expect(config.capabilities.key?('abc')).to be true
-    expect(config.capabilities['abc'].value).to be nil
+    expect(config.capabilities['abc']).to be nil
     expect(config.capabilities.key?('def')).to be true
-    expect(config.capabilities['def'].value).to eq 'ghi'
+    expect(config.capabilities['def']).to eq 'ghi'
   end
 
   it 'property agents returns empty array if the src value is absent' do
@@ -82,8 +81,8 @@ RSpec.describe Nanoci::Config::LocalAgentConfig do
     config = Nanoci::Config::LocalAgentConfig.new('capabilities' => ['abc', { 'def' => 'ghi' }])
     expect(config.capabilities).to be_a(Hash)
     expect(config.capabilities.key?('abc')).to be true
-    expect(config.capabilities['abc'].value).to eq nil
+    expect(config.capabilities['abc']).to eq nil
     expect(config.capabilities.key?('def')).to be true
-    expect(config.capabilities['def'].value).to eq 'ghi'
+    expect(config.capabilities['def']).to eq 'ghi'
   end
 end

@@ -25,8 +25,8 @@ class Nanoci
       def capabilities
         caps = (@src['capabilities'] || []).map do |x|
           case x
-          when String then [x, AgentCapability.new(x, nil)]
-          when Hash then [x.entries[0][0], AgentCapability.new(x.entries[0][0], x.entries[0][1])]
+          when String then [x, nil]
+          when Hash then x.entries[0]
           end
         end
         caps.to_h
@@ -49,8 +49,8 @@ class Nanoci
       def capabilities
         caps = (@src['capabilities'] || []).map do |x|
           case x
-          when String then [x, AgentCapability.new(x, nil)]
-          when Hash then [x.entries[0][0], AgentCapability.new(x.entries[0][0], x.entries[0][1])]
+          when String then [x, nil]
+          when Hash then x.entries[0]
           end
         end
         caps.to_h

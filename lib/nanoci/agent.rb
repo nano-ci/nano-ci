@@ -22,9 +22,7 @@ class Nanoci
     end
 
     def capability(name)
-      cap = @capabilities[name]
-      return false if cap.nil?
-      cap.value || true
+      @capabilities.key?(name) ? @capabilities[name] || true : nil
     end
 
     def capability?(required_capability)

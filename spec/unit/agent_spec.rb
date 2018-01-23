@@ -42,7 +42,7 @@ RSpec.describe Nanoci::Agent do
       'capabilities' => ['test.cap']
     )
 
-    agent = Nanoci::Agent.new(config, 'test.common' => Nanoci::AgentCapability.new('test.common', nil))
+    agent = Nanoci::Agent.new(config, 'test.common' => nil)
     expect(agent.capability?('test.common')).to be true
   end
 
@@ -55,5 +55,31 @@ RSpec.describe Nanoci::Agent do
     job = Nanoci::BuildJob.new(Nanoci::Job.new('tag' => 'test'))
     agent.run_job(job)
     expect(agent.current_job).not_to be_nil
+  end
+
+  it 'capability returns nil is capability is missing' do
+    config = Nanoci::Config::LocalAgentConfig.new(
+      'name' => 'test'
+    )
+    agent = Nanoci::Agent.new(config, {})
+    expect(agent.capability('test.cap')).to be nil
+  end
+
+  it 'capability returns true is capability value is nil' do
+    config = Nanoci::Config::LocalAgentConfig.new(
+      'name' => 'test',
+      'capabilities' => [{ 'test.cap' => nil }]
+    )
+    agent = Nanoci::Agent.new(config, {})
+    expect(agent.capability('test.cap')).to be true
+  end
+
+  it 'capability returns value of the capability' do
+    config = Nanoci::Config::LocalAgentConfig.new(
+      'name' => 'test',
+      'capabilities' => [{ 'test.cap' => 'test.cap.value' }]
+    )
+    agent = Nanoci::Agent.new(config, {})
+    expect(agent.capability('test.cap')).to eq 'test.cap.value'
   end
 end
