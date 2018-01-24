@@ -1,4 +1,5 @@
 require 'logging'
+require 'stringio'
 
 require 'nanoci/build_stage'
 
@@ -46,6 +47,7 @@ class Nanoci
     attr_accessor :current_stage
     attr_accessor :commits
     attr_accessor :variables
+    attr_reader   :output
 
     def number
       variables['buildNumber']
@@ -77,6 +79,8 @@ class Nanoci
       @current_stage = @stages[0]
       @commits = Hash[@project.repos
                               .map { |t, r| [t, r.current_commit] }]
+
+      @output = StringIO.new
 
       @log.info "build #{tag} started at #{start_time}"
       @log.info "commits:\n #{commits}"

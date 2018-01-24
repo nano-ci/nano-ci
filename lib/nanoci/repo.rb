@@ -40,19 +40,34 @@ class Nanoci
       @src  = hash['src']
       @auth = hash['auth']
       @required_agent_capabilities = []
+      @current_commit = ''
     end
 
     ##
     # Detect changes in source
     # Returns true is there are new changes; false otherwise
-    def detect_changes
+    def detect_changes(_agent)
       true
     end
 
     ##
     # Returns commit id of tip of tree
     def current_commit
+      @current_commit
+    end
+
+    def current_commit=(value)
+      @current_commit = value
+    end
+
+    def tip_of_tree(_branch, _agent)
       ''
     end
+
+    def clone(_agent, _opts = {}); end
+
+    def exists?(_agent, _opts = {}); end
+
+    def checkout(_branch, _agent, _opts = {}); end
   end
 end

@@ -85,4 +85,9 @@ RSpec.describe Nanoci::Config::LocalAgentConfig do
     expect(config.capabilities.key?('def')).to be true
     expect(config.capabilities['def']).to eq 'ghi'
   end
+
+  it 'reads repo-cache from src' do
+    config = Nanoci::Config::LocalAgentConfig.new('repo-cache' => 'abc')
+    expect(config.repo_cache).to eq 'abc'
+  end
 end

@@ -82,4 +82,13 @@ RSpec.describe Nanoci::Agent do
     agent = Nanoci::Agent.new(config, {})
     expect(agent.capability('test.cap')).to eq 'test.cap.value'
   end
+
+  it 'repo_cache returns value from config' do
+    config = Nanoci::Config::LocalAgentConfig.new(
+      'name' => 'test',
+      'repo-cache' => 'abc'
+    )
+    agent = Nanoci::Agent.new(config, {})
+    expect(agent.repo_cache).to eq 'abc'
+  end
 end

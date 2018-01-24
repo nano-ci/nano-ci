@@ -34,8 +34,8 @@ class Nanoci
       end
 
       def execute_checkout(repo, agent)
-        repo.clone unless repo.exists?
-        repo.checkout branch
+        repo.clone(agent) unless repo.exists?(agent)
+        repo.checkout(branch, agent)
       end
     end
 

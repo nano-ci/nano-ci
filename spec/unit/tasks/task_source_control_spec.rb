@@ -59,16 +59,17 @@ RSpec.describe Nanoci::Tasks::TaskSourceControl do
   end
 
   it 'execute calls checkout with branch' do
+    agent = double('agent')
+
     repo = double('repo')
     allow(repo).to receive(:exists?).and_return true
-    expect(repo).to receive(:checkout).with('master')
+    expect(repo).to receive(:checkout).with('master', agent)
 
     project = double('project')
     allow(project).to receive(:repos).and_return('abc' => repo)
 
     build = double('build')
     allow(build).to receive(:project).and_return(project)
-    agent = double('agent')
     allow(build).to receive(:workdir).and_return('/def/project-1')
     task = Nanoci::Tasks::TaskSourceControl.new(
       'repo' => 'abc',
@@ -82,11 +83,11 @@ RSpec.describe Nanoci::Tasks::TaskSourceControl do
   end
 
   it 'execute_checkout calls checkout with branch' do
+    agent = double('agent')
+
     repo = double('repo')
     allow(repo).to receive(:exists?).and_return true
-    expect(repo).to receive(:checkout).with('master')
-
-    agent = double('agent')
+    expect(repo).to receive(:checkout).with('master', agent)
 
     task = Nanoci::Tasks::TaskSourceControl.new(
       'repo' => 'abc',
@@ -100,11 +101,11 @@ RSpec.describe Nanoci::Tasks::TaskSourceControl do
   end
 
   it 'execute_checkout tests for repo existence' do
-    repo = double('repo')
-    expect(repo).to receive(:exists?).and_return true
-    allow(repo).to receive(:checkout)
-
     agent = double('agent')
+
+    repo = double('repo')
+    expect(repo).to receive(:exists?).with(agent).and_return true
+    allow(repo).to receive(:checkout)
 
     task = Nanoci::Tasks::TaskSourceControl.new(
       'repo' => 'abc',
@@ -118,12 +119,12 @@ RSpec.describe Nanoci::Tasks::TaskSourceControl do
   end
 
   it 'execute_checkout clones repo is not exist' do
+    agent = double('agent')
+
     repo = double('repo')
     allow(repo).to receive(:exists?).and_return false
-    expect(repo).to receive(:clone)
+    expect(repo).to receive(:clone).with(agent)
     allow(repo).to receive(:checkout)
-
-    agent = double('agent')
 
     task = Nanoci::Tasks::TaskSourceControl.new(
       'repo' => 'abc',

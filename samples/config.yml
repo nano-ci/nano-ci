@@ -4,3 +4,4 @@ local_agents:
     - 'tools.git': 'C:\Program Files\Git\cmd\git.exe'
   agents:
     - name: 'Local Agent #1'
+      repo-cache: 'C:/nano-ci/repo-cache'

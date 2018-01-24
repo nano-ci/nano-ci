@@ -59,6 +59,10 @@ class Nanoci
       def workdir
         @src['workdir']
       end
+
+      def repo_cache
+        @src['repo-cache']
+      end
     end
   end
 end
