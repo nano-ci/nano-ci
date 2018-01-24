@@ -1,0 +1,14 @@
+name: nano-ci
+tag: nano-ci
+repos:
+  - tag: main-repo
+    type: git
+    src: git@bitbucket.org:thevk/nano-ci.git
+    auth:
+      ssh: c:/nano-ci/nanoci.ppk
+    triggers:
+      - type: poll
+        interval: 5
+        schedule: "0 0 1 ? * 1#2"
+stages:
+  - tag: build
