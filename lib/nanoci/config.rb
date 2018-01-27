@@ -14,7 +14,7 @@ class Nanoci
     end
 
     def plugins_path
-      @src['plugins_path']
+      @src['plugins-path']
     end
 
     def capabilities
@@ -25,6 +25,10 @@ class Nanoci
         end
       end
       caps.to_h
+    end
+
+    def repo_cache
+      @src['repo-cache']
     end
 
     def agents
@@ -52,10 +56,6 @@ class Nanoci
 
       def workdir
         @src['workdir']
-      end
-
-      def repo_cache
-        @src['repo-cache']
       end
     end
   end

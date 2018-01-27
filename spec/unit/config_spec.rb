@@ -23,8 +23,8 @@ RSpec.describe Nanoci::Config do
     expect(config.plugins_path).to be_nil
   end
 
-  it 'property plugins_path returns the src value' do
-    config = Nanoci::Config.new('plugins_path' => '/abc')
+  it 'reads plugins-path from the src' do
+    config = Nanoci::Config.new('plugins-path' => '/abc')
     expect(config.plugins_path).to eq '/abc'
   end
 
@@ -56,6 +56,11 @@ RSpec.describe Nanoci::Config do
     expect(config.agents.length).to eq 1
     expect(config.agents[0]).to be_an(Nanoci::Config::LocalAgentConfig)
   end
+
+  it 'reads repo-cache from src' do
+    config = Nanoci::Config.new('repo-cache' => 'abc')
+    expect(config.repo_cache).to eq 'abc'
+  end
 end
 
 RSpec.describe Nanoci::Config::LocalAgentConfig do
@@ -77,10 +82,5 @@ RSpec.describe Nanoci::Config::LocalAgentConfig do
     expect(config.capabilities['abc']).to eq nil
     expect(config.capabilities.key?('def')).to be true
     expect(config.capabilities['def']).to eq 'ghi'
-  end
-
-  it 'reads repo-cache from src' do
-    config = Nanoci::Config::LocalAgentConfig.new('repo-cache' => 'abc')
-    expect(config.repo_cache).to eq 'abc'
   end
 end

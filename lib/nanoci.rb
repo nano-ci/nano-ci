@@ -48,7 +48,7 @@ class Nanoci
   end
 
   def self.run_agents(config)
-    self.agent_manager = AgentManager.new(config.local_agents)
+    self.agent_manager = AgentManager.new(config)
   end
 
   def self.run_triggers(project, build_scheduler, env)
