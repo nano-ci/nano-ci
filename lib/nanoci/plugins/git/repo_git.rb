@@ -17,47 +17,47 @@ class Nanoci
           required_agent_capabilities.push(GIT_CAP)
         end
 
-        def detect_changes(agent)
-          repo_path = File.join(agent.repo_cache, tag)
+        def detect_changes(env)
+          repo_path = File.join(env['repo_cache'], tag)
           FileUtils.mkdir_p(repo_path) unless Dir.exist? repo_path
           Dir.chdir(repo_path) do
-            clone(agent, no_checkout: true) unless exists?(agent)
-            fetch(agent)
-            return tip_of_tree("origin/#{branch}", agent) != current_commit
+            clone(env, no_checkout: true) unless exists?(env)
+            fetch(env)
+            return tip_of_tree("origin/#{branch}", env) != current_commit
           end
         end
 
-        def tip_of_tree(branch, agent)
-          git_process = git("rev-parse --verify #{branch}", agent)
+        def tip_of_tree(branch, env)
+          git_process = git("rev-parse --verify #{branch}", env)
           git_process.ok? ? git_process.output : nil
         end
 
-        def clone(agent, opts = {})
+        def clone(env, opts = {})
           args = []
           args.push '--no-checkout' if opts[:no_checkout]
           args.push src
           args.push '.'
           cmd = "clone #{Array.join(args, ' ')}"
-          git(cmd, agent, opts)
+          git(cmd, env, opts)
         end
 
-        def fetch(agent)
-          git('fetch origin', agent, opts)
+        def fetch(env)
+          git('fetch origin', env, opts)
         end
 
-        def exists?(agent)
-          git_process = git('status', agent, opts)
+        def exists?(env)
+          git_process = git('status', env, opts)
           true
         end
 
-        def checkout(branch, agent, opts)
-          git("checkout #{branch}", agent, opts)
+        def checkout(branch, env, opts)
+          git("checkout #{branch}", env, opts)
         end
 
         private
 
-        def git(cmd, agent, opts = {})
-          git_path = agent.capability(GIT_CAP)
+        def git(cmd, env, opts = {})
+          git_path = env[GIT_CAP]
           raise "Missing #{GIT_CAP} capability" if git_path.nil?
           ToolProcess.new "#{git_path} cmd", opts
         end

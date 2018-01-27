@@ -46,7 +46,7 @@ class Nanoci
     ##
     # Detect changes in source
     # Returns true is there are new changes; false otherwise
-    def detect_changes(_agent)
+    def detect_changes(_env)
       true
     end
 
@@ -60,14 +60,14 @@ class Nanoci
       @current_commit = value
     end
 
-    def tip_of_tree(_branch, _agent)
+    def tip_of_tree(_branch, _env)
       ''
     end
 
-    def clone(_agent, _opts = {}); end
+    def clone(env, opts = {}); end
 
-    def exists?(_agent, _opts = {}); end
+    def exists?(env, opts = {}); end
 
-    def checkout(_branch, _agent, _opts = {}); end
+    def checkout(branch, env, opts = {}); end
   end
 end

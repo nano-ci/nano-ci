@@ -5,10 +5,12 @@ class Nanoci
     attr_accessor :name
     attr_accessor :current_job
     attr_accessor :workdir
+    attr_reader   :repo_cache
 
     def initialize(config, capabilities)
       @log = Logging.logger[self]
       @name = config.name
+      @repo_cache = config.repo_cache
 
       raise 'capabilities should be a Hash' unless capabilities.is_a? Hash
       @capabilities = config.capabilities.merge(capabilities)

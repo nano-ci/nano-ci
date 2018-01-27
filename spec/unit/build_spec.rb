@@ -189,9 +189,8 @@ RSpec.describe Nanoci::Build do
     stage.jobs = [job]
     project.stages = [stage]
     build = Nanoci::Build.run(project, nil, {})
-    agent = double('agent')
-    allow(agent).to receive(:workdir).and_return '/abc'
+    env = { 'workdir' => '/abc' }
 
-    expect(build.workdir(agent)).to eq '/abc/project-path-test-1'
+    expect(build.workdir(env)).to eq '/abc/project-path-test-1'
   end
 end

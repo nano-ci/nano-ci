@@ -16,6 +16,6 @@ class Nanoci
       Set[]
     end
 
-    def execute(build, agent); end
+    def execute(build, env); end
   end
 end

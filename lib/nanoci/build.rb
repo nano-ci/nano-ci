@@ -61,8 +61,8 @@ class Nanoci
       current_stage&.state || State::UNKNOWN
     end
 
-    def workdir(agent)
-      File.join(agent.workdir, tag)
+    def workdir(env)
+      File.join(env['workdir'], tag)
     end
 
     private

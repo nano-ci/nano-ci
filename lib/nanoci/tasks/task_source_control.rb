@@ -22,20 +22,20 @@ class Nanoci
         super(project) + repo.required_agent_capabilities
       end
 
-      def execute(build, agent)
+      def execute(build, env)
         repo = build.project.repos[repo_tag]
         raise "Missing repo definition #{repo_tag}" if repo.nil?
-        Dir.chdir(File.join(build.workdir(agent), workdir)) do
+        Dir.chdir(File.join(build.workdir(env), workdir)) do
           case action
           when 'checkout'
-            execute_checkout(repo, agent)
+            execute_checkout(repo, env)
           end
         end
       end
 
-      def execute_checkout(repo, agent)
-        repo.clone(agent) unless repo.exists?(agent)
-        repo.checkout(branch, agent)
+      def execute_checkout(repo, env)
+        repo.clone(env) unless repo.exists?(env)
+        repo.checkout(branch, env)
       end
     end
 
