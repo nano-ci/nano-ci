@@ -61,9 +61,4 @@ class Nanoci
     self.build_scheduler = BuildScheduler.new(agent_manager)
     build_scheduler.run(interval)
   end
-
-  def self.run_build(build)
-    job_scheduler.run_build(build)
-    puts "Starting build #{build.tag} at #{build.start_time}"
-  end
 end
