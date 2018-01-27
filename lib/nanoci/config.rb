@@ -17,24 +17,18 @@ class Nanoci
       @src['plugins_path']
     end
 
-    class LocalAgentsConfig
-      def initialize(src)
-        @src = src
-      end
-
-      def capabilities
-        caps = (@src['capabilities'] || []).map do |x|
-          case x
-          when String then [x, nil]
-          when Hash then x.entries[0]
-          end
+    def capabilities
+      caps = (@src['capabilities'] || []).map do |x|
+        case x
+        when String then [x, nil]
+        when Hash then x.entries[0]
         end
-        caps.to_h
       end
+      caps.to_h
+    end
 
-      def agents
-        (@src['agents'] || []).map { |x| LocalAgentConfig.new(x) }
-      end
+    def agents
+      (@src['agents'] || []).map { |x| LocalAgentConfig.new(x) }
     end
 
     class LocalAgentConfig

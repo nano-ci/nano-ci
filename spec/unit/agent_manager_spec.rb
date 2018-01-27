@@ -5,7 +5,7 @@ require 'nanoci/agent_manager'
 
 RSpec.describe Nanoci::AgentManager do
   it 'sets up local agents' do
-    config = Nanoci::Config::LocalAgentsConfig.new(
+    config = Nanoci::Config::new(
       'agents' => [
         'name' => 'Agent 1'
       ]
@@ -19,7 +19,7 @@ RSpec.describe Nanoci::AgentManager do
   end
 
   it 'pass common capabilities from config to agents' do
-    config = Nanoci::Config::LocalAgentsConfig.new(
+    config = Nanoci::Config::new(
       'agents' => [
         'name' => 'Agent 1'
       ],
@@ -31,7 +31,7 @@ RSpec.describe Nanoci::AgentManager do
   end
 
   it 'find agent with requested capabilities' do
-    config = Nanoci::Config::LocalAgentsConfig.new(
+    config = Nanoci::Config::new(
       'agents' => [
         'name' => 'Agent 1'
       ],
