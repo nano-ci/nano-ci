@@ -17,15 +17,16 @@ class Nanoci
       @type = hash['type']
     end
 
-    def run(build_scheduler)
+    def run(build_scheduler, env)
       @build_scheduler = build_scheduler
+      @env = env
     end
 
     def trigger_build
-      if @repo.detect_changes
-        @log.info "detected new changes in repo #{@repo.tag}, triggering a new build"
-        @build_scheduler.trigger_build(@project, self)
-      end
+      return unless @repo.detect_changes(@env)
+
+      @log.info "detected new changes in repo #{@repo.tag}, triggering a new build"
+      @build_scheduler.trigger_build(@project, self)
     end
   end
 end

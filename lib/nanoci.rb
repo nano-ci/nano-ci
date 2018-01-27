@@ -38,10 +38,12 @@ class Nanoci
 
     @log.info 'nano-ci is running'
 
+    env = config.capabilities.clone
+
     EventMachine.run do
       run_build_scheduler(config.job_scheduler_interval)
 
-      run_triggers(project, build_scheduler)
+      run_triggers(project, build_scheduler, env)
     end
   end
 
@@ -49,9 +51,9 @@ class Nanoci
     self.agent_manager = AgentManager.new(config.local_agents)
   end
 
-  def self.run_triggers(project, build_scheduler)
+  def self.run_triggers(project, build_scheduler, env)
     project.repos.each do |key, repo|
-      repo.triggers.each { |trigger| trigger.run(build_scheduler) }
+      repo.triggers.each { |trigger| trigger.run(build_scheduler, env) }
     end
   end
 

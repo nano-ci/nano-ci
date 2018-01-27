@@ -19,7 +19,7 @@ RSpec.describe Nanoci::Trigger do
     build_scheduler = double('build_scheduler')
     expect(build_scheduler).to receive(:trigger_build).with(project, trigger)
 
-    trigger.run(build_scheduler)
+    trigger.run(build_scheduler, {})
     trigger.trigger_build
   end
 
@@ -33,7 +33,7 @@ RSpec.describe Nanoci::Trigger do
     build_scheduler = double('build_scheduler')
     expect(build_scheduler).not_to receive(:trigger_build).with(project, trigger)
 
-    trigger.run(build_scheduler)
+    trigger.run(build_scheduler, {})
     trigger.trigger_build
   end
 end

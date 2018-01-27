@@ -19,8 +19,8 @@ class Nanoci
         @schedule = hash['schedule']
       end
 
-      def run(build_scheduler)
-        super(build_scheduler)
+      def run(build_scheduler, env)
+        super(build_scheduler, env)
 
         EventMachine.add_periodic_timer(interval) do
           @log.info "checking repo #{@repo.tag} for new changes"
