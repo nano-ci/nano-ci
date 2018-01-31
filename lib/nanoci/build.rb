@@ -15,10 +15,21 @@ class Nanoci
     end
 
     class << self
-      def run(project, trigger, env_variables)
+      def run(project, trigger, env_variables, env)
+        log = Logging.logger[self]
         variables = expand_variables(project.variables, env_variables)
+
+        project.repos.values.each do |r|
+          r.current_commit = r.tip_of_tree(r.branch, env)
+        end
+
         build = Build.new(project, trigger, variables)
         build.current_stage.jobs.each { |j| j.state = State::QUEUED }
+
+        log.info "build #{build.tag} started at #{build.start_time}"
+        log.info "commits:\n #{build.commits}"
+        log.info "variables: \n #{build.variables}"
+
         build
       end
 
@@ -81,10 +92,6 @@ class Nanoci
                               .map { |t, r| [t, r.current_commit] }]
 
       @output = StringIO.new
-
-      @log.info "build #{tag} started at #{start_time}"
-      @log.info "commits:\n #{commits}"
-      @log.info "variables: \n #{variables}"
     end
   end
 end

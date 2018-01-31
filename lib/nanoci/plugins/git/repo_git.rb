@@ -1,7 +1,7 @@
 require 'fileutils'
-require 'open4'
 
 require 'nanoci/repo'
+require 'nanoci/tool_error'
 require 'nanoci/tool_process'
 
 class Nanoci
@@ -13,7 +13,7 @@ class Nanoci
 
         def initialize(hash = {})
           super(hash)
-          @branch = @branhc || @DEFAULT_BRANCH
+          @branch = @branhc || DEFAULT_BRANCH
           required_agent_capabilities.push(GIT_CAP)
         end
 
@@ -23,13 +23,13 @@ class Nanoci
           Dir.chdir(repo_path) do
             clone(env, no_checkout: true) unless exists?(env)
             fetch(env)
-            return tip_of_tree("origin/#{branch}", env) != current_commit
+            return tip_of_tree("origin/#{@branch}", env) != current_commit
           end
         end
 
-        def tip_of_tree(branch, env)
+        def tip_of_tree(branch, env={})
           git_process = git("rev-parse --verify #{branch}", env)
-          git_process.ok? ? git_process.output : nil
+          git_process.output[0]
         end
 
         def clone(env, opts = {})
@@ -37,20 +37,21 @@ class Nanoci
           args.push '--no-checkout' if opts[:no_checkout]
           args.push src
           args.push '.'
-          cmd = "clone #{Array.join(args, ' ')}"
+          cmd = "clone #{args.join(' ')}"
           git(cmd, env, opts)
         end
 
-        def fetch(env)
+        def fetch(env, opts = {})
           git('fetch origin', env, opts)
         end
 
-        def exists?(env)
-          git_process = git('status', env, opts)
-          true
+        def exists?(env, opts = {})
+          git('status', env, opts)
+        rescue ToolError
+          false
         end
 
-        def checkout(branch, env, opts)
+        def checkout(branch, env, opts = {})
           git("checkout #{branch}", env, opts)
         end
 
@@ -59,7 +60,9 @@ class Nanoci
         def git(cmd, env, opts = {})
           git_path = env[GIT_CAP]
           raise "Missing #{GIT_CAP} capability" if git_path.nil?
-          ToolProcess.new "#{git_path} cmd", opts
+          process = ToolProcess.run "\"#{git_path}\" #{cmd}", opts
+          process.wait
+          process
         end
       end
     end

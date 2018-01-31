@@ -7,10 +7,11 @@ class Nanoci
   class BuildScheduler
     attr_accessor :builds
 
-    def initialize(agents_manager)
+    def initialize(agents_manager, env)
       @log = Logging.logger[self]
       @agents_manager = agents_manager
       @builds = []
+      @env = env
     end
 
     def trigger_build(project, trigger)
@@ -19,7 +20,7 @@ class Nanoci
         return
       end
       @log.info "a new build of project #{project.tag} triggered by #{trigger}"
-      build = Nanoci::Build.run(project, trigger, {})
+      build = Nanoci::Build.run(project, trigger, {}, @env)
       run_build(build)
     end
 

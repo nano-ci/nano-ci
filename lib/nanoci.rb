@@ -38,10 +38,10 @@ class Nanoci
 
     @log.info 'nano-ci is running'
 
-    env = config.capabilities.clone
+    env = setup_env(config)
 
     EventMachine.run do
-      run_build_scheduler(config.job_scheduler_interval)
+      run_build_scheduler(config.job_scheduler_interval, env)
 
       run_triggers(project, build_scheduler, env)
     end
@@ -57,8 +57,14 @@ class Nanoci
     end
   end
 
-  def self.run_build_scheduler(interval)
-    self.build_scheduler = BuildScheduler.new(agent_manager)
+  def self.run_build_scheduler(interval, env)
+    self.build_scheduler = BuildScheduler.new(agent_manager, env)
     build_scheduler.run(interval)
+  end
+
+  def self.setup_env(config)
+    env = config.capabilities.clone
+    env['repo_cache'] = config.repo_cache
+    env
   end
 end

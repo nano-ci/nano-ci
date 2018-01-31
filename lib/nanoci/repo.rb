@@ -22,6 +22,10 @@ class Nanoci
     attr_accessor :src
 
     ##
+    # Name of the branch, tag, commit hash, etc - anything points to a commit
+    attr_accessor :branch
+
+    ##
     # Object specifies authentication against repo
     attr_accessor :auth
 
