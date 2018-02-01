@@ -23,8 +23,13 @@ class Nanoci
           Dir.chdir(repo_path) do
             clone(env, no_checkout: true) unless exists?(env)
             fetch(env)
-            return tip_of_tree("origin/#{@branch}", env) != current_commit
+            tip = tip_of_tree("origin/#{@branch}", env)
+            if tip != @current_commit
+              @current_commit = tip
+              return true
+            end
           end
+          false
         end
 
         def tip_of_tree(branch, env={})

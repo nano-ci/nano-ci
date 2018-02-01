@@ -29,6 +29,8 @@ class Nanoci
     # Object specifies authentication against repo
     attr_accessor :auth
 
+    attr_accessor :current_commit
+
     ##
     # Array of triggers
     attr_accessor :triggers
@@ -52,16 +54,6 @@ class Nanoci
     # Returns true is there are new changes; false otherwise
     def detect_changes(_env)
       true
-    end
-
-    ##
-    # Returns commit id of tip of tree
-    def current_commit
-      @current_commit
-    end
-
-    def current_commit=(value)
-      @current_commit = value
     end
 
     def tip_of_tree(_branch, _env)
