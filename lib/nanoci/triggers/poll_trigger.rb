@@ -23,7 +23,6 @@ class Nanoci
         super(build_scheduler, env)
 
         EventMachine.add_periodic_timer(interval) do
-          @log.info "checking repo #{@repo.tag} for new changes"
           trigger_build
         end
       end
