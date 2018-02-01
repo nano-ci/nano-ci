@@ -24,7 +24,7 @@ class Nanoci
         end
 
         build = Build.new(project, trigger, variables)
-        build.current_stage.jobs.each { |j| j.state = State::QUEUED }
+        build.current_stage.jobs.each { |j| j.state = State::QUEUED } unless build.current_stage.nil?
 
         log.info "build #{build.tag} started at #{build.start_time}"
         log.info "commits:\n #{build.commits}"
@@ -86,12 +86,16 @@ class Nanoci
       @start_time = Time.now
       self.number = Build.next_number(@project.tag)
       @tag = "#{@project.tag}-#{number}"
-      @stages = @project.stages.map { |x| BuildStage.new(x) }
-      @current_stage = @stages[0]
+      setup_stages(@project)
       @commits = Hash[@project.repos
                               .map { |t, r| [t, r.current_commit] }]
 
       @output = StringIO.new
+    end
+
+    def setup_stages(project)
+      @stages = project.stages.map { |x| BuildStage.new(x) }
+      @current_stage = @stages.select { |x| x.jobs.any? }.first
     end
   end
 end

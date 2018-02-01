@@ -19,8 +19,15 @@ class Nanoci
         @log.warn "cannot start another build for the project #{project.tag}"
         return
       end
-      @log.info "a new build of project #{project.tag} triggered by #{trigger}"
+
       build = Nanoci::Build.run(project, trigger, {}, @env)
+      @log.info "a new build #{build.tag} triggered by #{trigger}"
+
+      if build.current_stage.nil?
+        @log.warn "build #{build.tag} has no runnable jobs"
+        return
+      end
+
       run_build(build)
     end
 
