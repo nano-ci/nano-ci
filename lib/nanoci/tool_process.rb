@@ -35,6 +35,7 @@ class Nanoci
 
     def wait
       @wait_thr.join
+      @connect_threads.each(&:join)
       raise ToolError.new(@cmd, status_code, error) unless status_code.zero?
     end
 
@@ -61,7 +62,7 @@ class Nanoci
     end
 
     def connect(streams)
-      streams.map { |p| connect_pair(p[:from], p[:to]) }
+      @connect_threads = streams.map { |p| connect_pair(p[:from], p[:to]) }
     end
 
     def connect_pair(from, to)
