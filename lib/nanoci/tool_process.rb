@@ -85,7 +85,7 @@ class Nanoci
     end
 
     def write(buf, to)
-      to.write_nonblock(buf)
+      to.write(buf)
       return true
     rescue IO::WaitWritable
       IO.select(nil, [to])

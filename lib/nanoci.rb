@@ -65,6 +65,7 @@ class Nanoci
   def self.setup_env(config)
     env = config.capabilities.clone
     env['repo_cache'] = config.repo_cache
+    env['logdir'] = config.logdir
     env
   end
 end

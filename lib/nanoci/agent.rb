@@ -38,6 +38,7 @@ class Nanoci
     def execute_task(build, task)
       env = @env.merge(@capabilities)
       env['workdir'] = @workdir
+      env['logdir'] = @logdir
       task.execute(build, env)
     end
   end

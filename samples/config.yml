@@ -1,5 +1,6 @@
 plugins-path: 'lib/nanoci/plugins'
 repo-cache: 'C:/nano-ci/repo-cache'
+logdir: 'c:/nano-ci/logs'
 capabilities:
   - 'tools.git': 'C:\Program Files\Git\cmd\git.exe'
 agents:

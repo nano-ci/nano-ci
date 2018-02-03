@@ -22,7 +22,7 @@ class Nanoci
 
         project.repos.values.each { |r| r.detect_changes(env) }
 
-        build = Build.new(project, trigger, variables)
+        build = Build.new(project, trigger, variables, env)
         build.current_stage.jobs.each { |j| j.state = State::QUEUED } unless build.current_stage.nil?
 
         log.info "build #{build.tag} started at #{build.start_time}"
@@ -77,7 +77,7 @@ class Nanoci
 
     private
 
-    def initialize(project, trigger, variables)
+    def initialize(project, trigger, variables, env)
       @log = Logging.logger[self]
       @project = project
       @trigger = trigger
@@ -89,7 +89,9 @@ class Nanoci
       @commits = Hash[@project.repos
                               .map { |t, r| [t, r.current_commit] }]
 
-      @output = TimedIO.new(StringIO.new)
+      logdir = env['logdir']
+      FileUtils.mkdir_p(logdir) unless Dir.exist? logdir
+      @output = TimedIO.new(File.open(File.join(logdir, "#{@tag}.log"), "w+"))
     end
 
     def setup_stages(project)

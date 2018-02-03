@@ -31,6 +31,10 @@ class Nanoci
       @src['repo-cache']
     end
 
+    def logdir
+      @src['logdir']
+    end
+
     def agents
       (@src['agents'] || []).map { |x| LocalAgentConfig.new(x) }
     end
