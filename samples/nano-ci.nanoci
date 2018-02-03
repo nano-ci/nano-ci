@@ -12,3 +12,9 @@ repos:
         schedule: "0 0 1 ? * 1#2"
 stages:
   - tag: build
+    jobs:
+      - tag: checkout
+        tasks:
+          - type: source-control
+            action: checkout
+            repo: main-repo

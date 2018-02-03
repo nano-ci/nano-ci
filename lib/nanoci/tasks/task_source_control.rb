@@ -12,7 +12,7 @@ class Nanoci
         super(hash)
         @repo_tag = hash['repo']
         @action = hash['action']
-        @workdir = hash['workdir']
+        @workdir = hash['workdir'] || '.'
         @branch = hash['branch']
       end
 
@@ -25,7 +25,9 @@ class Nanoci
       def execute(build, env)
         repo = build.project.repos[repo_tag]
         raise "Missing repo definition #{repo_tag}" if repo.nil?
-        Dir.chdir(File.join(build.workdir(env), workdir)) do
+        task_workdir = File.join(build.workdir(env), workdir)
+        FileUtils.mkdir_p(task_workdir) unless Dir.exist? task_workdir
+        Dir.chdir(task_workdir) do
           case action
           when 'checkout'
             execute_checkout(repo, env)
@@ -35,7 +37,8 @@ class Nanoci
 
       def execute_checkout(repo, env)
         repo.clone(env) unless repo.exists?(env)
-        repo.checkout(branch, env)
+        changeset = branch || repo.current_commit
+        repo.checkout(changeset, env)
       end
     end
 

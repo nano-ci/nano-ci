@@ -57,7 +57,7 @@ class Nanoci
           @log.info "no agents available to run the job #{build.tag}-#{j.tag}"
           next
         end
-        agent.run_job(j)
+        agent.run_job(build, j)
       end
     end
 

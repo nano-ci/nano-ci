@@ -1,24 +1,30 @@
+require 'logging'
+
 require 'nanoci/agent'
 require 'nanoci/build'
 
 class Nanoci
   class LocalAgent < Agent
-    def run_job(job)
-      super(job)
+    def initialize(*args)
+      super
+
+      @log = Logging.logger[self]
+    end
+
+    def run_job(build, job)
+      super(build, job)
 
       job.state = Build::State::RUNNING
 
-      job.definition.tasks.each do |t|
+      job.definition.tasks.each do |task|
         begin
-          execute_task(task)
-        rescue
-          job.state = Build::Stage::FAILED
+          execute_task(build, task)
+        rescue StandardError => e
+          @log.error(e)
+          job.state = Build::State::FAILED
         end
       end
-    end
-
-    def execute_task(task)
-      # task.execute(agent)
+      job.state = Build::State::COMPLETED
     end
   end
 end

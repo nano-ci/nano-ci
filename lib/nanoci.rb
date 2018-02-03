@@ -26,8 +26,10 @@ class Nanoci
     options = Options.parse(args)
     config = Config.new(YAML.load_file(options.config))
 
+    env = setup_env(config)
+
     @log.debug 'running agents...'
-    run_agents(config)
+    run_agents(config, env)
 
     @log.debug 'loading plugins...'
     PluginLoader.load(File.expand_path(config.plugins_path))
@@ -38,8 +40,6 @@ class Nanoci
 
     @log.info 'nano-ci is running'
 
-    env = setup_env(config)
-
     EventMachine.run do
       run_build_scheduler(config.job_scheduler_interval, env)
 
@@ -47,8 +47,8 @@ class Nanoci
     end
   end
 
-  def self.run_agents(config)
-    self.agent_manager = AgentManager.new(config)
+  def self.run_agents(config, env)
+    self.agent_manager = AgentManager.new(config, env)
   end
 
   def self.run_triggers(project, build_scheduler, env)

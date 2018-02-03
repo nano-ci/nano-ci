@@ -4,3 +4,4 @@ capabilities:
   - 'tools.git': 'C:\Program Files\Git\cmd\git.exe'
 agents:
   - name: 'Local Agent #1'
+    workdir: 'c:/nano-ci/agents/agent-1'

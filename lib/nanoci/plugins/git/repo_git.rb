@@ -13,7 +13,7 @@ class Nanoci
 
         def initialize(hash = {})
           super(hash)
-          @branch = @branhc || DEFAULT_BRANCH
+          @branch = @branch || DEFAULT_BRANCH
           required_agent_capabilities.push(GIT_CAP)
         end
 
@@ -57,6 +57,7 @@ class Nanoci
         end
 
         def checkout(branch, env, opts = {})
+          branch = branch || @branch
           git("checkout #{branch}", env, opts)
         end
 
