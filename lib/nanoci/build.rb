@@ -2,6 +2,7 @@ require 'logging'
 require 'stringio'
 
 require 'nanoci/build_stage'
+require 'nanoci/timed_io'
 
 class Nanoci
   class Build
@@ -88,7 +89,7 @@ class Nanoci
       @commits = Hash[@project.repos
                               .map { |t, r| [t, r.current_commit] }]
 
-      @output = StringIO.new
+      @output = TimedIO.new(StringIO.new)
     end
 
     def setup_stages(project)

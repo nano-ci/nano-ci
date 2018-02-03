@@ -30,15 +30,15 @@ class Nanoci
         Dir.chdir(task_workdir) do
           case action
           when 'checkout'
-            execute_checkout(repo, env)
+            execute_checkout(repo, env, build.output)
           end
         end
       end
 
-      def execute_checkout(repo, env)
+      def execute_checkout(repo, env, output)
         repo.clone(env) unless repo.exists?(env)
         changeset = branch || repo.current_commit
-        repo.checkout(changeset, env)
+        repo.checkout(changeset, env, stdout: output, stderr: output)
       end
     end
 
