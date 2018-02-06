@@ -37,8 +37,13 @@ class Nanoci
 
     def run(interval)
       EventMachine.add_periodic_timer(interval) do
-        schedule_builds()
+        schedule_builds
+        finalize_builds
       end
+    end
+
+    def finalize_builds
+      finished_builds.each(&:complete)
     end
 
     def schedule_builds
@@ -59,6 +64,10 @@ class Nanoci
         end
         agent.run_job(build, j)
       end
+    end
+
+    def finished_builds
+      @builds.find_all { |b| b.state >= Build::State::ABORTED }
     end
 
     def queued_builds

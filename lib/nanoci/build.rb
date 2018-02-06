@@ -75,6 +75,10 @@ class Nanoci
       File.join(env['workdir'], tag)
     end
 
+    def complete
+      @output.close
+    end
+
     private
 
     def initialize(project, trigger, variables, env)
