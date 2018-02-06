@@ -37,4 +37,28 @@ RSpec.describe Nanoci::Repo do
     repo = Nanoci::Repo.new
     expect(repo.current_commit).to eq ''
   end
+
+  it 'state returns tag' do
+    repo = Nanoci::Repo.new('tag' => 'repo-tag')
+    expect(repo.state[:tag]).to eq 'repo-tag'
+  end
+
+  it 'state returns current_commit' do
+    class TestRepo < Nanoci::Repo
+      def initialize(*args)
+        super
+        @current_commit = 'abc'
+      end
+    end
+
+    repo = TestRepo.new('tag' => 'repo-tag')
+    expect(repo.state[:current_commit]).to eq 'abc'
+  end
+
+  it 'state restures current_commit' do
+    repo = Nanoci::Repo.new('tag' => 'repo-tag')
+    state = { tag: 'repo-tag', current_commit: 'abc' }
+    repo.state = state
+    expect(repo.current_commit).to eq 'abc'
+  end
 end

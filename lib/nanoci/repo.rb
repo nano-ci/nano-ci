@@ -65,5 +65,17 @@ class Nanoci
     def exists?(env, opts = {}); end
 
     def checkout(branch, env, opts = {}); end
+
+    def state
+      {
+        tag: @tag,
+        current_commit: @current_commit
+      }
+    end
+
+    def state=(value)
+      raise "Invalid state - tag #{tag} does not match state tag #{value[:tag]}" unless tag == value[:tag]
+      @current_commit = value[:current_commit]
+    end
   end
 end

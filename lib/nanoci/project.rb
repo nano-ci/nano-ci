@@ -1,3 +1,5 @@
+require 'logging'
+
 require 'nanoci'
 
 class Nanoci
@@ -23,11 +25,31 @@ class Nanoci
     end
 
     def initialize(hash = {})
+      @log = Logging.logger[self]
       @name = hash['name']
       @tag = hash['tag']
       @repos = {}
       @stages = []
       @variables = {}
+    end
+
+    def state
+      {
+        tag: tag,
+        repos: Hash[repos.map { |k, v| [k, v.state] }]
+      }
+    end
+
+    def state=(value)
+      raise "Invalid state - tag #{tag} does not match state tag #{value[:tag]}" unless tag == value[:tag]
+      value[:repos].each do |k, v|
+        repo = repos[k]
+        if repo.nil?
+          @log.warn "Cannot restore state of repo #{k} - repo definition does not exist"
+          next
+        end
+        repo.state = v
+      end
     end
   end
 end
