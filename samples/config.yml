@@ -6,3 +6,4 @@ capabilities:
 agents:
   - name: 'Local Agent #1'
     workdir: 'c:/nano-ci/agents/agent-1'
+mongo-connection-string: mongodb://127.0.0.1:27017/nanoci

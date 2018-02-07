@@ -39,6 +39,10 @@ class Nanoci
       (@src['agents'] || []).map { |x| LocalAgentConfig.new(x) }
     end
 
+    def mongo_connection_string
+      @src['mongo-connection-string']
+    end
+
     class LocalAgentConfig
       def initialize(src)
         @src = src
