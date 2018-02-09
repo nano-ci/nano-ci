@@ -36,7 +36,7 @@ class Nanoci
       end
 
       def execute_checkout(repo, env, output)
-        repo.clone(env) unless repo.exists?(env)
+        repo.update(env)
         changeset = branch || repo.current_commit
         repo.checkout(changeset, env, stdout: output, stderr: output)
       end

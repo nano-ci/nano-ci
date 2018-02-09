@@ -20,7 +20,12 @@ class Nanoci
         log = Logging.logger[self]
         variables = expand_variables(project.variables, env_variables)
 
-        project.repos.values.each { |r| r.detect_changes(env) }
+        project.repos.values.each do |r|
+          r.in_repo_cache(env) do
+            r.update(env)
+            r.current_commit = r.tip_of_tree(r.branch, env)
+          end
+        end
 
         build = Build.new(project, trigger, variables, env)
         build.current_stage.jobs.each { |j| j.state = State::QUEUED } unless build.current_stage.nil?

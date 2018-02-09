@@ -48,7 +48,7 @@ class Nanoci
 
 
     EventMachine.run do
-      run_build_scheduler(config.job_scheduler_interval, env)
+      run_build_scheduler(config.job_scheduler_interval, state_manager, env)
 
       run_triggers(project, build_scheduler, env)
     end
@@ -64,8 +64,8 @@ class Nanoci
     end
   end
 
-  def self.run_build_scheduler(interval, env)
-    self.build_scheduler = BuildScheduler.new(agent_manager, env)
+  def self.run_build_scheduler(interval, state_manager, env)
+    self.build_scheduler = BuildScheduler.new(agent_manager, state_manager, env)
     build_scheduler.run(interval)
   end
 

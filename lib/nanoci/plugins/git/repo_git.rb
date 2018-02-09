@@ -18,23 +18,29 @@ class Nanoci
           required_agent_capabilities.push(GIT_CAP)
         end
 
-        def detect_changes(env)
+        def in_repo_cache(env)
           repo_path = File.join(env['repo_cache'], tag)
           FileUtils.mkdir_p(repo_path) unless Dir.exist? repo_path
           Dir.chdir(repo_path) do
-            clone(env, no_checkout: true) unless exists?(env)
-            fetch(env)
-            tip = tip_of_tree("origin/#{@branch}", env)
-            if tip != @current_commit
-              @current_commit = tip
-              return true
-            end
+            yield
           end
-          false
         end
 
-        def tip_of_tree(branch, env={})
-          git_process = git("rev-parse --verify #{branch}", env)
+        def changes?(env)
+          in_repo_cache(env) do
+            update(env)
+            tip = tip_of_tree(@branch, env)
+            return tip != @current_commit
+          end
+        end
+
+        def update(env)
+          clone(env, no_checkout: true) unless exists?(env)
+          fetch(env)
+        end
+
+        def tip_of_tree(branch, env = {})
+          git_process = git("rev-parse --verify origin/#{branch}", env)
           git_process.output
         end
 

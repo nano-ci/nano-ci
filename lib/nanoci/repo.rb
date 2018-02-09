@@ -52,7 +52,7 @@ class Nanoci
     ##
     # Detect changes in source
     # Returns true is there are new changes; false otherwise
-    def detect_changes(_env)
+    def changes?(_env)
       true
     end
 

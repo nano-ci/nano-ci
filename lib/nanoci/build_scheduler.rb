@@ -7,9 +7,10 @@ class Nanoci
   class BuildScheduler
     attr_accessor :builds
 
-    def initialize(agents_manager, env)
+    def initialize(agents_manager, state_manager, env)
       @log = Logging.logger[self]
       @agents_manager = agents_manager
+      @state_manager = state_manager
       @builds = []
       @env = env
     end
@@ -22,6 +23,7 @@ class Nanoci
 
       begin
         build = Nanoci::Build.run(project, trigger, {}, @env)
+        @state_manager.put_state(project.state)
       rescue StandardError => e
         @log.error "failed to start build for project #{project.tag}"
         @log.error e

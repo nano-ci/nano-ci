@@ -11,7 +11,7 @@ class Nanoci
 
     def put_state(state)
       data = state.clone
-      data[CREATED_UTC] = Time.now.strftime('%FT%T.%L%z')
+      data[CREATED_UTC] = Time.now
       collection = @client[:state]
       collection.insert_one(data)
     end

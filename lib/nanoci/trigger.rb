@@ -25,7 +25,7 @@ class Nanoci
     def trigger_build
       @log.info "checking repo #{@repo.tag} for new changes"
       begin
-        unless @repo.detect_changes(@env)
+        unless @repo.changes?(@env)
           @log.info "repo #{@repo.tag} has no new changes"
           return
         end
