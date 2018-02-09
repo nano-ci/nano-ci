@@ -21,11 +21,12 @@ class Nanoci
       @stdin = opts[:stdin] || StringIO.new
       @stdout = opts[:stdout] || StringIO.new
       @stderr = opts[:stderr] || StringIO.new
+      @env = opts[:env] || {}
       @cmd = cmd
     end
 
     def run
-      p_in, p_out, p_err, @wait_thr = Open3.popen3(@cmd)
+      p_in, p_out, p_err, @wait_thr = Open3.popen3(@env, @cmd)
       connect([
                 { from: @stdin, to: p_in },
                 { from: p_out, to: @stdout },

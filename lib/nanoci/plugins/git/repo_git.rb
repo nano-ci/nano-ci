@@ -9,11 +9,12 @@ class Nanoci
     class Git
       class RepoGit < Repo
         GIT_CAP = 'tools.git'.freeze
+        SSH_CAP = 'tools.ssh'.freeze
         DEFAULT_BRANCH = 'master'.freeze
 
         def initialize(hash = {})
           super(hash)
-          @branch = @branch || DEFAULT_BRANCH
+          @branch ||= DEFAULT_BRANCH
           required_agent_capabilities.push(GIT_CAP)
         end
 
@@ -34,7 +35,7 @@ class Nanoci
 
         def tip_of_tree(branch, env={})
           git_process = git("rev-parse --verify #{branch}", env)
-          git_process.output[0]
+          git_process.output
         end
 
         def clone(env, opts = {})
@@ -66,6 +67,11 @@ class Nanoci
         def git(cmd, env, opts = {})
           git_path = env[GIT_CAP]
           raise "Missing #{GIT_CAP} capability" if git_path.nil?
+          unless @auth['ssh'].nil?
+            ssh = "#{env[SSH_CAP]} -i #{@auth['ssh']}"
+            opts[:env] ||= {}
+            opts[:env]['GIT_SSH_COMMAND'] = ssh
+          end
           process = ToolProcess.run "\"#{git_path}\" #{cmd}", opts
           process.wait
           process

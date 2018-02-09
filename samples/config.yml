@@ -2,7 +2,8 @@ plugins-path: 'lib/nanoci/plugins'
 repo-cache: 'C:/nano-ci/repo-cache'
 logdir: 'c:/nano-ci/logs'
 capabilities:
-  - 'tools.git': 'C:\Program Files\Git\cmd\git.exe'
+  - 'tools.git': 'C:/Program Files/Git/cmd/git.exe'
+  - 'tools.ssh': 'C:/ProgramData/Chocolatey/bin/PLINK.EXE'
 agents:
   - name: 'Local Agent #1'
     workdir: 'c:/nano-ci/agents/agent-1'
