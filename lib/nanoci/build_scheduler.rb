@@ -20,7 +20,14 @@ class Nanoci
         return
       end
 
-      build = Nanoci::Build.run(project, trigger, {}, @env)
+      begin
+        build = Nanoci::Build.run(project, trigger, {}, @env)
+      rescue StandardError => e
+        @log.error "failed to start build for project #{project.tag}"
+        @log.error e
+        return
+      end
+
       @log.info "a new build #{build.tag} triggered by #{trigger}"
 
       if build.current_stage.nil?
