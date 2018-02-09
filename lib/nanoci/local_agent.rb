@@ -20,6 +20,7 @@ class Nanoci
         begin
           execute_task(build, task)
         rescue StandardError => e
+          @log.error "failed to execute task #{task} from job #{job.tag} of build #{build.tag}"
           @log.error(e)
           job.state = Build::State::FAILED
         end
