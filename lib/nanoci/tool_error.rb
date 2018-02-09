@@ -4,8 +4,8 @@ class Nanoci
     attr_reader :err
     attr_reader :code
 
-    def initialize(cmd, err, code)
-      msg = "command #{cmd} returned non-zero code #{code}: #{err}"
+    def initialize(cmd, code, err)
+      msg = "command #{cmd} returned non-zero code #{code}\n#{err}"
       super(msg)
       @cmd = cmd
       @err = err

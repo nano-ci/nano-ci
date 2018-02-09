@@ -58,7 +58,7 @@ class Nanoci
       io.rewind
       result = io.readlines.map(&:chomp)
       io.seek(pos)
-      result
+      result.join("\n")
     end
 
     def connect(streams)
