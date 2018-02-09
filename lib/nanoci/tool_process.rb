@@ -30,7 +30,7 @@ class Nanoci
                 { from: @stdin, to: p_in },
                 { from: p_out, to: @stdout },
                 { from: p_err, to: @stderr }
-      ])
+              ])
     end
 
     def wait
@@ -67,7 +67,7 @@ class Nanoci
 
     def connect_pair(from, to)
       Thread.new(from, to) do |f, t|
-        while true
+        loop do
           buf = read(f)
           break unless buf
           break unless write(buf, t)
