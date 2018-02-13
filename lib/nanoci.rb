@@ -40,7 +40,7 @@ class Nanoci
 
     @log.info 'reading project definition...'
     project = ProjectLoader.new.load(options.project)
-    project_state = state_manager.get_state(project.tag)
+    project_state = state_manager.get_state(StateManager::Types::PROJECT, project.tag)
     project.state = project_state unless project_state.nil?
     @log.info "read project #{project.tag}"
 

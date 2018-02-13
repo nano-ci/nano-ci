@@ -23,7 +23,7 @@ class Nanoci
 
       begin
         build = Nanoci::Build.run(project, trigger, {}, @env)
-        @state_manager.put_state(project.state)
+        @state_manager.put_state(StateManager::Types::PROJECT, project.state)
       rescue StandardError => e
         @log.error "failed to start build for project #{project.tag}"
         @log.error e
