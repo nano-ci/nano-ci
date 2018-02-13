@@ -23,3 +23,7 @@ RSpec.configure do |config|
   include RSpec::LoggingHelper
   config.capture_log_messages
 end
+
+SimpleCov.configure do
+  add_filter 'spec'
+end
