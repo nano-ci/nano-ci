@@ -42,6 +42,7 @@ class Nanoci
 
     def run_build(build)
       builds.push(build)
+      @state_manager.put_state(StateManager::Types::BUILD, build.memento)
     end
 
     def run(interval)
@@ -52,7 +53,12 @@ class Nanoci
     end
 
     def finalize_builds
-      finished_builds.each(&:complete)
+      finished_builds.each do |build|
+        build.complete
+        @state_manager.put_state(StateManager::Types::BUILD, build.memento)
+        @builds.delete build
+        @log.info "finished build #{build.tag}"
+      end
     end
 
     def schedule_builds
@@ -72,6 +78,7 @@ class Nanoci
           next
         end
         agent.run_job(build, j)
+        @state_manager.put_state(StateManager::Types::BUILD, build.memento)
       end
     end
 

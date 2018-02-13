@@ -17,5 +17,12 @@ class Nanoci
     def required_agent_capabilities
       definition.required_agent_capabilities
     end
+
+    def memento
+      {
+        tag: tag,
+        state: Build::State.to_sym(state)
+      }
+    end
   end
 end

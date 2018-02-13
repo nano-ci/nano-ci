@@ -13,6 +13,19 @@ class Nanoci
       ABORTED = 3
       FAILED = 4
       COMPLETED = 5
+
+      @mapping = {
+        UNKNOWN => :unknown,
+        QUEUED => :queued,
+        RUNNING => :running,
+        ABORTED => :aborted,
+        FAILED => :failed,
+        COMPLETED => :completed
+      }
+
+      def self.to_sym(val)
+        @mapping[val] || val
+      end
     end
 
     class << self
@@ -82,6 +95,21 @@ class Nanoci
 
     def complete
       @output.close
+      @end_time = Time.now
+    end
+
+    def memento
+      {
+        tag: tag,
+        project: project.tag,
+        start_time: start_time,
+        end_time: end_time,
+        state: State.to_sym(state),
+        stages: Hash[stages.map { |s| [s.tag, s.memento] }],
+        current_stage: current_stage.tag,
+        commits: commits.clone,
+        variables: variables.clone
+      }
     end
 
     private

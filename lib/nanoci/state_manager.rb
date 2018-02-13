@@ -3,6 +3,7 @@ require 'mongo'
 class Nanoci
   class StateManager
     module Types
+      BUILD = :build
       PROJECT = :project
     end
 

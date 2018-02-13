@@ -13,5 +13,17 @@ class Nanoci
     def state
       jobs.map(&:state).min
     end
+
+    def tag
+      @definition.tag
+    end
+
+    def memento
+      {
+        tag: tag,
+        jobs: Hash[jobs.map { |j| [j.tag, j.memento] }],
+        stage: Build::State.to_sym(state)
+      }
+    end
   end
 end
