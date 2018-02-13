@@ -1,9 +1,10 @@
 plugins-path: 'lib/nanoci/plugins'
 repo-cache: 'C:/nano-ci/repo-cache'
-logdir: 'c:/nano-ci/logs'
+build-data-dir: 'C:/nano-ci/builds'
 capabilities:
   - 'tools.git': 'C:/Program Files/Git/cmd/git.exe'
   - 'tools.ssh': 'C:/ProgramData/Chocolatey/bin/PLINK.EXE'
+  - 'tools.rspec': 'C:/tools/Ruby25-x64/bin\rspec.bat'
 agents:
   - name: 'Local Agent #1'
     workdir: 'c:/nano-ci/agents/agent-1'

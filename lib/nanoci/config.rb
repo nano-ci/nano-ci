@@ -31,8 +31,8 @@ class Nanoci
       @src['repo-cache']
     end
 
-    def logdir
-      @src['logdir']
+    def build_data_dir
+      @src['build-data-dir']
     end
 
     def agents

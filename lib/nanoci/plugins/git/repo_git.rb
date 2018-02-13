@@ -16,6 +16,7 @@ class Nanoci
           super(hash)
           @branch ||= DEFAULT_BRANCH
           required_agent_capabilities.push(GIT_CAP)
+          required_agent_capabilities.push(SSH_CAP)
         end
 
         def in_repo_cache(env)
@@ -78,9 +79,7 @@ class Nanoci
             opts[:env] ||= {}
             opts[:env]['GIT_SSH_COMMAND'] = ssh
           end
-          process = ToolProcess.run "\"#{git_path}\" #{cmd}", opts
-          process.wait
-          process
+          ToolProcess.run("\"#{git_path}\" #{cmd}", opts).wait
         end
       end
     end

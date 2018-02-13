@@ -74,6 +74,7 @@ class Nanoci
     attr_accessor :stages
     attr_accessor :current_stage
     attr_accessor :commits
+    attr_accessor :tests
     attr_accessor :variables
     attr_reader   :output
 
@@ -107,6 +108,7 @@ class Nanoci
         state: State.to_sym(state),
         stages: Hash[stages.map { |s| [s.tag, s.memento] }],
         current_stage: current_stage.tag,
+        tests: tests.map { |t| t.memento },
         commits: commits.clone,
         variables: variables.clone
       }
@@ -125,10 +127,11 @@ class Nanoci
       setup_stages(@project)
       @commits = Hash[@project.repos
                               .map { |t, r| [t, r.current_commit] }]
+      @tests = []
 
-      logdir = env['logdir']
-      FileUtils.mkdir_p(logdir) unless Dir.exist? logdir
-      @output = TimedIO.new(File.open(File.join(logdir, "#{@tag}.log"), "w+"))
+      env['build_data_dir'] = File.join(env['build_data_dir'], tag)
+      FileUtils.mkdir_p(env['build_data_dir']) unless Dir.exist? env['build_data_dir']
+      @output = TimedIO.new(File.open(File.join(env['build_data_dir'], "#{@tag}.log"), "w+"))
     end
 
     def setup_stages(project)

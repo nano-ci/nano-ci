@@ -23,6 +23,7 @@ class Nanoci
       @stderr = opts[:stderr] || StringIO.new
       @env = opts[:env] || {}
       @cmd = cmd
+      @throw_non_zero_status_code = opts.fetch(:throw_non_zero_status_code, true)
     end
 
     def run
@@ -37,7 +38,9 @@ class Nanoci
     def wait
       @wait_thr.join
       @connect_threads.each(&:join)
-      raise ToolError.new(@cmd, status_code, error) unless status_code.zero?
+      raise ToolError.new(@cmd, status_code, error) \
+        if @throw_non_zero_status_code && !status_code.zero?
+      self
     end
 
     def output

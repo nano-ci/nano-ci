@@ -37,8 +37,10 @@ class Nanoci
 
     def execute_task(build, task)
       env = @env.merge(@capabilities)
+
       env['workdir'] = @workdir
-      env['logdir'] = @logdir
+      FileUtils.mkdir_p(env['workdir']) unless Dir.exist? env['workdir']
+
       task.execute(build, env)
     end
   end

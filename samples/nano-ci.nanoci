@@ -18,3 +18,4 @@ stages:
           - type: source-control
             action: checkout
             repo: main-repo
+          - type: test-rspec
