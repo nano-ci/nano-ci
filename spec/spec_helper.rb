@@ -2,6 +2,9 @@ require 'simplecov'
 SimpleCov.start
 
 require 'bundler/setup'
+require 'logging'
+require 'rspec/logging_helper'
+
 require 'nanoci'
 
 require_relative 'helpers/capture_stderr'
@@ -16,4 +19,7 @@ RSpec.configure do |config|
   config.expect_with :rspec do |c|
     c.syntax = :expect
   end
+
+  include RSpec::LoggingHelper
+  config.capture_log_messages
 end
