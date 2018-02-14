@@ -54,7 +54,7 @@ class Nanoci
           cmd = opts.map { |k, v| (k + ' ' + v).strip }.join(' ')
           rspec(env[RSPEC_CAP], cmd, stdout: build.output, stderr: build.output)
           results = read_results(opts['--out'])
-          build.tests.push(*results)
+          handle_results(results, build)
         end
 
         def execute_read_file(build, env)

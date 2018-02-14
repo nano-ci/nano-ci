@@ -14,18 +14,27 @@ class Nanoci
     def run_job(build, job)
       super(build, job)
 
-      job.state = Build::State::RUNNING
+      begin
+        job.state = Build::State::RUNNING
+        execute_tasks(job.definition.tasks, job.tag, build)
+        job.state = Build::State::COMPLETED
+      rescue StandardError => e
+        @log.error "failed to execute job #{job.tag} of build #{build.tag}"
+        @log.error e
+        job.state = Build::State::FAILED
+      end
+    end
 
-      job.definition.tasks.each do |task|
+    def execute_tasks(tasks, job_tag, build)
+      tasks.each do |task|
         begin
           execute_task(build, task)
         rescue StandardError => e
-          @log.error "failed to execute task #{task} from job #{job.tag} of build #{build.tag}"
+          @log.error "failed to execute task #{task} from job #{job_tag} of build #{build.tag}"
           @log.error(e)
-          job.state = Build::State::FAILED
+          raise e
         end
       end
-      job.state = Build::State::COMPLETED
     end
   end
 end
