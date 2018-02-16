@@ -19,7 +19,7 @@ RSpec.describe Nanoci::Build do
     stage = Nanoci::Stage.new('tag' => 'test')
     stage.jobs = [job]
     project.stages = [stage]
-    build = Nanoci::Build.run(project, nil, {})
+    build = Nanoci::Build.run(project, nil, {}, 'build_data_dir' => '/abc')
     expect(build.project).to eq project
   end
 
@@ -30,7 +30,7 @@ RSpec.describe Nanoci::Build do
     stage.jobs = [job]
     project.stages = [stage]
     trigger = Nanoci::Trigger.new(nil, project)
-    build = Nanoci::Build.run(project, trigger, {})
+    build = Nanoci::Build.run(project, trigger, {}, 'build_data_dir' => '/abc')
     expect(build.trigger).to eq trigger
   end
 
@@ -40,9 +40,9 @@ RSpec.describe Nanoci::Build do
     stage = Nanoci::Stage.new('tag' => 'test')
     stage.jobs = [job]
     project.stages = [stage]
-    build1 = Nanoci::Build.run(project, nil, {})
+    build1 = Nanoci::Build.run(project, nil, {}, 'build_data_dir' => '/abc')
     expect(build1.number).to eq 1
-    build2 = Nanoci::Build.run(project, nil, {})
+    build2 = Nanoci::Build.run(project, nil, {}, 'build_data_dir' => '/abc')
     expect(build2.number).to eq 2
   end
 
@@ -54,10 +54,10 @@ RSpec.describe Nanoci::Build do
     project.stages = [stage]
     project.variables = {
       'var1' => Nanoci::Variable.new('tag' => 'var1', 'value' => 'var1 value'),
-      'var2' => Nanoci::Variable.new('tag' => 'var2', 'value' =>'var2 value')
+      'var2' => Nanoci::Variable.new('tag' => 'var2', 'value' => 'var2 value')
     }
     trigger = Nanoci::Trigger.new(nil, project)
-    build = Nanoci::Build.run(project, trigger, {})
+    build = Nanoci::Build.run(project, nil, {}, 'build_data_dir' => '/abc')
     expect(build.variables).to include 'var1'
     expect(build.variables['var1']).to eq 'var1 value'
     expect(build.variables).to include 'var2'
@@ -75,7 +75,7 @@ RSpec.describe Nanoci::Build do
       'var2' => Nanoci::Variable.new('tag' => 'var2', 'value' => 'var2 value')
     }
     trigger = Nanoci::Trigger.new(nil, project)
-    build = Nanoci::Build.run(project, trigger, env_vars)
+    build = Nanoci::Build.run(project, trigger, env_vars, 'build_data_dir' => '/abc')
     expect(build.variables).to include 'var1'
     expect(build.variables['var1']).to eq 'var1 value'
     expect(build.variables).to include 'var2'
@@ -97,7 +97,7 @@ RSpec.describe Nanoci::Build do
       'var4' => Nanoci::Variable.new('tag' => 'var4', 'value' => 'var4 value')
     }
     trigger = Nanoci::Trigger.new(nil, project)
-    build = Nanoci::Build.run(project, trigger, env_vars)
+    build = Nanoci::Build.run(project, trigger, env_vars, 'build_data_dir' => '/abc')
     expect(build.variables).to include 'var1'
     expect(build.variables['var1']).to eq 'var1 value'
     expect(build.variables).to include 'var2'
@@ -115,7 +115,7 @@ RSpec.describe Nanoci::Build do
     stage.jobs = [job]
     project.stages = [stage]
     trigger = Nanoci::Trigger.new(nil, project)
-    build = Nanoci::Build.run(project, trigger, {})
+    build = Nanoci::Build.run(project, nil, {}, 'build_data_dir' => '/abc')
     expect(build.start_time).to be_within(1).of(Time.now)
   end
 
@@ -126,7 +126,7 @@ RSpec.describe Nanoci::Build do
     stage.jobs = [job]
     project.stages = [stage]
     trigger = Nanoci::Trigger.new(nil, project)
-    build = Nanoci::Build.run(project, trigger, {})
+    build = Nanoci::Build.run(project, nil, {}, 'build_data_dir' => '/abc')
     expect(build.tag).to eq('tag-test-1')
   end
 
@@ -137,7 +137,7 @@ RSpec.describe Nanoci::Build do
     stage.jobs = [job]
     project.stages = [stage]
     trigger = Nanoci::Trigger.new(nil, project)
-    build = Nanoci::Build.run(project, trigger, {})
+    build = Nanoci::Build.run(project, nil, {}, 'build_data_dir' => '/abc')
     expect(build.current_stage.definition).to eq(stage)
   end
 
@@ -147,9 +147,16 @@ RSpec.describe Nanoci::Build do
     stage = Nanoci::Stage.new('tag' => 'test')
     stage.jobs = [job]
     project.stages = [stage]
-    project.repos = { 'repo-1' => TestRepo.new('tag' => 'repo-1') }
-    trigger = Nanoci::Trigger.new(nil, project)
-    build = Nanoci::Build.run(project, trigger, {})
+    repo = double('repo')
+    allow(repo).to receive(:tag).and_return('repo-1')
+    allow(repo).to receive(:current_commit).and_return('abcdef')
+    allow(repo).to receive(:current_commit=)
+    allow(repo).to receive(:in_repo_cache).and_yield
+    allow(repo).to receive(:update)
+    allow(repo).to receive(:branch)
+    allow(repo).to receive(:tip_of_tree )
+    project.repos = { 'repo-1' => repo }
+    build = Nanoci::Build.run(project, nil, {}, 'build_data_dir' => '/abc')
     expect(build.commits).to include 'repo-1'
     expect(build.commits['repo-1']).to eq 'abcdef'
   end
@@ -160,7 +167,7 @@ RSpec.describe Nanoci::Build do
     stage = Nanoci::Stage.new('tag' => 'test')
     stage.jobs = [job]
     project.stages = [stage]
-    build = Nanoci::Build.run(project, nil, {})
+    build = Nanoci::Build.run(project, nil, {}, 'build_data_dir' => '/abc')
 
     expect(build.state).to eq Nanoci::Build::State::QUEUED
   end
@@ -171,7 +178,7 @@ RSpec.describe Nanoci::Build do
     stage = Nanoci::Stage.new('tag' => 'test')
     stage.jobs = [job]
     project.stages = [stage]
-    build = Nanoci::Build.run(project, nil, {})
+    build = Nanoci::Build.run(project, nil, {}, 'build_data_dir' => '/abc')
 
     expect(build.current_stage.state).to eq Nanoci::Build::State::QUEUED
     expect(build.state).to eq build.current_stage.state
@@ -188,7 +195,7 @@ RSpec.describe Nanoci::Build do
     stage = Nanoci::Stage.new('tag' => 'test')
     stage.jobs = [job]
     project.stages = [stage]
-    build = Nanoci::Build.run(project, nil, {})
+    build = Nanoci::Build.run(project, nil, {}, 'build_data_dir' => '/abc')
     env = { 'workdir' => '/abc' }
 
     expect(build.workdir(env)).to eq '/abc/project-path-test-1'

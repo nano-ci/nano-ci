@@ -30,7 +30,7 @@ RSpec.describe Nanoci::Repo do
 
   it 'detect_changes returns true' do
     repo = Nanoci::Repo.new
-    expect(repo.detect_changes({})).to be true
+    expect(repo.changes?({})).to be true
   end
 
   it 'current_commit returns empty string' do

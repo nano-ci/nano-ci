@@ -5,8 +5,11 @@ require 'nanoci/build_scheduler'
 
 RSpec.describe Nanoci::BuildScheduler do
   it 'stores build in builds collection when build is run' do
-    build_scheduler = Nanoci::BuildScheduler.new(nil)
+    state_manager = double('state_manager')
+    allow(state_manager).to receive(:put_state)
+    build_scheduler = Nanoci::BuildScheduler.new(nil, state_manager, nil)
     build = double('build')
+    allow(build).to receive(:memento)
 
     build_scheduler.run_build(build)
 
@@ -14,12 +17,16 @@ RSpec.describe Nanoci::BuildScheduler do
   end
 
   it 'queued_builds returns array of builds in state QUEUED' do
-    build_scheduler = Nanoci::BuildScheduler.new(nil)
+    state_manager = double('state_manager')
+    allow(state_manager).to receive(:put_state)
+    build_scheduler = Nanoci::BuildScheduler.new(nil, state_manager, nil)
     queued_build = double('queued_build')
+    allow(queued_build).to receive(:memento)
     allow(queued_build).to receive(:state).and_return(Nanoci::Build::State::QUEUED)
     allow(queued_build).to receive(:tag).and_return('abc-1')
 
     running_build = double('running_build')
+    allow(running_build).to receive(:memento)
     allow(running_build).to receive(:run)
     allow(running_build).to receive(:state).and_return(Nanoci::Build::State::RUNNING)
     allow(running_build).to receive(:tag).and_return('abc-1')
@@ -32,9 +39,12 @@ RSpec.describe Nanoci::BuildScheduler do
   end
 
   it 'queued_builds returns array of jobs in state QUEUED' do
-    build_scheduler = Nanoci::BuildScheduler.new(nil)
+    state_manager = double('state_manager')
+    allow(state_manager).to receive(:put_state)
+    build_scheduler = Nanoci::BuildScheduler.new(nil, state_manager, nil)
     build = double('build')
     allow(build).to receive(:state)
+    allow(build).to receive(:memento)
 
     queued_job = double('queued_job')
     allow(queued_job).to receive(:state).and_return(Nanoci::Build::State::QUEUED)
@@ -75,12 +85,15 @@ RSpec.describe Nanoci::BuildScheduler do
     allow(build).to receive(:state).and_return(Nanoci::Build::State::QUEUED)
     allow(build).to receive(:current_stage).and_return(stage)
     allow(build).to receive(:tag).and_return('abc-1')
+    allow(build).to receive(:memento)
 
-    build_scheduler = Nanoci::BuildScheduler.new(agent_manager)
+    state_manager = double('state_manager')
+    allow(state_manager).to receive(:put_state)
+    build_scheduler = Nanoci::BuildScheduler.new(agent_manager, state_manager, nil)
     build_scheduler.schedule_build(build)
 
-    expect(agent).to have_received(:run_job).with queued_job
-    expect(agent).not_to have_received(:run_job).with queued_unavailable_job
+    expect(agent).to have_received(:run_job).with(build, queued_job)
+    expect(agent).not_to have_received(:run_job).with(build, queued_unavailable_job)
   end
 
   it 'schedule_builds runs scheduled jobs only on capable agents' do
@@ -107,20 +120,25 @@ RSpec.describe Nanoci::BuildScheduler do
     allow(build).to receive(:state).and_return(Nanoci::Build::State::QUEUED)
     allow(build).to receive(:current_stage).and_return(stage)
     allow(build).to receive(:tag).and_return('abc-1')
+    allow(build).to receive(:memento)
 
-    build_scheduler = Nanoci::BuildScheduler.new(agent_manager)
+    state_manager = double('state_manager')
+    allow(state_manager).to receive(:put_state)
+    build_scheduler = Nanoci::BuildScheduler.new(agent_manager, state_manager, nil)
     build_scheduler.run_build(build)
     build_scheduler.schedule_builds
 
-    expect(agent).to have_received(:run_job).with queued_job
-    expect(agent).not_to have_received(:run_job).with queued_unavailable_job
+    expect(agent).to have_received(:run_job).with(build, queued_job)
+    expect(agent).not_to have_received(:run_job).with(build, queued_unavailable_job)
   end
 
   it 'adds periodic timer when run' do
     event_machine = class_double(EventMachine).as_stubbed_const
     expect(event_machine).to receive(:add_periodic_timer).with(5)
 
-    build_scheduler = Nanoci::BuildScheduler.new(nil)
+    state_manager = double('state_manager')
+    allow(state_manager).to receive(:put_state)
+    build_scheduler = Nanoci::BuildScheduler.new(nil, state_manager, nil)
     build_scheduler.run(5)
   end
 
@@ -144,8 +162,11 @@ RSpec.describe Nanoci::BuildScheduler do
     allow(build).to receive(:state).and_return(Nanoci::Build::State::QUEUED)
     allow(build).to receive(:current_stage).and_return(stage)
     allow(build).to receive(:tag).and_return('abc-1')
+    allow(build).to receive(:memento)
 
-    build_scheduler = Nanoci::BuildScheduler.new(agent_manager)
+    state_manager = double('state_manager')
+    allow(state_manager).to receive(:put_state)
+    build_scheduler = Nanoci::BuildScheduler.new(agent_manager, state_manager, nil)
     build_scheduler.run_build(build)
 
     event_machine = class_double(EventMachine).as_stubbed_const
@@ -153,11 +174,13 @@ RSpec.describe Nanoci::BuildScheduler do
 
     build_scheduler.run(1)
 
-    expect(agent).to have_received(:run_job).with queued_job
+    expect(agent).to have_received(:run_job).with(build, queued_job)
   end
 
   it 'does not triggers multiple builds for the same project' do
-    build_scheduler = Nanoci::BuildScheduler.new(nil)
+    state_manager = double('state_manager')
+    allow(state_manager).to receive(:put_state)
+    build_scheduler = Nanoci::BuildScheduler.new(nil, state_manager, {'build_data_dir' => '/abc'})
     project = double('project')
     allow(project).to receive(:tag).and_return 'project-abc'
     allow(project).to receive(:variables).and_return({})
@@ -168,8 +191,11 @@ RSpec.describe Nanoci::BuildScheduler do
 
     stage = double('stage')
     allow(stage).to receive(:jobs).and_return([queued_job])
+    allow(stage).to receive(:tag)
+
     allow(project).to receive(:stages).and_return([stage])
     allow(project).to receive(:repos).and_return({})
+    allow(project).to receive(:state)
 
     build_scheduler.trigger_build(project, nil)
     build_scheduler.trigger_build(project, nil)

@@ -23,7 +23,7 @@ RSpec.describe Nanoci::Tasks::TaskSourceControl do
     expect(task.branch).to eq 'master'
   end
 
-  it 'returns required_agent_capabilities from project repo' do
+  it 'returns required_output_capabilities from project repo' do
     task = Nanoci::Tasks::TaskSourceControl.new('repo' => 'abc')
     repo = double('repo')
     expect(repo).to receive(:required_agent_capabilities).and_return(Set['def'])
@@ -38,6 +38,7 @@ RSpec.describe Nanoci::Tasks::TaskSourceControl do
 
     build = double('build')
     allow(build).to receive(:project).and_return(project)
+    allow(build).to receive(:workdir).and_return('/abc')
     task = Nanoci::Tasks::TaskSourceControl.new('repo' => 'abc')
     expect { task.execute(build, nil) }.to raise_error 'Missing repo definition abc'
   end
@@ -50,20 +51,22 @@ RSpec.describe Nanoci::Tasks::TaskSourceControl do
 
     build = double('build')
     allow(build).to receive(:project).and_return(project)
-    agent = double('agent')
+    output = double('output')
     allow(build).to receive(:workdir).and_return('/def/project-1')
     task = Nanoci::Tasks::TaskSourceControl.new('repo' => 'abc', 'workdir' => 'abc')
     dir_double = class_double(Dir).as_stubbed_const
     expect(dir_double).to receive(:chdir).with('/def/project-1/abc')
-    task.execute(build, agent)
+    allow(dir_double).to receive(:exist?).and_return(true)
+    task.execute(build, {})
   end
 
   it 'execute calls checkout with branch' do
-    agent = double('agent')
+    output = double('output')
 
     repo = double('repo')
     allow(repo).to receive(:exists?).and_return true
-    expect(repo).to receive(:checkout).with('master', agent)
+    allow(repo).to receive(:update)
+    expect(repo).to receive(:checkout).with('master', {}, stderr: output, stdout: output)
 
     project = double('project')
     allow(project).to receive(:repos).and_return('abc' => repo)
@@ -71,6 +74,7 @@ RSpec.describe Nanoci::Tasks::TaskSourceControl do
     build = double('build')
     allow(build).to receive(:project).and_return(project)
     allow(build).to receive(:workdir).and_return('/def/project-1')
+    allow(build).to receive(:output).and_return(output)
     task = Nanoci::Tasks::TaskSourceControl.new(
       'repo' => 'abc',
       'workdir' => 'abc',
@@ -79,15 +83,16 @@ RSpec.describe Nanoci::Tasks::TaskSourceControl do
     )
     dir_double = class_double(Dir).as_stubbed_const
     allow(dir_double).to receive(:chdir).and_yield
-    task.execute(build, agent)
+    allow(dir_double).to receive(:exist?).and_return(true)
+    task.execute(build, {})
   end
 
   it 'execute_checkout calls checkout with branch' do
-    agent = double('agent')
+    output = double('output')
 
     repo = double('repo')
-    allow(repo).to receive(:exists?).and_return true
-    expect(repo).to receive(:checkout).with('master', agent)
+    allow(repo).to receive(:update)
+    expect(repo).to receive(:checkout).with('master', {}, stderr: output, stdout: output)
 
     task = Nanoci::Tasks::TaskSourceControl.new(
       'repo' => 'abc',
@@ -97,15 +102,15 @@ RSpec.describe Nanoci::Tasks::TaskSourceControl do
     )
     dir_double = class_double(Dir).as_stubbed_const
     allow(dir_double).to receive(:chdir).and_yield
-    task.execute_checkout(repo, agent)
+    task.execute_checkout(repo, {}, output)
   end
 
-  it 'execute_checkout tests for repo existence' do
-    agent = double('agent')
+  it 'execute_checkout updates repo' do
+    output = double('output')
 
     repo = double('repo')
-    expect(repo).to receive(:exists?).with(agent).and_return true
     allow(repo).to receive(:checkout)
+    allow(repo).to receive(:update).with({})
 
     task = Nanoci::Tasks::TaskSourceControl.new(
       'repo' => 'abc',
@@ -115,25 +120,6 @@ RSpec.describe Nanoci::Tasks::TaskSourceControl do
     )
     dir_double = class_double(Dir).as_stubbed_const
     allow(dir_double).to receive(:chdir).and_yield
-    task.execute_checkout(repo, agent)
-  end
-
-  it 'execute_checkout clones repo is not exist' do
-    agent = double('agent')
-
-    repo = double('repo')
-    allow(repo).to receive(:exists?).and_return false
-    expect(repo).to receive(:clone).with(agent)
-    allow(repo).to receive(:checkout)
-
-    task = Nanoci::Tasks::TaskSourceControl.new(
-      'repo' => 'abc',
-      'workdir' => 'abc',
-      'branch' => 'master',
-      'action' => 'checkout'
-    )
-    dir_double = class_double(Dir).as_stubbed_const
-    allow(dir_double).to receive(:chdir).and_yield
-    task.execute_checkout(repo, agent)
+    task.execute_checkout(repo, {}, output)
   end
 end

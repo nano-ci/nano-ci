@@ -11,7 +11,7 @@ RSpec.describe Nanoci::AgentManager do
       ]
     )
 
-    agent_manager = Nanoci::AgentManager.new(config)
+    agent_manager = Nanoci::AgentManager.new(config, {})
 
     expect(agent_manager.agents).not_to be_nil
     expect(agent_manager.agents.length).to eq(1)
@@ -26,7 +26,7 @@ RSpec.describe Nanoci::AgentManager do
       'capabilities' => ['test']
     )
 
-    agent_manager = Nanoci::AgentManager.new(config)
+    agent_manager = Nanoci::AgentManager.new(config, {})
     expect(agent_manager.agents[0].capabilities?(Set['test'])).to be true
   end
 
@@ -38,7 +38,7 @@ RSpec.describe Nanoci::AgentManager do
       'capabilities' => ['test']
     )
 
-    agent_manager = Nanoci::AgentManager.new(config)
+    agent_manager = Nanoci::AgentManager.new(config, {})
     expect(agent_manager.find_agent(Set['test'])).not_to be_nil
   end
 end

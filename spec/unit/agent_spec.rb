@@ -11,7 +11,7 @@ RSpec.describe Nanoci::Agent do
       'name' => 'test'
     )
 
-    agent = Nanoci::Agent.new(config, {})
+    agent = Nanoci::Agent.new(config, {}, {})
     expect(agent.name).to eq('test')
   end
 
@@ -21,7 +21,7 @@ RSpec.describe Nanoci::Agent do
       'capabilities' => ['test.cap']
     )
 
-    agent = Nanoci::Agent.new(config, {})
+    agent = Nanoci::Agent.new(config, {}, {})
     expect(agent.capability?('test.cap')).to be true
   end
 
@@ -32,7 +32,7 @@ RSpec.describe Nanoci::Agent do
       'workdir' => '/abc'
     )
 
-    agent = Nanoci::Agent.new(config, {})
+    agent = Nanoci::Agent.new(config, {}, {})
     expect(agent.workdir).to eq '/abc'
   end
 
@@ -42,7 +42,7 @@ RSpec.describe Nanoci::Agent do
       'capabilities' => ['test.cap']
     )
 
-    agent = Nanoci::Agent.new(config, 'test.common' => nil)
+    agent = Nanoci::Agent.new(config, { 'test.common' => nil }, {})
     expect(agent.capability?('test.common')).to be true
   end
 
@@ -51,9 +51,9 @@ RSpec.describe Nanoci::Agent do
       'name' => 'test'
     )
 
-    agent = Nanoci::Agent.new(config, {})
+    agent = Nanoci::Agent.new(config, {}, {})
     job = Nanoci::BuildJob.new(Nanoci::Job.new('tag' => 'test'))
-    agent.run_job(job)
+    agent.run_job(nil, job)
     expect(agent.current_job).not_to be_nil
   end
 
@@ -61,7 +61,7 @@ RSpec.describe Nanoci::Agent do
     config = Nanoci::Config::LocalAgentConfig.new(
       'name' => 'test'
     )
-    agent = Nanoci::Agent.new(config, {})
+    agent = Nanoci::Agent.new(config, {}, {})
     expect(agent.capability('test.cap')).to be nil
   end
 
@@ -70,7 +70,7 @@ RSpec.describe Nanoci::Agent do
       'name' => 'test',
       'capabilities' => [{ 'test.cap' => nil }]
     )
-    agent = Nanoci::Agent.new(config, {})
+    agent = Nanoci::Agent.new(config, {}, {})
     expect(agent.capability('test.cap')).to be true
   end
 
@@ -79,7 +79,7 @@ RSpec.describe Nanoci::Agent do
       'name' => 'test',
       'capabilities' => [{ 'test.cap' => 'test.cap.value' }]
     )
-    agent = Nanoci::Agent.new(config, {})
+    agent = Nanoci::Agent.new(config, {}, {})
     expect(agent.capability('test.cap')).to eq 'test.cap.value'
   end
 end
