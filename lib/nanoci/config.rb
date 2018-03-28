@@ -4,6 +4,12 @@ class Nanoci
   ##
   # nano-ci config which is read from config file
   class Config
+    def self.env(name)
+      match = /\$\{([^}]*)\}/.match(name)
+      name if match.nil? || ENV[match[1]].nil?
+      ENV[match[1]]
+    end
+
     def initialize(src)
       @src = src
     end
@@ -47,6 +53,10 @@ class Nanoci
       @src['mongo-connection-string']
     end
 
+    def email
+      EmailConfig.new(@src['email'] || {})
+    end
+
     ##
     # Local agent config
     class LocalAgentConfig
@@ -70,6 +80,32 @@ class Nanoci
 
       def workdir
         @src['workdir']
+      end
+    end
+
+    class EmailConfig
+      def initialize(src)
+        @src = src
+      end
+
+      def from
+        Config.env(@src['from'])
+      end
+
+      def host
+        Config.env(@src['host'])
+      end
+
+      def port
+        Config.env(@src['port'])
+      end
+
+      def username
+        Config.env(@src['username'])
+      end
+
+      def password
+        Config.env(@src['password'])
       end
     end
   end

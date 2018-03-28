@@ -6,6 +6,7 @@ require 'yaml'
 require 'nanoci/artifact'
 require 'nanoci/project'
 require 'nanoci/repo'
+require 'nanoci/reporters/all'
 require 'nanoci/triggers/poll_trigger'
 require 'nanoci/stage'
 require 'nanoci/task'
@@ -22,17 +23,18 @@ class Nanoci
       @log = Logging.logger[self]
     end
 
-    def load(path)
+    def load(config, path)
       project_src = YAML.load_file path
-      read_project(project_src)
+      read_project(config, project_src)
     end
 
-    def read_project(hash)
+    def read_project(config, hash)
       hash = sanitize(hash)
       project = Project.new(hash)
       project.repos = read_repos(hash, :repos)
       project.stages = read_stages(project, hash, :stages)
       project.variables = read_variables(hash, :variables)
+      project.reporters = read_reporters(config, hash, :reporters)
       project
     end
 
@@ -131,6 +133,14 @@ class Nanoci
       else
         value
       end
+    end
+
+    def read_reporters(config, hash, field)
+      read_array(hash, field, ->(h) { read_reporter(config, h) })
+    end
+
+    def read_reporter(config, hash)
+      Reporter.create(hash['type'], config, hash)
     end
   end
 end

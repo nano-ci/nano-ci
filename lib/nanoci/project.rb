@@ -28,6 +28,13 @@ class Nanoci
       @variables = value
     end
 
+    attr_reader :reporters
+
+    def reporters=(value)
+      raise 'value is not an Array' unless value.is_a? Array
+      @reporters = value
+    end
+
     def build_number
       variables['buildNumber']&.value || 1
     end
@@ -47,6 +54,7 @@ class Nanoci
       @repos = {}
       @stages = []
       @variables = {}
+      @reporters = []
     end
 
     def state

@@ -9,3 +9,9 @@ agents:
   - name: 'Local Agent #1'
     workdir: 'c:/nano-ci/agents/agent-1'
 mongo-connection-string: mongodb://127.0.0.1:27017/nanoci
+email:
+  from: nanoci@thevk.net
+  host: smtp.yandex.ru
+  port: 465
+  username: nanoci@thevk.net
+  password: ${nanoci_email_password}

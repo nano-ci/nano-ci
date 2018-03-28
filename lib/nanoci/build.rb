@@ -114,6 +114,7 @@ class Nanoci
     def complete
       @output.close
       @end_time = Time.now
+      project.reporters.each { |b| b.report(self) }
     end
 
     def memento # rubocop:disable Metrics/AbcSize, Metrics/MethodLength

@@ -19,3 +19,12 @@ stages:
             action: checkout
             repo: main-repo
           - type: test-rspec
+reporters:
+  - type: email
+    what: all
+    recipients:
+      - the_vk@thevk.net
+  - type: email
+    what: fail
+    recipients:
+      - the_vk@thevk.net
