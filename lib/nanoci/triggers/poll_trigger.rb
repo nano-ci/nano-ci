@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'eventmachine'
 require 'logging'
 
@@ -5,7 +7,10 @@ require 'nanoci/build'
 require 'nanoci/trigger'
 
 class Nanoci
+  # Built-in nano-ci triggers
   class Triggers
+    # Poll trigger class
+    # Poll trigger is the trigger that checks a repo on a scheduled basis
     class PollTrigger < Trigger
       attr_accessor :interval
       attr_accessor :schedule

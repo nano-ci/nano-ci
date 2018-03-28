@@ -1,6 +1,10 @@
+# frozen_string_literal: true
+
 require 'logging'
 
 class Nanoci
+  # Agent is a instance of nano-ci service that executes commands from
+  # a main nano-ci service to run build jobs
   class Agent
     attr_accessor :name
     attr_accessor :current_job
@@ -17,7 +21,7 @@ class Nanoci
       @current_job = nil
     end
 
-    def run_job(build, job)
+    def run_job(_build, job)
       @log.info "running job #{job.tag} on #{name}"
       self.current_job = job
     end
@@ -31,17 +35,26 @@ class Nanoci
     end
 
     def capabilities?(required_capabilities)
-      raise 'required_capabilities should be a Set' unless required_capabilities.is_a? Set
+      raise 'required_capabilities should be a Set' \
+        unless required_capabilities.is_a? Set
       Set.new(@capabilities.keys.to_set).superset? required_capabilities
     end
 
-    def execute_task(build, task)
+    def execute_tasks(tasks, job_tag, build)
+      tasks.each { |task| execute_task(build, job_tag, task) }
+    end
+
+    def execute_task(build, job_tag, task)
       env = @env.merge(@capabilities)
 
       env['workdir'] = @workdir
       FileUtils.mkdir_p(env['workdir']) unless Dir.exist? env['workdir']
 
       task.execute(build, env)
+    rescue StandardError => e
+      @log.error "failed to execute task #{task} from job #{job_tag} of build #{build.tag}"
+      @log.error(e)
+      raise e
     end
   end
 end

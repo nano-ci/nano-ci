@@ -1,8 +1,18 @@
+# frozen_string_literal: true
+
 require 'stringio'
 
 class Nanoci
+  ##
+  # TimedIO is the text stream class that appends current time to each line
   class TimedIO
-    TIME_FORMAT = '[%FT%T.%L%z]'.freeze
+    TIME_FORMAT = '[%FT%T.%L%z]'
+
+    class << self
+      def create_path(path)
+        TimedIO.new(File.open(path, 'w+'))
+      end
+    end
 
     def initialize(stream)
       @stream = stream
@@ -16,17 +26,17 @@ class Nanoci
       @stream.write_nonblock(insert_time(string))
     end
 
-    def respond_to?(symbol, include_priv=false)
+    def respond_to?(symbol, include_priv = false)
       @stream.respond_to?(symbol, include_priv)
     end
 
     private
 
-    def peek(c)
+    def peek(char)
       @stream.seek(-1, IO::SEEK_CUR)
       ch = @stream.getc
-      @stream.ungetc(c)
-      c == ch
+      @stream.ungetc(ch)
+      char == ch
     end
 
     def insert_time(string)
@@ -36,7 +46,15 @@ class Nanoci
     end
 
     def method_missing(method, *args, &block)
-      @stream.send(method, *args, &block)
+      if @stream.respond_to?(method)
+        @stream.send(method, *args, &block)
+      else
+        super
+      end
+    end
+
+    def respond_to_missing?(symbol, include_all)
+      super
     end
   end
 end

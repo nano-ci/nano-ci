@@ -1,7 +1,11 @@
+# frozen_string_literal: true
+
 require 'nanoci/task'
 
 class Nanoci
+  # Build-in nano-ci tasks
   class Tasks
+    # Task to work with SCM tools
     class TaskSourceControl < Task
       attr_accessor :repo_tag
       attr_accessor :action

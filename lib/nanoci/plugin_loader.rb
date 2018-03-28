@@ -1,4 +1,8 @@
+# frozen_string_literal: true
+
 class Nanoci
+  ##
+  # nano-ci plugin loader
   class PluginLoader
     def self.load(plugins_path)
       Dir.foreach(plugins_path) do |plugin_dir|

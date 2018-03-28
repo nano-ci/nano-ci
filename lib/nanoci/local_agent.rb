@@ -1,9 +1,13 @@
+# frozen_string_literal: true
+
 require 'logging'
 
 require 'nanoci/agent'
 require 'nanoci/build'
 
 class Nanoci
+  ##
+  # Local agent is the agent that executes jobs in the main nano-ci process
   class LocalAgent < Agent
     def initialize(*args)
       super
@@ -22,18 +26,6 @@ class Nanoci
         @log.error "failed to execute job #{job.tag} of build #{build.tag}"
         @log.error e
         job.state = Build::State::FAILED
-      end
-    end
-
-    def execute_tasks(tasks, job_tag, build)
-      tasks.each do |task|
-        begin
-          execute_task(build, task)
-        rescue StandardError => e
-          @log.error "failed to execute task #{task} from job #{job_tag} of build #{build.tag}"
-          @log.error(e)
-          raise e
-        end
       end
     end
   end

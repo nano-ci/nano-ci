@@ -1,11 +1,13 @@
+# frozen_string_literal: true
+
 class Nanoci
+  ##
+  # Base class for nano-ci build task
   class Task
-    attr_accessor :type
-
-    @types = {}
-
-    def self.types
-      @types
+    class << self
+      def types
+        @types ||= {}
+      end
     end
 
     attr_accessor :workdir

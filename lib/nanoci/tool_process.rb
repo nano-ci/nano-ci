@@ -1,9 +1,13 @@
+# frozen_string_literal: true
+
 require 'open3'
 require 'stringio'
 
 require 'nanoci/tool_error'
 
 class Nanoci
+  ##
+  # Class to run external tool and capture stdout and stderr
   class ToolProcess
     attr_reader :stdin
     attr_reader :stdout
@@ -23,7 +27,7 @@ class Nanoci
       @stderr = opts[:stderr] || StringIO.new
       @env = opts[:env] || {}
       @cmd = cmd
-      @throw_non_zero_status_code = opts.fetch(:throw_non_zero_status_code, true)
+      @throw_non_zero_exit_code = opts.fetch(:throw_non_zero_exit_code, true)
     end
 
     def run
@@ -39,7 +43,7 @@ class Nanoci
       @wait_thr.join
       @connect_threads.each(&:join)
       raise ToolError.new(@cmd, status_code, error) \
-        if @throw_non_zero_status_code && !status_code.zero?
+        if @throw_non_zero_exit_code && !status_code.zero?
       self
     end
 
@@ -80,22 +84,22 @@ class Nanoci
     end
 
     def read(from)
-      return from.read_nonblock(1024)
+      from.read_nonblock(1024)
     rescue IO::WaitReadable
       IO.select([from])
       retry
     rescue EOFError
-      return false
+      false
     end
 
     def write(buf, to)
       to.write(buf)
-      return true
+      true
     rescue IO::WaitWritable
       IO.select(nil, [to])
       retry
     rescue EOFError
-      return false
+      false
     end
   end
 end

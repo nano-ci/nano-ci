@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'nanoci/project'
 require 'nanoci/task'
 

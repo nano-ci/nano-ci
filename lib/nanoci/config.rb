@@ -1,4 +1,8 @@
+# frozen_string_literal: true
+
 class Nanoci
+  ##
+  # nano-ci config which is read from config file
   class Config
     def initialize(src)
       @src = src
@@ -43,6 +47,8 @@ class Nanoci
       @src['mongo-connection-string']
     end
 
+    ##
+    # Local agent config
     class LocalAgentConfig
       def initialize(src)
         @src = src

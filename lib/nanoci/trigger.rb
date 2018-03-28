@@ -1,14 +1,16 @@
+# frozen_string_literal: true
+
 require 'logging'
 
 class Nanoci
+  ##
+  # Base class for nano-ci triggers
   class Trigger
-    @types = {}
-
-    def self.types
-      @types
+    class << self
+      def self.types
+        @types ||= {}
+      end
     end
-
-    attr_accessor :type
 
     def initialize(repo, project, hash = {})
       @log = Logging.logger[self]
@@ -22,21 +24,23 @@ class Nanoci
       @env = env
     end
 
-    def trigger_build
-      @log.info "checking repo #{@repo.tag} for new changes"
-      begin
-        unless @repo.changes?(@env)
-          @log.info "repo #{@repo.tag} has no new changes"
-          return
-        end
-      rescue StandardError => e
-        @log.error "failed to check repo #{@repo.tag} for new changes"
-        @log.error e
-        return
-      end
+    def repo_has_changes?(repo, env)
+      repo.changes?(env)
+    rescue StandardError => e
+      @log.error "failed to check repo #{repo.tag} for new changes"
+      @log.error e
+      false
+    end
 
-      @log.info "detected new changes in repo #{@repo.tag}, triggering a new build"
-      @build_scheduler.trigger_build(@project, self)
+    def trigger_build
+      @log.info "checking repo #{repo.tag} for new changes"
+      if repo_has_changes?(@repo, @env)
+        @log.info "detected new changes in repo #{@repo.tag}" \
+          ', triggering a new build'
+        @build_scheduler.trigger_build(@project, self)
+      else
+        @log.info "repo #{repo.tag} has no new changes"
+      end
     end
   end
 end

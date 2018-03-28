@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Nanoci
   ##
   # An artifact is the output of job and may contains files or folders

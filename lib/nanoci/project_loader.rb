@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'logging'
 require 'yaml'
 
@@ -11,6 +13,8 @@ require 'nanoci/tasks/all'
 require 'nanoci/variable'
 
 class Nanoci
+  ##
+  # ProjectLoader loads project definition from file
   class ProjectLoader
     attr_reader :log
 
@@ -32,11 +36,12 @@ class Nanoci
     end
 
     def read_array(hash, field, map)
-      (hash[field] || []).map { |x| map.call(x) }.reject { |x| x.nil? }
+      (hash[field] || []).map { |x| map.call(x) }.reject(&:nil?)
     end
 
     def read_repos(project, hash, field)
-      Hash[read_array(hash, field, ->(h) { read_repo(project, h) }).map {|v| [v.tag, v]}]
+      items = read_array(hash, field, ->(h) { read_repo(project, h) })
+      Hash[items.map { |v| [v.tag, v] }]
     end
 
     def read_repo(project, hash)
@@ -52,7 +57,7 @@ class Nanoci
     end
 
     def read_triggers(repo, project, hash, field)
-      read_array(hash, field, ->(h) { read_trigger(repo, project, h) } )
+      read_array(hash, field, ->(h) { read_trigger(repo, project, h) })
     end
 
     def read_trigger(repo, project, hash)
@@ -66,7 +71,7 @@ class Nanoci
     end
 
     def read_stages(project, hash, field)
-      read_array(hash, field, ->(h) { read_stage(project, h)} )
+      read_array(hash, field, ->(h) { read_stage(project, h) })
     end
 
     def read_stage(project, hash)
@@ -76,7 +81,7 @@ class Nanoci
     end
 
     def read_jobs(project, hash, field)
-      read_array(hash, field, ->(h) { read_job(project, h) } )
+      read_array(hash, field, ->(h) { read_job(project, h) })
     end
 
     def read_job(project, hash)
@@ -109,7 +114,8 @@ class Nanoci
     end
 
     def read_variables(hash, field)
-      Hash[read_array(hash, field, method(:read_variable)).map {|v| [v.tag, v]}]
+      items = read_array(hash, field, method(:read_variable))
+      Hash[items.map { |v| [v.tag, v] }]
     end
 
     def read_variable(hash)

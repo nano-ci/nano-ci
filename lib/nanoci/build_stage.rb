@@ -1,6 +1,10 @@
+# frozen_string_literal: true
+
 require 'nanoci/build_job'
 
 class Nanoci
+  ##
+  # BuildStage is the class to track Build Stage execution
   class BuildStage
     attr_accessor :definition
     attr_accessor :jobs

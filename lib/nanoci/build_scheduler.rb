@@ -1,9 +1,14 @@
+# frozen_string_literal: true
+
 require 'logging'
 require 'eventmachine'
 
 require 'nanoci/build'
 
 class Nanoci
+  ##
+  # Build scheduler maintains queue of jobs
+  # and schedules job execution on build agents
   class BuildScheduler
     attr_accessor :builds
 
@@ -15,29 +20,29 @@ class Nanoci
       @env = env
     end
 
+    def start_new_build(project, trigger)
+      build = Nanoci::Build.run(project, trigger, {}, @env)
+      @state_manager.put_state(StateManager::Types::PROJECT, project.state)
+      @log.info "a new build #{build.tag} triggered by #{trigger}"
+      build
+    rescue StandardError => e
+      @log.error "failed to run a new build for project #{project.tag}"
+      @log.error e
+    end
+
     def trigger_build(project, trigger)
-      if builds.any? { |x| x.project.tag == project.tag}
+      if builds.any? { |x| x.project.tag == project_tag }
         @log.warn "cannot start another build for the project #{project.tag}"
         return
       end
 
-      begin
-        build = Nanoci::Build.run(project, trigger, {}, @env)
-        @state_manager.put_state(StateManager::Types::PROJECT, project.state)
-      rescue StandardError => e
-        @log.error "failed to start build for project #{project.tag}"
-        @log.error e
-        return
-      end
-
-      @log.info "a new build #{build.tag} triggered by #{trigger}"
+      build = start_new_build(project, trigger)
 
       if build.current_stage.nil?
         @log.warn "build #{build.tag} has no runnable jobs"
-        return
+      else
+        run_build(build)
       end
-
-      run_build(build)
     end
 
     def run_build(build)
@@ -71,15 +76,20 @@ class Nanoci
 
     def schedule_build(build)
       queued_jobs(build).each_entry do |j|
-        @log.debug "looking for a capable agent to run the job #{build.tag}-#{j.tag}"
-        agent = @agents_manager.find_agent(j.required_agent_capabilities)
-        if agent.nil?
-          @log.info "no agents available to run the job #{build.tag}-#{j.tag}"
-          next
-        end
-        agent.run_job(build, j)
-        @state_manager.put_state(StateManager::Types::BUILD, build.memento)
+        schedule_job(build, j)
       end
+    end
+
+    def schedule_job(build, job)
+      @log.debug \
+        "looking for a capable agent to run the job #{build.tag}-#{job.tag}"
+      agent = @agents_manager.find_agent(j.required_agent_capabilities)
+      if agent.nil?
+        @log.info "no agents available to run the job #{build.tag}-#{job.tag}"
+        next
+      end
+      agent.run_job(build, job)
+      @state_manager.put_state(StateManager::Types::BUILD, build.memento)
     end
 
     def finished_builds

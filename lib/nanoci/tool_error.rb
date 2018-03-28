@@ -1,4 +1,8 @@
+# frozen_string_literal: true
+
 class Nanoci
+  ##
+  # Error class representing error while executing external tool
   class ToolError < StandardError
     attr_reader :cmd
     attr_reader :err

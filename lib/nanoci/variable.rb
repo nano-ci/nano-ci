@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Nanoci
   ##
   # A variable is an object to hold string value to use in task configuration

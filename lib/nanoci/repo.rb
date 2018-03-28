@@ -1,11 +1,13 @@
+# frozen_string_literal: true
+
 class Nanoci
   ##
   # Source control repository
   class Repo
-    @types = {}
-
-    def self.types
-      @types
+    class << self
+      def types
+        @types ||= {}
+      end
     end
 
     ##
@@ -74,7 +76,8 @@ class Nanoci
     end
 
     def state=(value)
-      raise "Invalid state - tag #{tag} does not match state tag #{value[:tag]}" unless tag == value[:tag]
+      raise "tag #{tag} does not match state tag #{value[:tag]}" \
+        unless tag == value[:tag]
       @current_commit = value[:current_commit]
     end
   end

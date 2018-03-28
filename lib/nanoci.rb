@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'eventmachine'
 require 'logging'
 require 'yaml'
@@ -40,12 +42,14 @@ class Nanoci
 
     @log.info 'reading project definition...'
     project = ProjectLoader.new.load(options.project)
-    project_state = state_manager.get_state(StateManager::Types::PROJECT, project.tag)
+    project_state = state_manager.get_state(
+      StateManager::Types::PROJECT,
+      project.tag
+    )
     project.state = project_state unless project_state.nil?
     @log.info "read project #{project.tag}"
 
     @log.info 'nano-ci is running'
-
 
     EventMachine.run do
       run_build_scheduler(config.job_scheduler_interval, state_manager, env)
@@ -59,7 +63,7 @@ class Nanoci
   end
 
   def self.run_triggers(project, build_scheduler, env)
-    project.repos.each do |key, repo|
+    project.repos.each do |_key, repo|
       repo.triggers.each { |trigger| trigger.run(build_scheduler, env) }
     end
   end

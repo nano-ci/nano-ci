@@ -1,15 +1,19 @@
+# frozen_string_literal: true
+
 require 'mongo'
 
 class Nanoci
+  ##
+  # State manager persists or retrieves object state from a storage
   class StateManager
     module Types
       BUILD = :build
       PROJECT = :project
     end
 
-    CREATED_UTC = 'created_utc'.freeze
-    TAG = 'tag'.freeze
-    TYPE = 'type'.freeze
+    CREATED_UTC = 'created_utc'
+    TAG = 'tag'
+    TYPE = 'type'
 
     def initialize(connection_string)
       @client = Mongo::Client.new(connection_string)

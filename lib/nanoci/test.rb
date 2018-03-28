@@ -1,4 +1,8 @@
+# frozen_string_literal: true
+
 class Nanoci
+  ##
+  # Class representing test execution result
   class Test
     module State
       PASS = :pass

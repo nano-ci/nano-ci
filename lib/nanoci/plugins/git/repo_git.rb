@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'fileutils'
 
 require 'nanoci/repo'
@@ -7,10 +9,11 @@ require 'nanoci/tool_process'
 class Nanoci
   class Plugins
     class Git
+      # Git repo class. Implements interface of Nanoci::Repo class
       class RepoGit < Repo
-        GIT_CAP = 'tools.git'.freeze
-        SSH_CAP = 'tools.ssh'.freeze
-        DEFAULT_BRANCH = 'master'.freeze
+        GIT_CAP = 'tools.git'
+        SSH_CAP = 'tools.ssh'
+        DEFAULT_BRANCH = 'master'
 
         def initialize(hash = {})
           super(hash)
@@ -65,7 +68,7 @@ class Nanoci
         end
 
         def checkout(branch, env, opts = {})
-          branch = branch || @branch
+          branch ||= @branch
           git("checkout #{branch}", env, opts)
         end
 

@@ -1,9 +1,13 @@
-class Nanoci
-  class Plugin
-    @plugins = []
+# frozen_string_literal: true
 
-    def self.plugins
-      @plugins
+class Nanoci
+  ##
+  # Base class for nano-ci plugins
+  class Plugin
+    class << self
+      def plugins
+        @plugins ||= []
+      end
     end
   end
 end

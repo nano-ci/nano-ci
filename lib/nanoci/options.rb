@@ -1,17 +1,18 @@
+# frozen_string_literal: true
+
 require 'trollop'
 
 class Nanoci
   ##
   # Command line options for nano-ci
   class Options
-    BANNER = <<-EOS
+    BANNER = <<-ABSTRACT
     nano-ci.
 
     Usage:
            nano-ci [options] <filenames>+
     where [options] are:
-    EOS
-             .freeze
+    ABSTRACT
 
     attr_accessor :config
     attr_accessor :project
@@ -24,8 +25,8 @@ class Nanoci
     def self.parse(options)
       opts = Trollop.options(options) do
         banner BANNER
-        opt :config, 'Path to nano-ci config', :type => :string
-        opt :project, 'Path to project definition', :type => :string
+        opt :config, 'Path to nano-ci config', type: :string
+        opt :project, 'Path to project definition', type: :string
       end
 
       args = Options.new(opts)

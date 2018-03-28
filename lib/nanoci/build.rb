@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'logging'
 require 'stringio'
 
@@ -5,7 +7,11 @@ require 'nanoci/build_stage'
 require 'nanoci/timed_io'
 
 class Nanoci
-  class Build
+  ##
+  # Build is the type that represents one integration cycle for a project
+  class Build # rubocop:disable Metrics/ClassLength
+    ##
+    # Build state enumeration
     module State
       UNKNOWN = 0
       QUEUED = 1
@@ -29,28 +35,41 @@ class Nanoci
     end
 
     class << self
+      def project_build_numbers
+        @project_build_numbers ||= {}
+      end
+
+      def log
+        Logging.logger[self]
+      end
+
       def run(project, trigger, env_variables, env)
-        log = Logging.logger[self]
         variables = expand_variables(project.variables, env_variables)
 
+        refresh_repos(project, env)
+
+        build = Build.new(project, trigger, variables, env)
+        build&.current_stage&.jobs&.each { |j| j.state = State::QUEUED }
+
+        log_build
+
+        build
+      end
+
+      def refresh_repos(project, env)
         project.repos.values.each do |r|
           r.in_repo_cache(env) do
             r.update(env)
             r.current_commit = r.tip_of_tree(r.branch, env)
           end
         end
+      end
 
-        build = Build.new(project, trigger, variables, env)
-        build.current_stage.jobs.each { |j| j.state = State::QUEUED } unless build.current_stage.nil?
-
+      def log_build(build)
         log.info "build #{build.tag} started at #{build.start_time}"
         log.info "commits:\n #{build.commits}"
         log.info "variables: \n #{build.variables}"
-
-        build
       end
-
-      attr_accessor :project_build_numbers
 
       def expand_variables(project_variables, env_variables)
         all_variables = project_variables.merge(env_variables)
@@ -58,25 +77,27 @@ class Nanoci
       end
 
       def next_number(project_tag)
-        self.project_build_numbers ||= {}
-        current_number = self.project_build_numbers[project_tag] || 0
-        current_number += 1
-        self.project_build_numbers[project_tag] = current_number
-        current_number
+        current_number = (project_build_numbers[project_tag] || 0) + 1
+        project_build_numbers.store(project_tag, current_number)
       end
     end
 
-    attr_accessor :tag
     attr_accessor :project
     attr_accessor :trigger
     attr_accessor :start_time
     attr_accessor :end_time
     attr_accessor :stages
     attr_accessor :current_stage
-    attr_accessor :commits
-    attr_accessor :tests
     attr_accessor :variables
     attr_reader   :output
+
+    def tag
+      "#{@project.tag}-#{number}"
+    end
+
+    def tests
+      @tests ||= []
+    end
 
     def number
       variables['buildNumber']
@@ -99,7 +120,7 @@ class Nanoci
       @end_time = Time.now
     end
 
-    def memento
+    def memento # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
       {
         tag: tag,
         project: project.tag,
@@ -108,7 +129,7 @@ class Nanoci
         state: State.to_sym(state),
         stages: Hash[stages.map { |s| [s.tag, s.memento] }],
         current_stage: current_stage.tag,
-        tests: tests.map { |t| t.memento },
+        tests: tests.map(&:memento),
         commits: commits.clone,
         variables: variables.clone
       }
@@ -117,26 +138,26 @@ class Nanoci
     private
 
     def initialize(project, trigger, variables, env)
-      @log = Logging.logger[self]
       @project = project
       @trigger = trigger
       @variables = variables
       @start_time = Time.now
       self.number = Build.next_number(@project.tag)
-      @tag = "#{@project.tag}-#{number}"
+      @commits = Hash[@project.repos.map { |t, r| [t, r.current_commit] }]
       setup_stages(@project)
-      @commits = Hash[@project.repos
-                              .map { |t, r| [t, r.current_commit] }]
-      @tests = []
-
       env['build_data_dir'] = File.join(env['build_data_dir'], tag)
-      FileUtils.mkdir_p(env['build_data_dir']) unless Dir.exist? env['build_data_dir']
-      @output = TimedIO.new(File.open(File.join(env['build_data_dir'], "#{@tag}.log"), "w+"))
+      setup_output(env, tag)
     end
 
     def setup_stages(project)
       @stages = project.stages.map { |x| BuildStage.new(x) }
       @current_stage = @stages.select { |x| x.jobs.any? }.first
+    end
+
+    def setup_output(env, tag)
+      FileUtils.mkpath(env['build_data_dir'])
+      output_file_name = File.join(env['build_data_dir'], "#{tag}.log")
+      @output = TimedIO.new(output_file_name)
     end
   end
 end

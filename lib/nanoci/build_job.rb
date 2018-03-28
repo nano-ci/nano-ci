@@ -1,6 +1,10 @@
+# frozen_string_literal: true
+
 require 'nanoci/build'
 
 class Nanoci
+  ##
+  # BuildJob is the class to track execution of a Job on agent
   class BuildJob
     attr_accessor :definition
     attr_accessor :state

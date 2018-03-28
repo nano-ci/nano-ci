@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'logging'
 
 require 'nanoci'
@@ -41,14 +43,15 @@ class Nanoci
     end
 
     def state=(value)
-      raise "Invalid state - tag #{tag} does not match state tag #{value[:tag]}" unless tag == value[:tag]
+      raise "tag #{tag} does not match state tag #{value[:tag]}" \
+        unless tag == value[:tag]
       value[:repos].each do |k, v|
         repo = repos[k]
         if repo.nil?
-          @log.warn "Cannot restore state of repo #{k} - repo definition does not exist"
-          next
+          @log.warn "repo definition #{k} does not exist"
+        else
+          repo.state = v
         end
-        repo.state = v
       end
     end
   end
