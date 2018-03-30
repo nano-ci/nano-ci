@@ -28,21 +28,32 @@ class Nanoci
     rescue StandardError => e
       @log.error "failed to run a new build for project #{project.tag}"
       @log.error e
+      nil
     end
 
     def trigger_build(project, trigger)
-      if builds.any? { |x| x.project.tag == project_tag }
+      if duplicate_build?(project.tag)
         @log.warn "cannot start another build for the project #{project.tag}"
-        return
+      else
+        trigger_new_build(project, trigger)
       end
+    end
 
+    def trigger_new_build(project, trigger)
       build = start_new_build(project, trigger)
+
+      # build was not started due to error, exit
+      return if build.nil?
 
       if build.current_stage.nil?
         @log.warn "build #{build.tag} has no runnable jobs"
       else
         run_build(build)
       end
+    end
+
+    def duplicate_build?(project_tag)
+      builds.any? { |x| x.project.tag == project_tag }
     end
 
     def run_build(build)
@@ -83,13 +94,13 @@ class Nanoci
     def schedule_job(build, job)
       @log.debug \
         "looking for a capable agent to run the job #{build.tag}-#{job.tag}"
-      agent = @agents_manager.find_agent(j.required_agent_capabilities)
+      agent = @agents_manager.find_agent(job.required_agent_capabilities)
       if agent.nil?
         @log.info "no agents available to run the job #{build.tag}-#{job.tag}"
-        next
+      else
+        agent.run_job(build, job)
+        @state_manager.put_state(StateManager::Types::BUILD, build.memento)
       end
-      agent.run_job(build, job)
-      @state_manager.put_state(StateManager::Types::BUILD, build.memento)
     end
 
     def finished_builds

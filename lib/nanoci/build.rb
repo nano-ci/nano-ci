@@ -51,7 +51,7 @@ class Nanoci
         build = Build.new(project, trigger, variables, env)
         build&.current_stage&.jobs&.each { |j| j.state = State::QUEUED }
 
-        log_build
+        log_build(build)
 
         build
       end
@@ -107,6 +107,10 @@ class Nanoci
       variables['buildNumber'] = number
     end
 
+    def commits
+      @commits ||= Hash[@project.repos.map { |t, r| [t, r.current_commit] }]
+    end
+
     def state
       current_stage&.state || State::UNKNOWN
     end
@@ -143,7 +147,6 @@ class Nanoci
       @variables = variables
       @start_time = Time.now
       self.number = Build.next_number(@project.tag)
-      @commits = Hash[@project.repos.map { |t, r| [t, r.current_commit] }]
       setup_stages(@project)
       env['build_data_dir'] = File.join(env['build_data_dir'], tag)
       setup_output(env, tag)
@@ -157,7 +160,7 @@ class Nanoci
     def setup_output(env, tag)
       FileUtils.mkpath(env['build_data_dir'])
       output_file_name = File.join(env['build_data_dir'], "#{tag}.log")
-      @output = TimedIO.new(output_file_name)
+      @output = TimedIO.create_path(output_file_name)
     end
   end
 end

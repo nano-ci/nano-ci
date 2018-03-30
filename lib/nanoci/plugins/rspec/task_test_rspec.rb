@@ -51,14 +51,14 @@ class Nanoci
         private
 
         def execute_run_tool(build, env)
-          opts = sanitize_opts(@options.clone)
+          opts = sanitize_opts(@options.clone, env)
           cmd = opts.map { |k, v| (k + ' ' + v).strip }.join(' ')
           rspec(env[RSPEC_CAP], cmd, stdout: build.output, stderr: build.output)
           results = read_results(opts['--out'])
           handle_results(results, build)
         end
 
-        def sanitize_opts(opts)
+        def sanitize_opts(opts, env)
           opts['--format'] = 'json'
           opts['--out'] = File.join(env['build_data_dir'], 'rspec_output.json')
           opts

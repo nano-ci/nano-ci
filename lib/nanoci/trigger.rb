@@ -7,7 +7,7 @@ class Nanoci
   # Base class for nano-ci triggers
   class Trigger
     class << self
-      def self.types
+      def types
         @types ||= {}
       end
     end
@@ -33,13 +33,13 @@ class Nanoci
     end
 
     def trigger_build
-      @log.info "checking repo #{repo.tag} for new changes"
+      @log.info "checking repo #{@repo.tag} for new changes"
       if repo_has_changes?(@repo, @env)
         @log.info "detected new changes in repo #{@repo.tag}" \
           ', triggering a new build'
         @build_scheduler.trigger_build(@project, self)
       else
-        @log.info "repo #{repo.tag} has no new changes"
+        @log.info "repo #{@repo.tag} has no new changes"
       end
     end
   end

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'bundler/setup'
-require 'nanoci'
+require 'nanoci/application/service'
 
 # You can add fixtures and/or initialization code here to make experimenting
 # with your gem easier. You can also use a different console, if you like.
@@ -10,4 +10,4 @@ require 'nanoci'
 # require "pry"
 # Pry.start
 
-Nanoci.main ARGV
+Nanoci::Application::Service.new().main(ARGV)
