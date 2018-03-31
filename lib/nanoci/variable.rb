@@ -16,7 +16,7 @@ class Nanoci
     end
 
     def expand(variables)
-      result = value
+      result = value.to_s
       until (match = PATTERN.match(result)).nil?
         raise "Cycle in expanding variable #{tag}" if match[1] == tag
         result = value.sub(match[0], variables[match[1]]&.value || '')
