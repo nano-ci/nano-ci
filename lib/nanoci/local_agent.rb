@@ -27,6 +27,7 @@ class Nanoci
         @log.error e
         job.state = Build::State::FAILED
       end
+      self.current_job = nil
     end
   end
 end
