@@ -119,7 +119,11 @@ class Nanoci
     end
 
     def read_variable(hash)
-      Variable.new(hash)
+      Variable.new(sanitize_hash(hash))
+    end
+
+    def sanitize_hash(hash)
+      hash.map { |k, v| [k.to_sym, v] }.to_h
     end
   end
 end

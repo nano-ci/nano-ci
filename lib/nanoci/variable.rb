@@ -11,8 +11,8 @@ class Nanoci
     PATTERN = /\$\{([^\}]+)\}/
 
     def initialize(hash = {})
-      @tag = hash['tag']
-      @value = hash['value']
+      @tag = hash[:tag]
+      @value = hash[:value]
     end
 
     def expand(variables)

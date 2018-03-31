@@ -32,7 +32,7 @@ class Nanoci
 
     def build_number=(value)
       var = variables['buildNumber']
-      var = Variable.new('tag' => 'buildNumber', 'value' => 1) if var.nil?
+      var = Variable.new(tag: 'buildNumber', value: 1) if var.nil?
       var.value = value
       variables['buildNumber'] = var
     end
@@ -76,7 +76,8 @@ class Nanoci
       variables_memento.each do |k, v|
         variable = variables[k]
         if variable.nil?
-          @log.warn "variable definition #{k} does not exist"
+          variable = Variable.new(v)
+          variables[variable.tag] = variable
         else
           variable.memento = v
         end
