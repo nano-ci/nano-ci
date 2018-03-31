@@ -26,6 +26,17 @@ class Nanoci
       @variables = value
     end
 
+    def build_number
+      variables['buildNumber']&.value || 1
+    end
+
+    def build_number=(value)
+      var = variables['buildNumber']
+      var = Variable.new(tag: 'buildNumber', value: 1) if var.nil?
+      var.value = value
+      variables['buildNumber'] = var
+    end
+
     def initialize(hash = {})
       @log = Logging.logger[self]
       @name = hash['name']
@@ -38,19 +49,36 @@ class Nanoci
     def state
       {
         tag: tag,
-        repos: Hash[repos.map { |k, v| [k, v.state] }]
+        repos: repos.map { |k, v| [k, v.state] }.to_h,
+        variables: variables.map { |k, v| [k, v.memento]}.to_h
       }
     end
 
     def state=(value)
       raise "tag #{tag} does not match state tag #{value[:tag]}" \
         unless tag == value[:tag]
-      value[:repos].each do |k, v|
+      restore_repos(value[:repos])
+      restore_variables(value[:variables])
+    end
+
+    def restore_repos(repos_memento)
+      repos_memento.each do |k, v|
         repo = repos[k]
         if repo.nil?
           @log.warn "repo definition #{k} does not exist"
         else
           repo.state = v
+        end
+      end
+    end
+
+    def restore_variables(variables_memento)
+      variables_memento.each do |k, v|
+        variable = variables[k]
+        if variable.nil?
+          @log.warn "variable definition #{k} does not exist"
+        else
+          variable.memento = v
         end
       end
     end

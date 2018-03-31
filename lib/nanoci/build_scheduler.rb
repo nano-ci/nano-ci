@@ -72,6 +72,9 @@ class Nanoci
       finished_builds.each do |build|
         build.complete
         @state_manager.put_state(StateManager::Types::BUILD, build.memento)
+        project = build.project
+        project.build_number = build.number
+        @state_manager.put_state(StateManager::Types::PROJECT, project.state)
         @builds.delete build
         @log.info "finished build #{build.tag}"
       end

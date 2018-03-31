@@ -23,5 +23,18 @@ class Nanoci
       end
       result
     end
+
+    def memento
+      {
+        tag: tag,
+        value: value
+      }
+    end
+
+    def memento=(value)
+      raise "tag #{tag} does not match state tag #{value[:tag]}" \
+        unless tag == value[:tag]
+      value = value[:value]
+    end
   end
 end
