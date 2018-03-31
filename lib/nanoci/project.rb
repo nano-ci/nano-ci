@@ -32,7 +32,7 @@ class Nanoci
 
     def build_number=(value)
       var = variables['buildNumber']
-      var = Variable.new(tag: 'buildNumber', value: 1) if var.nil?
+      var = Variable.new('tag' => 'buildNumber', 'value' => 1) if var.nil?
       var.value = value
       variables['buildNumber'] = var
     end
