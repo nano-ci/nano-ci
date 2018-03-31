@@ -35,9 +35,6 @@ class Nanoci
     end
 
     class << self
-      def project_build_numbers
-        @project_build_numbers ||= {}
-      end
 
       def log
         Logging.logger[self]
@@ -75,11 +72,6 @@ class Nanoci
         all_variables = project_variables.merge(env_variables)
         all_variables.map { |k, v| [k, v.expand(all_variables)] }.to_h
       end
-
-      def next_number(project_tag)
-        current_number = (project_build_numbers[project_tag] || 0) + 1
-        project_build_numbers.store(project_tag, current_number)
-      end
     end
 
     attr_accessor :project
@@ -100,7 +92,7 @@ class Nanoci
     end
 
     def number
-      variables['buildNumber']
+      variables['buildNumber'] || 0
     end
 
     private def number=(number)
@@ -146,7 +138,7 @@ class Nanoci
       @trigger = trigger
       @variables = variables
       @start_time = Time.now
-      self.number = Build.next_number(@project.tag)
+      self.number = number + 1
       setup_stages(@project)
       env['build_data_dir'] = File.join(env['build_data_dir'], tag)
       setup_output(env, tag)
