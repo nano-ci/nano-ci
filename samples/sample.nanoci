@@ -3,6 +3,7 @@ tag: nano-ci-sample
 repos:
   - tag: main-repo
     type: git
+    main: true
     src: https://example.com/repo/nanoci.git
     auth:
       login: abc

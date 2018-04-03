@@ -28,6 +28,16 @@ RSpec.describe Nanoci::Repo do
     expect(repo.auth).to eq 'username:password'
   end
 
+  it 'reads main from src' do
+    repo = Nanoci::Repo.new('main' => true)
+    expect(repo.main).to be true
+  end
+
+  it 'main default value is false' do
+    repo = Nanoci::Repo.new
+    expect(repo.main).to be false
+  end
+
   it 'detect_changes returns true' do
     repo = Nanoci::Repo.new
     expect(repo.changes?({})).to be true

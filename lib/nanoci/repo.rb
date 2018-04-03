@@ -20,6 +20,10 @@ class Nanoci
     attr_accessor :type
 
     ##
+    # Boolean flag that indicates if this is the main repo of a project
+    attr_reader :main
+
+    ##
     # URI that points to repo storage (on http server, file path, etc.)
     attr_accessor :src
 
@@ -45,6 +49,7 @@ class Nanoci
     def initialize(hash = {})
       @tag  = hash['tag']
       @type = hash['type'] || 'unknown'
+      @main = hash['main'] || false
       @src  = hash['src']
       @auth = hash['auth']
       @required_agent_capabilities = []
