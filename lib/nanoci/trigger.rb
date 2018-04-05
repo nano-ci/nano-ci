@@ -16,7 +16,7 @@ class Nanoci
       @log = Logging.logger[self]
       @repo = repo
       @project = project
-      @type = hash['type']
+      @type = hash[:type]
     end
 
     def run(build_scheduler, env)

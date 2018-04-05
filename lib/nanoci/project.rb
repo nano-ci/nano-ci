@@ -14,6 +14,8 @@ class Nanoci
 
     attr_reader :repos
 
+    attr_reader :defintion
+
     def repos=(value)
       raise 'value is not a Hash' unless value.is_a? Hash
       @repos = value
@@ -37,10 +39,11 @@ class Nanoci
       variables['buildNumber'] = var
     end
 
-    def initialize(hash = {})
+    def initialize(definition = {})
       @log = Logging.logger[self]
-      @name = hash['name']
-      @tag = hash['tag']
+      @definition = definition
+      @name = definition[:name]
+      @tag = definition[:tag]
       @repos = {}
       @stages = []
       @variables = {}

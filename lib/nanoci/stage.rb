@@ -12,7 +12,7 @@ class Nanoci
     attr_accessor :jobs
 
     def initialize(hash = {})
-      @tag = hash['tag']
+      @tag = hash[:tag]
       @jobs = []
     end
   end

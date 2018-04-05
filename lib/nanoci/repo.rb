@@ -47,11 +47,11 @@ class Nanoci
     attr_reader   :required_agent_capabilities
 
     def initialize(hash = {})
-      @tag  = hash['tag']
-      @type = hash['type'] || 'unknown'
-      @main = hash['main'] || false
-      @src  = hash['src']
-      @auth = hash['auth']
+      @tag  = hash[:tag]
+      @type = hash[:type] || 'unknown'
+      @main = hash[:main] || false
+      @src  = hash[:src]
+      @auth = hash[:auth]
       @required_agent_capabilities = []
       @current_commit = ''
     end

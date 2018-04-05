@@ -28,10 +28,11 @@ class Nanoci
     end
 
     def read_project(hash)
+      hash = sanitize(hash)
       project = Project.new(hash)
-      project.repos = read_repos(project, hash, 'repos')
-      project.stages = read_stages(project, hash, 'stages')
-      project.variables = read_variables(hash, 'variables')
+      project.repos = read_repos(project, hash, :repos)
+      project.stages = read_stages(project, hash, :stages)
+      project.variables = read_variables(hash, :variables)
       project
     end
 
@@ -45,14 +46,14 @@ class Nanoci
     end
 
     def read_repo(project, hash)
-      type = hash['type']
+      type = hash[:type]
       repo_class = Repo.types[type]
       if repo_class.nil?
         log.warn "Unknown repo type #{type}"
         return nil
       end
       repo = repo_class.new(hash)
-      repo.triggers = read_triggers(repo, project, hash, 'triggers')
+      repo.triggers = read_triggers(repo, project, hash, :triggers)
       repo
     end
 
@@ -61,7 +62,7 @@ class Nanoci
     end
 
     def read_trigger(repo, project, hash)
-      type = hash['type']
+      type = hash[:type]
       trigger_class = Trigger.types[type]
       if trigger_class.nil?
         log.warn "Unknown trigger type #{type}"
@@ -76,7 +77,7 @@ class Nanoci
 
     def read_stage(project, hash)
       stage = Stage.new(hash)
-      stage.jobs = read_jobs(project, hash, 'jobs')
+      stage.jobs = read_jobs(project, hash, :jobs)
       stage
     end
 
@@ -86,8 +87,8 @@ class Nanoci
 
     def read_job(project, hash)
       job = Job.new(project, hash)
-      job.tasks = read_tasks(hash, 'tasks')
-      job.artifacts = read_artifacts(hash, 'artfacts')
+      job.tasks = read_tasks(hash, :tasks)
+      job.artifacts = read_artifacts(hash, :artfacts)
       job
     end
 
@@ -96,7 +97,7 @@ class Nanoci
     end
 
     def read_task(hash)
-      type = hash['type']
+      type = hash[:type]
       task_class = Task.types[type]
       if task_class.nil?
         log.warn "Unknown task type #{type}"
@@ -119,11 +120,17 @@ class Nanoci
     end
 
     def read_variable(hash)
-      Variable.new(sanitize_hash(hash))
+      Variable.new(sanitize(hash))
     end
 
-    def sanitize_hash(hash)
-      hash.map { |k, v| [k.to_sym, v] }.to_h
+    def sanitize(value)
+      if value.is_a? Hash
+        value.map { |k, v| [k.to_sym, sanitize(v)] }.to_h
+      elsif value.is_a? Array
+        value.map { |x| sanitize(x) }
+      else
+        value
+      end
     end
   end
 end

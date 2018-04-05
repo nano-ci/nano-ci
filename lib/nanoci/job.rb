@@ -14,7 +14,7 @@ class Nanoci
 
     def initialize(project, hash = {})
       @project = project
-      @tag = hash['tag']
+      @tag = hash[:tag]
       @tasks = []
       @artifacts = []
     end

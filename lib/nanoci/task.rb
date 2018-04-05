@@ -13,8 +13,8 @@ class Nanoci
     attr_accessor :workdir
 
     def initialize(hash = {})
-      @type = hash['type']
-      @workdir = hash['workdir'] || '.'
+      @type = hash[:type]
+      @workdir = hash[:workdir] || '.'
     end
 
     def required_agent_capabilities(_project)

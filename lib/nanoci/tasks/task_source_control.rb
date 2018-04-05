@@ -13,9 +13,9 @@ class Nanoci
 
       def initialize(hash = {})
         super(hash)
-        @repo_tag = hash['repo']
-        @action = hash['action']
-        @branch = hash['branch']
+        @repo_tag = hash[:repo]
+        @action = hash[:action]
+        @branch = hash[:branch]
       end
 
       def required_agent_capabilities(project)
