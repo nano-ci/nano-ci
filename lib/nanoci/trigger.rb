@@ -12,15 +12,15 @@ class Nanoci
       end
     end
 
-    def initialize(repo, project, hash = {})
+    def initialize(repo, hash = {})
       @log = Logging.logger[self]
       @repo = repo
-      @project = project
       @type = hash[:type]
     end
 
-    def run(build_scheduler, env)
+    def run(build_scheduler, project, env)
       @build_scheduler = build_scheduler
+      @project = project
       @env = env
     end
 

@@ -74,7 +74,9 @@ class Nanoci
 
       def run_triggers(project, build_scheduler, env)
         project.repos.each do |_key, repo|
-          repo.triggers.each { |trigger| trigger.run(build_scheduler, env) }
+          repo.triggers.each do |trigger|
+            trigger.run(build_scheduler, project, env)
+          end
         end
       end
 

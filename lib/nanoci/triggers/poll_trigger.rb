@@ -15,8 +15,8 @@ class Nanoci
       attr_accessor :interval
       attr_accessor :schedule
 
-      def initialize(repo, project, hash = {})
-        super(repo, project, hash)
+      def initialize(repo, hash = {})
+        super(repo, hash)
 
         @log = Logging.logger[self]
 
@@ -24,8 +24,8 @@ class Nanoci
         @schedule = hash['schedule']
       end
 
-      def run(build_scheduler, env)
-        super(build_scheduler, env)
+      def run(build_scheduler, project, env)
+        super(build_scheduler, project, env)
 
         EventMachine.add_periodic_timer(interval) do
           trigger_build
