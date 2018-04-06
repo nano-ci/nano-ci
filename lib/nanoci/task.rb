@@ -10,6 +10,7 @@ class Nanoci
       end
     end
 
+    attr_accessor :type
     attr_accessor :workdir
 
     def initialize(hash = {})

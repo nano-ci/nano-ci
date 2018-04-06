@@ -45,12 +45,14 @@ class Nanoci
     end
 
     def execute_task(build, job_tag, task)
+      @log.debug "executing task #{task.type} of #{job_tag}"
       env = @env.merge(@capabilities)
 
       env['workdir'] = @workdir
       FileUtils.mkdir_p(env['workdir']) unless Dir.exist? env['workdir']
 
       task.execute(build, env)
+      @log.debug "task #{task.type} of #{job_tag} is done"
     rescue StandardError => e
       @log.error "failed to execute task #{task} from job #{job_tag} of build #{build.tag}"
       @log.error(e)
