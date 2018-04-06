@@ -76,7 +76,7 @@ class Nanoci
         project.build_number = build.number
         @state_manager.put_state(StateManager::Types::PROJECT, project.state)
         @builds.delete build
-        @log.info "finished build #{build.tag}"
+        @log.info "finished build #{build.tag} in state #{Build::State.to_sym(build.state)}"
       end
     end
 
