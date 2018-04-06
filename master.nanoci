@@ -1,0 +1,20 @@
+name: nano-ci-master
+tag: nano-ci-master
+repos:
+  - tag: main-repo
+    type: git
+    src: git@bitbucket.org:thevk/nano-ci.git
+    auth:
+      ssh: /home/nanoci/nanoci.key
+    triggers:
+      - type: poll
+        interval: 5
+stages:
+  - tag: build
+    jobs:
+      - tag: checkout
+        tasks:
+          - type: source-control
+            action: checkout
+            repo: main-repo
+          - type: test-rspec

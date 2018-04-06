@@ -15,3 +15,6 @@
 
 *.log
 .vagrant
+*.gem
+*.key
+vagrant/**/*.nanoci

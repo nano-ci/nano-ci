@@ -1,0 +1,22 @@
+Vagrant.configure('2') do |config|
+  # The most common configuration options are documented and commented below.
+  # For a complete reference, please see the online documentation at
+  # https://docs.vagrantup.com.
+
+	config.vm.box = 'ubuntu/xenial64'
+	config.vm.hostname = 'nano-ci-service'
+
+	config.vm.network 'private_network', ip: '172.28.128.4'
+
+  config.vm.provision 'shell', inline: <<-SHELL
+    apt-get update
+		apt-get install -y ruby ruby-dev build-essential git
+		useradd -m nanoci
+		mkdir /home/nanoci/workdir
+		gem install /vagrant/nanoci-0.1.0.gem
+		gem install rspec
+		cp /vagrant/nanoci.key /home/nanoci
+		chown nanoci:nanoci /home/nanoci -R
+		chmod 400 /home/nanoci/nanoci.key
+  SHELL
+end

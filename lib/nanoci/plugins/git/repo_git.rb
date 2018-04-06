@@ -77,8 +77,8 @@ class Nanoci
         def git(cmd, env, opts = {})
           git_path = env[GIT_CAP]
           raise "Missing #{GIT_CAP} capability" if git_path.nil?
-          unless @auth['ssh'].nil?
-            ssh = "#{env[SSH_CAP]} -i #{@auth['ssh']}"
+          unless @auth[:ssh].nil?
+            ssh = "#{env[SSH_CAP]} -i #{@auth[:ssh]}"
             opts[:env] ||= {}
             opts[:env]['GIT_SSH_COMMAND'] = ssh
           end
