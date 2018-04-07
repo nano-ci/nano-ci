@@ -3,8 +3,8 @@ require 'spec_helper'
 require 'nanoci/stage'
 
 RSpec.describe Nanoci::Stage do
-  it 'tag from src' do
-    stage = Nanoci::Stage.new('tag' => 'build-stage')
+  it 'reads tag from src' do
+    stage = Nanoci::Stage.new(tag: 'build-stage')
     expect(stage.tag).to eq 'build-stage'
   end
 
