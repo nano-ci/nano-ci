@@ -24,4 +24,20 @@ RSpec.describe Nanoci::Variable do
     var2 = Nanoci::Variable.new(tag: 'var1', value: 'abc')
     expect(var1.expand('var2' => var2)).to eq 'abc'
   end
+
+  it 'returns memento' do
+    var1 = Nanoci::Variable.new(tag: 'var1', value: 'abc')
+    memento = var1.memento
+    expect(memento).to_not be_nil
+    expect(memento[:tag]).to eq 'var1'
+    expect(memento[:value]).to eq 'abc'
+  end
+
+  it 'restores from memento' do
+    var1 = Nanoci::Variable.new(tag: 'var1', value: 'abc')
+    memento = { tag: 'var1', value: 'def' }
+    var1.memento = memento
+
+    expect(var1.value).to eq 'def'
+  end
 end

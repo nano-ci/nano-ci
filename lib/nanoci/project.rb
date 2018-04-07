@@ -60,8 +60,8 @@ class Nanoci
     def state=(value)
       raise "tag #{tag} does not match state tag #{value[:tag]}" \
         unless tag == value[:tag]
-      restore_repos(value[:repos])
-      restore_variables(value[:variables])
+      restore_repos(value[:repos]) unless value[:repos].nil?
+      restore_variables(value[:variables]) unless value[:variables].nil?
     end
 
     def restore_repos(repos_memento)
