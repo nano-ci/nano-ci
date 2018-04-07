@@ -1,3 +1,5 @@
+require 'tmpdir'
+
 require 'spec_helper'
 
 require 'nanoci/agent'
@@ -81,5 +83,22 @@ RSpec.describe Nanoci::Agent do
     )
     agent = Nanoci::Agent.new(config, {}, {})
     expect(agent.capability('test.cap')).to eq 'test.cap.value'
+  end
+
+  it 'executes task in workdir' do
+    dir = Dir.mktmpdir
+    config = Nanoci::Config::LocalAgentConfig.new(
+      'name' => 'test',
+      'workdir' => dir
+    )
+    agent = Nanoci::Agent.new(config, {}, {})
+    task = double('task')
+    allow(task).to receive(:execute) {
+      expect(Dir.pwd).to eq(dir)
+    }
+    allow(task).to receive(:type).and_return('mock_task')
+    build = double('build')
+    allow(build).to receive(:tag).and_return('abc-1')
+    agent.execute_task(build, 'abc', task)
   end
 end
