@@ -12,6 +12,8 @@ class Nanoci
       end
     end
 
+    attr_reader :type
+
     def initialize(repo, hash = {})
       @log = Logging.logger[self]
       @repo = repo

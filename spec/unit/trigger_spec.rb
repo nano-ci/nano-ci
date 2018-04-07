@@ -3,8 +3,8 @@ require 'spec_helper'
 require 'nanoci/trigger'
 
 RSpec.describe Nanoci::Trigger do
-  it 'saves type to a property' do
-    trigger = Nanoci::Trigger.new(nil, nil, 'type' => 'polling')
+  it 'reads type from src' do
+    trigger = Nanoci::Trigger.new(nil, type: 'polling')
     expect(trigger.type).to eq 'polling'
   end
 
@@ -14,12 +14,12 @@ RSpec.describe Nanoci::Trigger do
     allow(repo).to receive(:tag).and_return('abc')
     project = double('project')
 
-    trigger = Nanoci::Trigger.new(repo, project, 'interval' => 5)
+    trigger = Nanoci::Trigger.new(repo, interval: 5)
 
     build_scheduler = double('build_scheduler')
     expect(build_scheduler).to receive(:trigger_build).with(project, trigger)
 
-    trigger.run(build_scheduler, {})
+    trigger.run(build_scheduler, project, {})
     trigger.trigger_build
   end
 
@@ -29,12 +29,12 @@ RSpec.describe Nanoci::Trigger do
     allow(repo).to receive(:tag).and_return('repo')
     project = double('project')
 
-    trigger = Nanoci::Trigger.new(repo, project, 'interval' => 5)
+    trigger = Nanoci::Trigger.new(repo, interval: 5)
 
     build_scheduler = double('build_scheduler')
     expect(build_scheduler).not_to receive(:trigger_build).with(project, trigger)
 
-    trigger.run(build_scheduler, {})
+    trigger.run(build_scheduler, project, {})
     trigger.trigger_build
   end
 end
