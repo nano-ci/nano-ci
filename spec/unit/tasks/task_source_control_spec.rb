@@ -3,28 +3,28 @@ require 'spec_helper'
 require 'nanoci/tasks/task_source_control'
 
 RSpec.describe Nanoci::Tasks::TaskSourceControl do
-  it 'saves repo_tag from src' do
-    task = Nanoci::Tasks::TaskSourceControl.new('repo' => 'abc')
+  it 'reads repo_tag from src' do
+    task = Nanoci::Tasks::TaskSourceControl.new(repo: 'abc')
     expect(task.repo_tag).to eq 'abc'
   end
 
-  it 'saves action from src' do
-    task = Nanoci::Tasks::TaskSourceControl.new('action' => 'checkout')
+  it 'reads action from src' do
+    task = Nanoci::Tasks::TaskSourceControl.new(action: 'checkout')
     expect(task.action).to eq 'checkout'
   end
 
-  it 'saves workdir from src' do
-    task = Nanoci::Tasks::TaskSourceControl.new('workdir' => '/home/project')
+  it 'reads workdir from src' do
+    task = Nanoci::Tasks::TaskSourceControl.new(workdir: '/home/project')
     expect(task.workdir).to eq '/home/project'
   end
 
-  it 'saves branch from src' do
-    task = Nanoci::Tasks::TaskSourceControl.new('branch' => 'master')
+  it 'reads branch from src' do
+    task = Nanoci::Tasks::TaskSourceControl.new(branch: 'master')
     expect(task.branch).to eq 'master'
   end
 
   it 'returns required_output_capabilities from project repo' do
-    task = Nanoci::Tasks::TaskSourceControl.new('repo' => 'abc')
+    task = Nanoci::Tasks::TaskSourceControl.new(repo: 'abc')
     repo = double('repo')
     expect(repo).to receive(:required_agent_capabilities).and_return(Set['def'])
     project = double('project')
@@ -39,7 +39,7 @@ RSpec.describe Nanoci::Tasks::TaskSourceControl do
     build = double('build')
     allow(build).to receive(:project).and_return(project)
     allow(build).to receive(:workdir).and_return('/abc')
-    task = Nanoci::Tasks::TaskSourceControl.new('repo' => 'abc')
+    task = Nanoci::Tasks::TaskSourceControl.new(repo: 'abc')
     expect { task.execute(build, nil) }.to raise_error 'Missing repo definition abc'
   end
 
@@ -53,7 +53,7 @@ RSpec.describe Nanoci::Tasks::TaskSourceControl do
     allow(build).to receive(:project).and_return(project)
     output = double('output')
     allow(build).to receive(:workdir).and_return('/def/project-1')
-    task = Nanoci::Tasks::TaskSourceControl.new('repo' => 'abc', 'workdir' => 'abc')
+    task = Nanoci::Tasks::TaskSourceControl.new(repo: 'abc', workdir: 'abc')
     dir_double = class_double(Dir).as_stubbed_const
     expect(dir_double).to receive(:chdir).with('/def/project-1/abc')
     allow(dir_double).to receive(:exist?).and_return(true)
@@ -76,10 +76,10 @@ RSpec.describe Nanoci::Tasks::TaskSourceControl do
     allow(build).to receive(:workdir).and_return('/def/project-1')
     allow(build).to receive(:output).and_return(output)
     task = Nanoci::Tasks::TaskSourceControl.new(
-      'repo' => 'abc',
-      'workdir' => 'abc',
-      'branch' => 'master',
-      'action' => 'checkout'
+      repo: 'abc',
+      workdir: 'abc',
+      branch: 'master',
+      action: 'checkout'
     )
     dir_double = class_double(Dir).as_stubbed_const
     allow(dir_double).to receive(:chdir).and_yield
@@ -95,10 +95,10 @@ RSpec.describe Nanoci::Tasks::TaskSourceControl do
     expect(repo).to receive(:checkout).with('master', {}, stderr: output, stdout: output)
 
     task = Nanoci::Tasks::TaskSourceControl.new(
-      'repo' => 'abc',
-      'workdir' => 'abc',
-      'branch' => 'master',
-      'action' => 'checkout'
+      repo: 'abc',
+      workdir: 'abc',
+      branch: 'master',
+      action: 'checkout'
     )
     dir_double = class_double(Dir).as_stubbed_const
     allow(dir_double).to receive(:chdir).and_yield
@@ -113,10 +113,10 @@ RSpec.describe Nanoci::Tasks::TaskSourceControl do
     allow(repo).to receive(:update).with({})
 
     task = Nanoci::Tasks::TaskSourceControl.new(
-      'repo' => 'abc',
-      'workdir' => 'abc',
-      'branch' => 'master',
-      'action' => 'checkout'
+      repo: 'abc',
+      workdir: 'abc',
+      branch: 'master',
+      action: 'checkout'
     )
     dir_double = class_double(Dir).as_stubbed_const
     allow(dir_double).to receive(:chdir).and_yield
