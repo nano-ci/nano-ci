@@ -23,18 +23,18 @@ class Nanoci
       @log = Logging.logger[self]
     end
 
-    def load(config, path)
+    def load(path)
       project_src = YAML.load_file path
-      read_project(config, project_src)
+      read_project(project_src)
     end
 
-    def read_project(config, hash)
+    def read_project(hash)
       hash = sanitize(hash)
       project = Project.new(hash)
       project.repos = read_repos(hash, :repos)
       project.stages = read_stages(project, hash, :stages)
       project.variables = read_variables(hash, :variables)
-      project.reporters = read_reporters(config, hash, :reporters)
+      project.reporters = read_reporters(hash, :reporters)
       project
     end
 
@@ -135,12 +135,12 @@ class Nanoci
       end
     end
 
-    def read_reporters(config, hash, field)
-      read_array(hash, field, ->(h) { read_reporter(config, h) })
+    def read_reporters(hash, field)
+      read_array(hash, field, ->(h) { read_reporter(h) })
     end
 
-    def read_reporter(config, hash)
-      Reporter.create(hash['type'], config, hash)
+    def read_reporter(hash)
+      Reporter.create(hash[:type], hash)
     end
   end
 end

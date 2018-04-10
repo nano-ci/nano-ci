@@ -9,27 +9,23 @@ class Nanoci
       ALL_VALUES = [ALL, FAIL].freeze
     end
 
-    @types = {}
-
-    def self.types
-      @types
-    end
-
-    def self.create(type, config, src)
-      reporter_class = types[type]
-      if reporter_class.nil?
-        raise "Unknown reporter type #{type}"
+    class << self
+      def types
+        @types ||= {}
       end
-      reporter_class.new(config, src)
     end
 
-    def what
-      @what
+    attr_reader :what
+
+    def self.create(type, src)
+      reporter_class = types[type]
+      raise "Unknown reporter type #{type}" if reporter_class.nil?
+      reporter_class.new(src)
     end
 
-    def initialize(_config, src = {})
-      @what = src.fetch('what', 'fail').to_sym
-      raise "invalid 'what' value - #{@what}" unless What::ALL_VALUES.include?(@what)
+    def initialize(src = {})
+      @what = src.fetch(:what, 'fail').to_sym
+      raise "invalid 'what' value - #{what}" unless What::ALL_VALUES.include?(what)
     end
 
     def report(build)

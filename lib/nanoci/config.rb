@@ -5,9 +5,13 @@ class Nanoci
   # nano-ci config which is read from config file
   class Config
     def self.env(name)
+      return name unless name.is_a? String
       match = /\$\{([^}]*)\}/.match(name)
-      name if match.nil? || ENV[match[1]].nil?
-      ENV[match[1]]
+      if match.nil? || ENV[match[1]].nil?
+        name
+      else
+        ENV[match[1]]
+      end
     end
 
     def initialize(src)

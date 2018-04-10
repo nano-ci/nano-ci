@@ -6,6 +6,7 @@ require 'yaml'
 
 require 'nanoci/log'
 
+require 'nanoci'
 require 'nanoci/agent_manager'
 require 'nanoci/build_scheduler'
 require 'nanoci/config'
@@ -27,11 +28,12 @@ class Nanoci
 
         options = Options.parse(args)
         config = Config.new(YAML.load_file(options.config))
+        Nanoci.config = config
         env = setup_env(config)
         agent_manager = run_agents(config, env)
         load_plugins(File.expand_path(config.plugins_path))
         state_manager = StateManager.new(config.mongo_connection_string)
-        project = load_project(config, options.project, state_manager)
+        project = load_project(options.project, state_manager)
 
         log.info 'nano-ci is running'
 
@@ -55,9 +57,9 @@ class Nanoci
         PluginLoader.load(plugins_path)
       end
 
-      def load_project(config, project_path, state_manager)
+      def load_project(project_path, state_manager)
         log.info 'reading project definition...'
-        project = ProjectLoader.new.load(config, project_path)
+        project = ProjectLoader.new.load(project_path)
         project_state = state_manager.get_state(
           StateManager::Types::PROJECT,
           project.tag
