@@ -15,6 +15,7 @@ class Nanoci
     attr_reader :type
 
     def initialize(repo, hash = {})
+      raise 'hash is not of type Hash' unless hash.is_a? Hash
       @log = Logging.logger[self]
       @repo = repo
       @type = hash[:type]
