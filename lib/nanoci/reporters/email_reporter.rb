@@ -33,8 +33,8 @@ class Nanoci
 
         begin
           smtp_conn = Net::SMTP.new(settings[:address], settings[:port])
-          # smtp_conn.enable_starttls_auto
-          smtp_conn.enable_tls
+          smtp_conn.enable_starttls if @email_config.encryption == :starttls
+          smtp_conn.enable_tls if @email_config.encryption == :tls
           smtp_conn = smtp_conn.start(settings[:domain],
                                       settings[:user_name],
                                       settings[:password],

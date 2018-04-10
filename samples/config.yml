@@ -13,5 +13,6 @@ email:
   from: nanoci@thevk.net
   host: smtp.yandex.ru
   port: 465
+  encryption: tls
   username: nanoci@thevk.net
   password: ${nanoci_email_password}

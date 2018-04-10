@@ -104,6 +104,10 @@ class Nanoci
         Config.env(@src['port'])
       end
 
+      def encryption
+        Config.env(@src['encryption'])&.to_s || :none
+      end
+
       def username
         Config.env(@src['username'])
       end
