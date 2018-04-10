@@ -4,6 +4,7 @@ require 'logging'
 require 'eventmachine'
 
 require 'nanoci/build'
+require 'nanoci/state_manager'
 
 class Nanoci
   ##
