@@ -3,12 +3,14 @@
 require 'open3'
 require 'stringio'
 
+require 'nanoci/mixins/logger'
 require 'nanoci/tool_error'
 
 class Nanoci
   ##
   # Class to run external tool and capture stdout and stderr
   class ToolProcess
+    include Nanoci::Mixins::Logger
     attr_reader :stdin
     attr_reader :stdout
     attr_reader :stderr
@@ -31,6 +33,8 @@ class Nanoci
     end
 
     def run
+      log.debug("running #{@cmd} at #{Dir.pwd}")
+      log.debug("env:\n#{@env}")
       p_in, p_out, p_err, @wait_thr = Open3.popen3(@env, @cmd)
       connect([
                 { from: @stdin, to: p_in },
