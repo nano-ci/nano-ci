@@ -4,7 +4,7 @@ Vagrant.configure('2') do |config|
   # https://docs.vagrantup.com.
 
 	config.vm.box = 'ubuntu/xenial64'
-	config.vm.hostname = 'nano-ci-service'
+	config.vm.hostname = 'nano-ci-service.thevk.net'
 
 	config.vm.network 'private_network', ip: '172.28.128.4'
 
@@ -18,5 +18,11 @@ Vagrant.configure('2') do |config|
 		cp /vagrant/nanoci.key /home/nanoci
 		chown nanoci:nanoci /home/nanoci -R
 		chmod 400 /home/nanoci/nanoci.key
+		cp /vagrant/nano-ci.service /lib/systemd/system
+		chmod -x /lib/systemd/system/nano-ci.service
+		cp /vagrant/40-nano-ci.conf /etc/rsyslog.d/
+		chmod -x /etc/rsyslog.d/40-nano-ci.conf
+		service rsyslog restart
+		service nano-ci start
   SHELL
 end

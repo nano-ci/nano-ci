@@ -1,0 +1,11 @@
+[Unit]
+Description=nano-ci master service
+
+[Service]
+Restart=always
+User=nanoci
+Group=nanoci
+ExecStart=/usr/local/bin/nano-ci --project /vagrant/master.nanoci --config /vagrant/config.yml
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=nano-ci
