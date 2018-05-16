@@ -37,4 +37,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rspec-mocks', '~> 3.7'
   spec.add_development_dependency 'ruby-debug-ide'
   spec.add_development_dependency 'simplecov', '~> 0.15'
+  spec.add_development_dependency 'solargraph', '~> 0.21'
 end

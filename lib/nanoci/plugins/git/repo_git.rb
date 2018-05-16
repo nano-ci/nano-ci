@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'fileutils'
+require 'tempfile'
 
 require 'nanoci/repo'
 require 'nanoci/tool_error'
@@ -15,9 +16,12 @@ class Nanoci
         SSH_CAP = 'tools.ssh'
         DEFAULT_BRANCH = 'master'
 
+        attr_reader :trusted_host_keys
+
         def initialize(hash = {})
           super(hash)
           @branch ||= DEFAULT_BRANCH
+          @trusted_host_keys = hash[:trusted_host_keys]
           required_agent_capabilities.push(GIT_CAP)
           required_agent_capabilities.push(SSH_CAP)
         end
@@ -78,11 +82,30 @@ class Nanoci
           git_path = env[GIT_CAP]
           raise "Missing #{GIT_CAP} capability" if git_path.nil?
           unless @auth[:ssh].nil?
-            ssh = "#{env[SSH_CAP]} -i #{@auth[:ssh]}"
+            ssh_opts = [ "-i #{@auth[:ssh]}" ]
+            unless (@auth[:trusted_host_keys]).nil?
+              trusted_keys = @auth[:trusted_host_keys]
+              known_hosts = create_ssh_known_hosts(hostname, trusted_keys)
+              ssh_opts.push("-o UserKnownHostsFile=\"#{known_hosts}\"")
+            end
+            ssh = "#{env[SSH_CAP]} #{ssh_opts.join(' ')}"
             opts[:env] ||= {}
             opts[:env]['GIT_SSH_COMMAND'] = ssh
           end
           ToolProcess.run("\"#{git_path}\" #{cmd}", opts).wait
+        end
+
+        def create_ssh_known_hosts(hostname, trusted_keys)
+          content = trusted_keys.map(&method(:format_ssh_known_host_entry))
+                                .join("\n")
+          file = Tempfile.new('known_hosts')
+          file << content
+          file.flush
+          file.path
+        end
+
+        def format_ssh_known_host_entry(hostname, trusted_key)
+          "#{hostname} ssh-rsa #{trusted_key}"
         end
       end
     end
