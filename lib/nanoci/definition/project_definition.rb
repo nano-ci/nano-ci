@@ -47,7 +47,7 @@ class Nanoci
         @tag = hash[:tag]
         @repos = read_repos(hash[:repos] || [])
         @stages = read_stages(hash[:stages] || [])
-        @variables = read_stages(hash[:variables] || [])
+        @variables = read_variables(hash[:variables] || [])
       end
 
       # Reads repo definitions from array of hashes
