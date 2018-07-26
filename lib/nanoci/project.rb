@@ -8,31 +8,19 @@ class Nanoci
   ##
   # Represents a project in nano-ci
   class Project
-    attr_accessor :name
-    attr_accessor :tag
-    attr_accessor :stages
-
+    attr_reader :stages
     attr_reader :repos
+    attr_reader :variables
+    attr_reader :reporters
 
     attr_reader :defintion
 
-    def repos=(value)
-      raise 'value is not a Hash' unless value.is_a? Hash
-      @repos = value
+    def name
+      definition.name
     end
 
-    attr_reader :variables
-
-    def variables=(value)
-      raise 'value is not a Hash' unless value.is_a? Hash
-      @variables = value
-    end
-
-    attr_reader :reporters
-
-    def reporters=(value)
-      raise 'value is not an Array' unless value.is_a? Array
-      @reporters = value
+    def tag
+      definition.tag
     end
 
     def build_number
@@ -49,12 +37,10 @@ class Nanoci
     def initialize(definition = {})
       @log = Logging.logger[self]
       @definition = definition
-      @name = definition[:name]
-      @tag = definition[:tag]
-      @repos = {}
-      @stages = []
-      @variables = {}
-      @reporters = []
+      @repos = read_repos(definition.repos)
+      @stages = read_stages(definition.stages)
+      @variables = read_variables(definition.variables)
+      # @reporters = read_reporters(definition.reporters)
     end
 
     def state
@@ -94,5 +80,7 @@ class Nanoci
         end
       end
     end
+
+    def read_repos(repos)
   end
 end

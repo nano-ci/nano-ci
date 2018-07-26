@@ -10,6 +10,7 @@ require 'nanoci'
 require 'nanoci/agent_manager'
 require 'nanoci/build_scheduler'
 require 'nanoci/config'
+require 'nanoci/definition/project'
 require 'nanoci/mixins/logger'
 require 'nanoci/options'
 require 'nanoci/plugin_loader'
@@ -59,7 +60,9 @@ class Nanoci
 
       def load_project(project_path, state_manager)
         log.info 'reading project definition...'
-        project = ProjectLoader.new.load(project_path)
+        project_definition_src = YAML.load_file project_path
+        project_definition = Definition::Project.new(project_definition_src)
+        project = Project.new(project_definition)
         project_state = state_manager.get_state(
           StateManager::Types::PROJECT,
           project.tag
