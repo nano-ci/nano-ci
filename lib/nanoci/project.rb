@@ -81,6 +81,22 @@ class Nanoci
       end
     end
 
-    def read_repos(repos)
+    ##
+    # Reads repos from array of repo definitions
+    # @param repo_definition [Array<RepoDefinition>]
+    # @return [Array<Repo>]
+    def read_repos(repo_definitions) ; end
+
+    ##
+    # Reads repos from array of repo definitions
+    # @param repo_definition [Array<RepoDefinition>]
+    # @return [Array<Repo>]
+    def read_stages(stage_definition) ; end
+
+    ##
+    # Reads repos from array of repo definitions
+    # @param repo_definition [Array<RepoDefinition>]
+    # @return [Array<Repo>]
+    def read_variables(variable_definition) ; end
   end
 end
