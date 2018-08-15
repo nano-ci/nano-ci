@@ -11,47 +11,74 @@ class Nanoci
     end
 
     ##
+    # Repo definition
+    # @return [RepoDefinition]
+    attr_reader :definition
+
+    ##
     # Tag is an id used to identify repo of a project
     # Repo tag must be unique
-    attr_accessor :tag
+    # @return [Symbol]
+    def tag
+      @definition.tag
+    end
 
     ##
     # Type of the repo, e.g. 'git', 'svn', etc.
-    attr_accessor :type
+    # @return [String]
+    def type
+      @definition.type
+    end
 
     ##
     # Boolean flag that indicates if this is the main repo of a project
-    attr_reader :main
+    # @return [Boolean]
+    def main
+      @definition.main
+    end
 
     ##
     # URI that points to repo storage (on http server, file path, etc.)
-    attr_accessor :src
+    # @return [String]
+    def src
+      @definition.src
+    end
 
     ##
     # Name of the branch, tag, commit hash, etc - anything points to a commit
-    attr_accessor :branch
+    def branch
+      @definition.branch
+    end
 
     ##
     # Object specifies authentication against repo
-    attr_accessor :auth
+    def auth
+      @definition.auth
+    end
 
     attr_accessor :current_commit
 
     ##
     # Array of triggers
-    attr_accessor :triggers
+    def triggers
+      @definition.triggers
+    end
 
     ##
     # Collection of capabilities requred to run
     # a job against the repo on an agent
-    attr_reader   :required_agent_capabilities
+    attr_reader :required_agent_capabilities
 
-    def initialize(hash = {})
-      @tag  = hash[:tag]
-      @type = hash[:type] || 'unknown'
-      @main = hash[:main] || false
-      @src  = hash[:src]
-      @auth = hash[:auth]
+    ##
+    # Initializes new instance of Repo
+    # @param definition [RepoDefinition]
+    def initialize(definition)
+      @definition = definition
+      @tag  = @definition.tag
+      @type = @definition.type
+      @main = @definition.main
+      @src  = @definition.src
+      @auth = @definition.auth
       @required_agent_capabilities = []
       @current_commit = ''
     end
