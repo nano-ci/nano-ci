@@ -27,6 +27,10 @@ class Nanoci
       # @return [Array<TriggerDefinition>] collection of triggers for the repo
       attr_reader :triggers
 
+      # Returns authorization params for the repo
+      # @return [Hash]
+      attr_reader :auth
+
       # Returns type-specific paras of the repo
       # @return [Hash]
       attr_reader :params
@@ -34,10 +38,11 @@ class Nanoci
       # Initializes new instance of RepoDefinition
       # @param hash [Hash]
       def initialize(hash)
-        @tag = hash.fetch(:tag)
-        @type = hash.fetch(:type)
+        @tag = hash.fetch(:tag).to_sym
+        @type = hash.fetch(:type).to_sym
         @main = hash.fetch(:main, false)
         @src = hash.fetch(:src)
+        @auth = hash.fetch(:auth, nil)
         @params = hash
         @triggers = read_triggers(hash[:triggers] || [])
       end

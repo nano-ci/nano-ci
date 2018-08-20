@@ -17,7 +17,7 @@ class Nanoci
       # @param tag [String] tag to identify the provider
       # @return [Class] class implementing the resource
       def resolve(tag)
-        Nanoci.resource.get(tag)
+        Nanoci.resources.get(tag)
       end
     end
   end

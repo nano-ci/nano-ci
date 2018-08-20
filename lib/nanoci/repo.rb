@@ -1,12 +1,25 @@
 # frozen_string_literal: true
 
+require 'nanoci/mixins/provides'
+
 class Nanoci
   ##
   # Source control repository
   class Repo
+    extend Mixins::Provides
+
     class << self
-      def types
-        @types ||= {}
+      # Registers a provider of a resource
+      # @param tag [String] tag to identify the provider
+      def provides(tag)
+        super("repo:#{tag}")
+      end
+
+      # Returns the provider of a resource
+      # @param tag [String] tag to identify the provider
+      # @return [Class] class implementing the resource
+      def resolve(tag)
+        super("repo:#{tag}")
       end
     end
 
@@ -109,7 +122,7 @@ class Nanoci
 
     def state=(value)
       raise "tag #{tag} does not match state tag #{value[:tag]}" \
-        unless tag == value[:tag]
+        unless tag == value[:tag].to_sym
       @current_commit = value[:current_commit]
     end
   end

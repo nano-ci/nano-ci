@@ -54,7 +54,7 @@ class Nanoci
       # @param repo_hash_array [Array<Hash>]
       # @return [Array<RepoDefinition>]
       def read_repos(repo_hash_array)
-        repo_hash_array.select(&method(:read_repo))
+        repo_hash_array.map(&method(:read_repo))
       end
 
       # Reads repo definition from hash
@@ -68,7 +68,7 @@ class Nanoci
       # @param stage_hash_array [Array<Hash>]
       # @return [Array<StageDefinition>]
       def read_stages(stage_hash_array)
-        stage_hash_array.select(&method(:read_stage))
+        stage_hash_array.map(&method(:read_stage))
       end
 
       # Reads stage definition from hash
@@ -82,7 +82,7 @@ class Nanoci
       # @param variable_hash_array [Array<Hash>]
       # @return [Array<VariableDefinition>]
       def read_variables(variable_hash_array)
-        variable_hash_array.select(&method(:read_variable))
+        variable_hash_array.map(&method(:read_variable))
       end
 
       # Reads variable from a hash

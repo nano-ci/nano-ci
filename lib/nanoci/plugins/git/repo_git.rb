@@ -12,6 +12,8 @@ class Nanoci
     class Git
       # Git repo class. Implements interface of Nanoci::Repo class
       class RepoGit < Repo
+        provides 'git'
+
         GIT_CAP = 'tools.git'
         SSH_CAP = 'tools.ssh'
         DEFAULT_BRANCH = 'master'

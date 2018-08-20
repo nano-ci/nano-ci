@@ -3,6 +3,7 @@
 require 'logging'
 
 require 'nanoci'
+require 'nanoci/repo'
 
 class Nanoci
   ##
@@ -13,7 +14,7 @@ class Nanoci
     attr_reader :variables
     attr_reader :reporters
 
-    attr_reader :defintion
+    attr_reader :definition
 
     def name
       definition.name
@@ -34,7 +35,9 @@ class Nanoci
       variables['buildNumber'] = var
     end
 
-    def initialize(definition = {})
+    # Initializes new instance of [Project]
+    # @param definition [ProjectDefinition]
+    def initialize(definition)
       @log = Logging.logger[self]
       @definition = definition
       @repos = read_repos(definition.repos)
@@ -60,7 +63,7 @@ class Nanoci
 
     def restore_repos(repos_memento)
       repos_memento.each do |k, v|
-        repo = repos[k]
+        repo = repos[k.to_sym]
         if repo.nil?
           @log.warn "repo definition #{k} does not exist"
         else
@@ -85,18 +88,24 @@ class Nanoci
     # Reads repos from array of repo definitions
     # @param repo_definition [Array<RepoDefinition>]
     # @return [Array<Repo>]
-    def read_repos(repo_definitions) ; end
+    def read_repos(repo_definitions)
+      repo_definitions.map { |r| [r.tag, Repo.resolve(r.type).new(r)] }.to_h
+    end
 
     ##
     # Reads repos from array of repo definitions
     # @param repo_definition [Array<RepoDefinition>]
     # @return [Array<Repo>]
-    def read_stages(stage_definition) ; end
+    def read_stages(stage_definition)
+      []
+    end
 
     ##
     # Reads repos from array of repo definitions
     # @param repo_definition [Array<RepoDefinition>]
     # @return [Array<Repo>]
-    def read_variables(variable_definition) ; end
+    def read_variables(variable_definition)
+      []
+    end
   end
 end
