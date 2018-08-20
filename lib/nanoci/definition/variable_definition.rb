@@ -15,7 +15,7 @@ class Nanoci
       # Initializes a new instance of VariableDefiition
       # @param hash [Hash]
       def initialize(hash)
-        @tag = hash.fetch :tag
+        @tag = hash.fetch(:tag).to_sym
         @value = hash.fetch(:value, '')
       end
     end

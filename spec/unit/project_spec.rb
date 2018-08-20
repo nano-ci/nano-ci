@@ -86,7 +86,7 @@ RSpec.describe Nanoci::Project do
     project = Nanoci::Project.new(definition)
 
     expect(project.state[:variables]).to_not be_nil
-    expect(project.state[:variables]['var1']).to_not be_nil
+    expect(project.state[:variables]['var1'.to_sym]).to_not be_nil
   end
 
   it 'restores state of variables' do
@@ -110,7 +110,7 @@ RSpec.describe Nanoci::Project do
     }
 
     project.state = state
-    expect(project.variables['var1'].value).to eq 'abc'
+    expect(project.variables['var1'.to_sym].value).to eq 'abc'
   end
 
   it 'creates repo from definition' do

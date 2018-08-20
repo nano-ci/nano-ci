@@ -10,9 +10,11 @@ class Nanoci
 
     PATTERN = /\$\{([^\}]+)\}/
 
-    def initialize(hash = {})
-      @tag = hash[:tag]
-      @value = hash[:value]
+    # Initializes new instance of Variable
+    # @param definition [VariableDefinition]
+    def initialize(definition)
+      @tag = definition.tag
+      @value = definition.value
     end
 
     def expand(variables)

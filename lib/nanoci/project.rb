@@ -3,7 +3,9 @@
 require 'logging'
 
 require 'nanoci'
+require 'nanoci/definition/variable_definition'
 require 'nanoci/repo'
+require 'nanoci/variable'
 
 class Nanoci
   ##
@@ -76,7 +78,8 @@ class Nanoci
       variables_memento.each do |k, v|
         variable = variables[k]
         if variable.nil?
-          variable = Variable.new(v)
+          variable_definition = Nanoci::Definition::VariableDefinition.new(v)
+          variable = Variable.new(variable_definition)
           variables[variable.tag] = variable
         else
           variable.memento = v
@@ -100,12 +103,11 @@ class Nanoci
       []
     end
 
-    ##
     # Reads repos from array of repo definitions
     # @param repo_definition [Array<RepoDefinition>]
     # @return [Array<Repo>]
     def read_variables(variable_definition)
-      []
+      variable_definition.map { |d| [d.tag, Variable.new(d)] }.to_h
     end
   end
 end
