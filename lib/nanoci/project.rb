@@ -5,6 +5,7 @@ require 'logging'
 require 'nanoci'
 require 'nanoci/definition/variable_definition'
 require 'nanoci/repo'
+require 'nanoci/stage'
 require 'nanoci/variable'
 
 class Nanoci
@@ -97,10 +98,10 @@ class Nanoci
 
     ##
     # Reads repos from array of repo definitions
-    # @param repo_definition [Array<RepoDefinition>]
+    # @param repo_definitions [Array<RepoDefinition>]
     # @return [Array<Repo>]
-    def read_stages(stage_definition)
-      []
+    def read_stages(stage_definitions)
+      stage_definitions.map { |d| Stage.new(d, self) }
     end
 
     # Reads repos from array of repo definitions

@@ -7,20 +7,26 @@ class Nanoci
   class Tasks
     # Task to work with SCM tools
     class TaskSourceControl < Task
+      provides 'source-control'
+
       attr_accessor :repo_tag
+      attr_accessor :repo
       attr_accessor :action
       attr_accessor :branch
 
-      def initialize(hash = {})
-        super(hash)
-        @repo_tag = hash[:repo]
-        @action = hash[:action]
-        @branch = hash[:branch]
+      # Initializes new instance of [TaskSourceControl]
+      # @param definition [TaskDefinition]
+      # @param project [Project]
+      def initialize(definition, project)
+        super(definition, project)
+        @repo_tag = definition.repo
+        @repo = project.repos[repo_tag]
+        raise "Missing repo definition #{repo_tag}" if repo.nil?
+        @action = definition.params[:action]
+        @branch = definition.params[:branch]
       end
 
-      def required_agent_capabilities(project)
-        repo = project.repos[repo_tag]
-        raise "Missing repo definition #{repo_tag}" if repo.nil?
+      def required_agent_capabilities
         super(project) + repo.required_agent_capabilities
       end
 
@@ -39,7 +45,5 @@ class Nanoci
         repo.checkout(changeset, env, stdout: output, stderr: output)
       end
     end
-
-    Task.types['source-control'] = TaskSourceControl
   end
 end

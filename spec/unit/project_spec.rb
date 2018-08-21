@@ -113,7 +113,7 @@ RSpec.describe Nanoci::Project do
     expect(project.variables['var1'.to_sym].value).to eq 'abc'
   end
 
-  it 'creates repo from definition' do
+  it 'reades repo from definition' do
     definition = Nanoci::Definition::ProjectDefinition.new(
       tag: 'project-tag',
       repos: [{
@@ -125,5 +125,18 @@ RSpec.describe Nanoci::Project do
 
     project = Nanoci::Project.new(definition)
     expect(project.repos['test repo'.to_sym]).to be_a(TestRepo)
+  end
+
+  it 'reads stages from definition' do
+    definition = Nanoci::Definition::ProjectDefinition.new(
+      tag: 'project-tag',
+      stages: [{
+        tag: 'project-stage'
+      }]
+    )
+
+    project = Nanoci::Project.new(definition)
+    expect(project.stages[0]).to_not be_nil
+    expect(project.stages[0].tag).to eq :'project-stage'
   end
 end

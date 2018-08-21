@@ -16,7 +16,7 @@ class Nanoci
       # Initializes new instance of the [StageDefinition]
       # @param hash [Hash]
       def initialize(hash)
-        @tag = hash.fetch :tag
+        @tag = hash.fetch(:tag).to_sym
         @jobs = read_jobs(hash.fetch(:jobs, []))
       end
 
@@ -24,14 +24,7 @@ class Nanoci
       # @param job_hash_array [Array<Hash>]
       # @return [Array<JobDefinition>]
       def read_jobs(job_hash_array)
-        job_hash_array.select(&:read_job)
-      end
-
-      # Reads job from src
-      # @param hash [Hash]
-      # @return [JobDefinition]
-      def read_job(hash)
-        JobDefinition.new(hash)
+        job_hash_array.map { |d| JobDefinition.new(d) }
       end
     end
   end

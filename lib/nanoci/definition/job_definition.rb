@@ -17,7 +17,7 @@ class Nanoci
       # Initializes new instance of JobDefinition
       # @param hash [Hash]
       def initialize(hash)
-        @tag = hash.fetch :tag
+        @tag = hash.fetch(:tag).to_sym
         @tasks = read_tasks(hash.fetch(:tasks, []))
       end
 
@@ -27,14 +27,7 @@ class Nanoci
       # @param task_hash_array [Array<Hash>]
       # @return [Array<TaskDefinition>]
       def read_tasks(task_hash_array)
-        task_hash_array.select(&:read_task)
-      end
-
-      # Read task definition from hash
-      # @param hash [Hash]
-      # @return [TaskDefinition]
-      def read_task(hash)
-        TaskDefinition.new(hash)
+        task_hash_array.map { |d| TaskDefinition.new(d) }
       end
     end
   end

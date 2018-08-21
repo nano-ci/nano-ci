@@ -8,6 +8,10 @@ class Nanoci
       # @return [Symbol]
       attr_reader :type
 
+      # Return the working dir for a task. Relative to project working dir
+      # @return [String]
+      attr_reader :workdir
+
       # Returns type-specific params of the task
       # @return [Hash]
       attr_reader :params
@@ -15,7 +19,8 @@ class Nanoci
       # Initializes new instance of [TaskDefinition]
       # @param hash [Hash]
       def initialize(hash)
-        @type = hash.fetch :type
+        @type = hash.fetch(:type).to_sym
+        @workdir = hash.fetch(:workdir, '.')
         @params = hash
       end
     end
