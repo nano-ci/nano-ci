@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'nanoci/definition/job_definition'
 require 'nanoci/task'
 
 class Nanoci

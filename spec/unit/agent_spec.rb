@@ -54,7 +54,10 @@ RSpec.describe Nanoci::Agent do
     )
 
     agent = Nanoci::Agent.new(config, {}, {})
-    job = Nanoci::BuildJob.new(Nanoci::Job.new('tag' => 'test'))
+    job_definition = Nanoci::Definition::JobDefinition.new(
+      tag: 'test'
+    )
+    job = Nanoci::BuildJob.new(Nanoci::Job.new(job_definition, nil))
     agent.run_job(nil, job)
     expect(agent.current_job).not_to be_nil
   end
