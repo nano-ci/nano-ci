@@ -10,6 +10,8 @@ class Nanoci
     class RSpec
       # RSpec run task class
       class TaskTestRSpec < Nanoci::Tasks::TaskTest
+        provides 'test-rspec'
+
         RSPEC_CAP = 'tools.rspec'
 
         @status_mapping = {
