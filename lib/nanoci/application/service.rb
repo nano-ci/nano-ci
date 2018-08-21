@@ -14,7 +14,6 @@ require 'nanoci/definition/project'
 require 'nanoci/mixins/logger'
 require 'nanoci/options'
 require 'nanoci/plugin_loader'
-require 'nanoci/project_loader'
 require 'nanoci/state_manager'
 
 class Nanoci
