@@ -6,12 +6,22 @@ class Nanoci
   class ResourceMap
     # Initializes new instance of ResourceMap
     def initialize
-      @map = {}
+      @map_stack = []
+      @map_stack.push({})
     end
 
     # Removes all entries from the map
     def clean
-      @map = {}
+      @map_stack = []
+      @map_stack.push({})
+    end
+
+    def push
+      @map_stack.push({})
+    end
+
+    def pop
+      @map_stack.pop
     end
 
     # Adds a new entry to the map
@@ -19,8 +29,8 @@ class Nanoci
     # @param klass [Class] class implementing the resource
     def set(key, klass)
       key = key.to_sym
-      raise "duplicate key #{key}" if @map.key? key
-      @map[key] = klass
+      raise "duplicate key #{key}" if @map_stack.last.key? key
+      @map_stack.last[key] = klass
     end
 
     # Gets an entry from the map
@@ -28,8 +38,9 @@ class Nanoci
     # @return [Class] class implementing the resource
     def get(key)
       key = key.to_sym
-      raise "missing resource #{key}" unless @map.key? key
-      @map[key]
+      item = @map_stack.reverse.map { |x| x[key] }.reject(&:nil?).first
+      raise "missing resource #{key}" if item.nil?
+      item
     end
   end
 end
