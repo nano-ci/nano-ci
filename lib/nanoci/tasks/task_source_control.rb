@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'nanoci/definition/task_source_control_definition'
 require 'nanoci/task'
 
 class Nanoci
@@ -18,16 +19,17 @@ class Nanoci
       # @param definition [TaskDefinition]
       # @param project [Project]
       def initialize(definition, project)
+        definition = Nanoci::Definition::TaskSourceControlDefinition.new(definition.params)
         super(definition, project)
         @repo_tag = definition.repo
         @repo = project.repos[repo_tag]
         raise "Missing repo definition #{repo_tag}" if repo.nil?
-        @action = definition.params[:action]
-        @branch = definition.params[:branch]
+        @action = definition.action
+        @branch = definition.branch
       end
 
       def required_agent_capabilities
-        super(project) + repo.required_agent_capabilities
+        super + repo.required_agent_capabilities
       end
 
       def execute_imp(build, env)
