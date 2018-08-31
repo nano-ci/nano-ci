@@ -5,8 +5,15 @@ require 'nanoci/project'
 require 'nanoci/repo'
 
 RSpec.describe Nanoci::Project do
-  class TestRepo < Nanoci::Repo
-    provides 'test'
+  before(:all) do
+    Nanoci.resources.push
+    class TestRepo < Nanoci::Repo
+      provides 'test'
+    end
+  end
+
+  after(:all) do
+    Nanoci.resources.pop
   end
 
   it 'reads tag from src' do

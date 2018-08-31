@@ -7,39 +7,8 @@ require 'nanoci/job'
 require 'nanoci/task'
 
 RSpec.describe Nanoci::Job do
-  it 'reads tag from definition' do
-    definition = Nanoci::Definition::JobDefinition.new(
-      tag: 'build-job'
-    )
-    job = Nanoci::Job.new(definition, nil)
-    expect(job.tag).to eq :'build-job'
-  end
-
-  it 'required_agent_capabilities returns a Set' do
-    Nanoci.resources.clean
-
-    class TestTask1 < Nanoci::Task
-      provides 'test-task1'
-
-      def required_agent_capabilities
-        Set['abc']
-      end
-    end
-
-    definition = Nanoci::Definition::JobDefinition.new(
-      tag: 'build-job',
-      tasks: [{
-        type: 'test-task1'
-      }]
-    )
-
-    job = Nanoci::Job.new(definition, nil)
-
-    expect(job.required_agent_capabilities).to be_a(Set)
-  end
-
-  it 'merges tasks required agent capabilities' do
-    Nanoci.resources.clean
+  before(:all) do
+    Nanoci.resources.push
 
     class TestTask1 < Nanoci::Task
       provides 'test-task1'
@@ -56,7 +25,34 @@ RSpec.describe Nanoci::Job do
         Set['def']
       end
     end
+  end
 
+  after(:all) do
+    Nanoci.resources.pop
+  end
+
+  it 'reads tag from definition' do
+    definition = Nanoci::Definition::JobDefinition.new(
+      tag: 'build-job'
+    )
+    job = Nanoci::Job.new(definition, nil)
+    expect(job.tag).to eq :'build-job'
+  end
+
+  it 'required_agent_capabilities returns a Set' do
+    definition = Nanoci::Definition::JobDefinition.new(
+      tag: 'build-job',
+      tasks: [{
+        type: 'test-task1'
+      }]
+    )
+
+    job = Nanoci::Job.new(definition, nil)
+
+    expect(job.required_agent_capabilities).to be_a(Set)
+  end
+
+  it 'merges tasks required agent capabilities' do
     definition = Nanoci::Definition::JobDefinition.new(
       tag: 'build-job',
       tasks: [{ type: 'test-task1' }, { type: 'test-task2' }]
