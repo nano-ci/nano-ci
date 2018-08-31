@@ -21,7 +21,7 @@ class Nanoci
       result = value
       if result.is_a? String
         until (match = PATTERN.match(result)).nil?
-          raise "Cycle in expanding variable #{tag}" if match[1] == tag
+          raise "Cycle in expanding variable #{tag}" if match[1] == tag.to_s
           result = value.sub(match[0], variables[match[1]]&.value || '')
         end
       end
