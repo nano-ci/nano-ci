@@ -20,10 +20,10 @@ class Nanoci
 
         attr_reader :trusted_host_keys
 
-        def initialize(hash = {})
-          super(hash)
+        def initialize(definition)
+          super(definition)
           @branch ||= DEFAULT_BRANCH
-          @trusted_host_keys = hash[:trusted_host_keys]
+          @trusted_host_keys = definition.params[:trusted_host_keys]
           required_agent_capabilities.push(GIT_CAP)
           required_agent_capabilities.push(SSH_CAP)
         end
