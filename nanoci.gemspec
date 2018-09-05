@@ -29,7 +29,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'logging', '~> 2.2'
   spec.add_runtime_dependency 'mail', '~> 2.7'
   spec.add_runtime_dependency 'mongo', '~> 2.5'
-  spec.add_runtime_dependency 'trollop', '~> 2.1'
+  spec.add_runtime_dependency 'optimist', '~> 3.0'
 
   spec.add_development_dependency 'rake', '~> 12.0'
   spec.add_development_dependency 'rspec', '~> 3.0'

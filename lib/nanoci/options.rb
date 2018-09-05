@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'trollop'
+require 'optimist'
 
 class Nanoci
   ##
@@ -23,7 +23,7 @@ class Nanoci
     end
 
     def self.parse(options)
-      opts = Trollop.options(options) do
+      opts = Optimist.options(options) do
         banner BANNER
         opt :config, 'Path to nano-ci config', type: :string
         opt :project, 'Path to project definition', type: :string
@@ -31,7 +31,7 @@ class Nanoci
 
       args = Options.new(opts)
 
-      Trollop.die :project, 'is requried' if args.project.nil?
+      Optimist.die :project, 'is requried' if args.project.nil?
 
       args.project = File.expand_path(args.project) unless args.project.nil?
 
