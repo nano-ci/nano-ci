@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'nanoci/plugin'
+
 class Nanoci
   ##
   # nano-ci plugin loader
