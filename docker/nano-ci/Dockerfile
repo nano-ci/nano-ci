@@ -1,9 +1,9 @@
 FROM ruby:2.5-stretch
 
 WORKDIR /nano-ci
-ADD . /nano-ci
+ADD ./nano-ci /nano-ci
 
-RUN gem install /nano-ci/nanoci-0.1.0.gem -i /nano-ci
+RUN bundler install --deployment
 
 ENV GEM_PATH=/nano-ci/gems
 
