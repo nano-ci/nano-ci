@@ -15,9 +15,7 @@ Gem::Specification.new do |spec|
   spec.homepage      = 'http://nanoci.net'
   spec.license       = 'MIT'
 
-  spec.files         = `git ls-files -z`.split("\x0").reject do |f|
-    f.match(%r{^(test|spec|features|vagrant|samples)/})
-  end
+  spec.files         = Dir.glob('{bin,lib}/**/*') + %w(LICENSE.txt, README.md)
   spec.bindir        = 'bin'
   spec.executables   = ['nano-ci']
   spec.require_paths = ['lib']
