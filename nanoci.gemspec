@@ -1,4 +1,4 @@
-# coding: utf-8
+# frozen_string_literal: true
 
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
@@ -15,7 +15,7 @@ Gem::Specification.new do |spec|
   spec.homepage      = 'http://nanoci.net'
   spec.license       = 'MIT'
 
-  spec.files         = Dir.glob('{bin,lib}/**/*') + %w(LICENSE.txt, README.md)
+  spec.files         = Dir.glob('{bin,lib}/**/*') + %w[LICENSE.txt README.md]
   spec.bindir        = 'bin'
   spec.executables   = ['nano-ci']
   spec.require_paths = ['lib']

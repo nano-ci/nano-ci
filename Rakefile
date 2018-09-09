@@ -38,10 +38,21 @@ namespace :docker do
     task :'nano-ci' => "docker/nano-ci/nano-ci/#{src}"
   end
 
-
   task :'nano-ci' do
     Dir.chdir 'docker/nano-ci' do
-      sh 'docker build -t nano-ci .'
+      sh 'docker build --target nano-ci-base -t nano-ci .'
+    end
+  end
+
+  task :'nano-ci-debug' do
+    Dir.chdir 'docker/nano-ci' do
+      sh 'docker build --target nano-ci-debug -t nano-ci-debug .'
+    end
+  end
+
+  namespace :'nano-ci-debug' do
+    task :run => :'docker:nano-ci-debug' do
+      sh 'docker run -p 23456:23456 nano-ci-debug'
     end
   end
 end
