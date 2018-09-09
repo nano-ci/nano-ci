@@ -1,4 +1,4 @@
-plugins-path: '/var/lib/gems/2.3.0/gems/nanoci-0.1.0/lib/nanoci/plugins'
+plugins-path: '/nano-ci/lib/nanoci/plugins'
 repo-cache: '/home/nanoci/workdir/repo-cache'
 build-data-dir: '/home/nanoci/workdir/builds'
 capabilities:

@@ -44,6 +44,12 @@ namespace :docker do
     end
   end
 
+  namespace :'nano-ci' do
+    task :run => :'docker:nano-ci' do
+      sh 'docker run nano-ci'
+    end
+  end
+
   task :'nano-ci-debug' do
     Dir.chdir 'docker/nano-ci' do
       sh 'docker build --target nano-ci-debug -t nano-ci-debug .'
@@ -53,6 +59,28 @@ namespace :docker do
   namespace :'nano-ci-debug' do
     task :run => :'docker:nano-ci-debug' do
       sh 'docker run -p 23456:23456 nano-ci-debug'
+    end
+  end
+
+  file 'docker/nano-ci/master.nanoci' => 'master.nanoci' do |task|
+    mkdir_p(File.dirname(task.name))
+    cp task.prerequisites.first, task.name
+  end
+
+  file 'docker/nano-ci/config.yml' => 'config.yml' do |task|
+    mkdir_p(File.dirname(task.name))
+    cp task.prerequisites.first, task.name
+  end
+
+  task :'nano-ci-self' => ['docker/nano-ci/master.nanoci', 'docker/nano-ci/config.yml'] do
+    Dir.chdir 'docker/nano-ci' do
+      sh 'docker build --target nano-ci-self -t nano-ci-self .'
+    end
+  end
+
+  namespace :'nano-ci-self' do
+    task :run => :'docker:nano-ci-self' do
+      sh 'docker run nano-ci-self'
     end
   end
 end
