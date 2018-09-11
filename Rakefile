@@ -29,6 +29,12 @@ task :gem do
 end
 
 namespace :docker do
+  task :'run' => [:'nano-ci-self'] do
+    Dir.chdir 'docker' do
+      sh 'docker-compose up'
+    end
+  end
+
   NANO_CI_FILES.each do |src|
     file "docker/nano-ci/nano-ci/#{src}" => src do |task|
       mkdir_p(File.dirname(task.name))

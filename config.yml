@@ -8,4 +8,4 @@ capabilities:
 agents:
   - name: 'Local Agent #1'
     workdir: '/home/nanoci/workdir/agents/agent-1'
-mongo-connection-string: mongodb://172.28.128.3:27017/nanoci
+mongo-connection-string: mongodb://mongo:27017/nanoci

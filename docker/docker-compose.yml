@@ -1,0 +1,11 @@
+version: '3.4'
+services:
+  nano-ci:
+    build:
+      context: ./nano-ci
+      target: nano-ci-self
+    image: nano-ci-self
+
+  mongo:
+    image: mongo
+    restart: always
