@@ -27,11 +27,13 @@ class Nanoci
 
     attr_reader :type
 
-    def initialize(repo, hash = {})
-      raise 'hash is not of type Hash' unless hash.is_a? Hash
+    # Initializes new instance of [Trigger]
+    # @param repo [Repository]
+    # @param definition [TriggerDefinition]
+    def initialize(repo, definition)
       @log = Logging.logger[self]
       @repo = repo
-      @type = hash[:type]
+      @type = definition.type
     end
 
     def run(build_scheduler, project, env)

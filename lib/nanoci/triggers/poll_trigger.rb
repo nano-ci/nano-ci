@@ -4,6 +4,7 @@ require 'eventmachine'
 require 'logging'
 
 require 'nanoci/build'
+require 'nanoci/definition/poll_trigger_definition'
 require 'nanoci/trigger'
 
 class Nanoci
@@ -15,15 +16,14 @@ class Nanoci
       provides 'poll'
 
       attr_accessor :interval
-      attr_accessor :schedule
 
-      def initialize(repo, hash = {})
-        super(repo, hash)
+      def initialize(repo, definition)
+        definition = Nanoci::Definition::PollTriggerDefinition.new(definition.params)
+        super(repo, definition)
 
         @log = Logging.logger[self]
 
         @interval = hash[:interval]
-        @schedule = hash[:schedule]
       end
 
       def run(build_scheduler, project, env)
