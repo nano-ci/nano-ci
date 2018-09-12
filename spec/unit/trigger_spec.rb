@@ -1,10 +1,16 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
+require 'nanoci/definition/trigger_definition'
 require 'nanoci/trigger'
 
 RSpec.describe Nanoci::Trigger do
   it 'reads type from src' do
-    trigger = Nanoci::Trigger.new(nil, type: 'polling')
+    trigger_definition = Nanoci::Definition::TriggerDefinition.new(
+      type: 'polling'
+    )
+    trigger = Nanoci::Trigger.new(nil, trigger_definition)
     expect(trigger.type).to eq 'polling'
   end
 
@@ -14,7 +20,12 @@ RSpec.describe Nanoci::Trigger do
     allow(repo).to receive(:tag).and_return('abc')
     project = double('project')
 
-    trigger = Nanoci::Trigger.new(repo, interval: 5)
+    trigger_definition = Nanoci::Definition::TriggerDefinition.new(
+      type: 'polling',
+      interval: 5
+    )
+
+    trigger = Nanoci::Trigger.new(repo, trigger_definition)
 
     build_scheduler = double('build_scheduler')
     expect(build_scheduler).to receive(:trigger_build).with(project, trigger)
@@ -29,7 +40,12 @@ RSpec.describe Nanoci::Trigger do
     allow(repo).to receive(:tag).and_return('repo')
     project = double('project')
 
-    trigger = Nanoci::Trigger.new(repo, interval: 5)
+    trigger_definition = Nanoci::Definition::TriggerDefinition.new(
+      type: 'polling',
+      interval: 5
+    )
+
+    trigger = Nanoci::Trigger.new(repo, trigger_definition)
 
     build_scheduler = double('build_scheduler')
     expect(build_scheduler).not_to receive(:trigger_build).with(project, trigger)

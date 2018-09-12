@@ -23,7 +23,7 @@ class Nanoci
 
         @log = Logging.logger[self]
 
-        @interval = hash[:interval]
+        @interval = definition.interval
       end
 
       def run(build_scheduler, project, env)
