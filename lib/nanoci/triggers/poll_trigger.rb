@@ -12,6 +12,8 @@ class Nanoci
     # Poll trigger class
     # Poll trigger is the trigger that checks a repo on a scheduled basis
     class PollTrigger < Trigger
+      provides 'poll'
+
       attr_accessor :interval
       attr_accessor :schedule
 
@@ -32,7 +34,5 @@ class Nanoci
         end
       end
     end
-
-    Trigger.types['poll'] = PollTrigger
   end
 end

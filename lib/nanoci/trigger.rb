@@ -2,13 +2,26 @@
 
 require 'logging'
 
+require 'nanoci/mixins/provides'
+
 class Nanoci
   ##
   # Base class for nano-ci triggers
   class Trigger
+    include Mixins::Provides
+
     class << self
-      def types
-        @types ||= {}
+      # Registers a provider of a resource
+      # @param tag [String] tag to identify the provider
+      def provides(tag)
+        super("trigger:#{tag}")
+      end
+
+      # Returns the provider of a resource
+      # @param tag [String] tag to identify the provider
+      # @return [Class] class implementing the resource
+      def resolve(tag)
+        super("trigger:#{tag}")
       end
     end
 
