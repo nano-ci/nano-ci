@@ -8,7 +8,7 @@ class Nanoci
   ##
   # Base class for nano-ci triggers
   class Trigger
-    include Mixins::Provides
+    extend Mixins::Provides
 
     class << self
       # Registers a provider of a resource
