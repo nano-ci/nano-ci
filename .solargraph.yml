@@ -3,6 +3,7 @@ include:
 - "**/*.rb"
 exclude:
 - vendor/**/*
+- docker/**/*
 require: []
 domains: []
 reporters:
