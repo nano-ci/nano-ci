@@ -71,11 +71,9 @@ class Nanoci
 
     attr_accessor :current_commit
 
-    ##
     # Array of triggers
-    def triggers
-      @definition.triggers
-    end
+    # @return [Array<Trigger>]
+    attr_reader :triggers
 
     ##
     # Collection of capabilities requred to run
@@ -87,11 +85,7 @@ class Nanoci
     # @param definition [RepoDefinition]
     def initialize(definition)
       @definition = definition
-      @tag  = @definition.tag
-      @type = @definition.type
-      @main = @definition.main
-      @src  = @definition.src
-      @auth = @definition.auth
+      @triggers = []
       @required_agent_capabilities = []
       @current_commit = ''
     end

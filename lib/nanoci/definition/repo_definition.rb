@@ -44,14 +44,14 @@ class Nanoci
         @src = hash.fetch(:src)
         @auth = hash.fetch(:auth, nil)
         @params = hash
-        @triggers = read_triggers(hash[:triggers] || [])
+        @triggers = read_triggers(hash.fetch(:triggers, []))
       end
 
       # Reads trigger definitions from src
       # @param hash_array [Array<Hash>]
       # @return [Array<TriggerDefitnion>]
       def read_triggers(hash_array)
-        hash_array.select(&:read_trigger)
+        hash_array.map { |x| read_trigger(x) }
       end
 
       # Reads trigger definition from src
