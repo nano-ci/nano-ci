@@ -2,6 +2,7 @@
 
 require 'json'
 
+require 'nanoci/definition/task_test_rspec_definition'
 require 'nanoci/tasks/task_test'
 require 'nanoci/test'
 
@@ -23,26 +24,37 @@ class Nanoci
           attr_reader :status_mapping
         end
 
-        attr_reader :action
+        # task action
+        # @return [Symbol]
+        def action
+          @definition.action
+        end
 
-        def initialize(hash = {})
-          super(hash)
-          @action = hash['action'] || 'run_tool'
-          @options = hash['options'] || {}
-          @result_file = hash['result_file']
+        # rspec options
+        # @return [Hash]
+        def options
+          @definition.options
+        end
 
-          raise 'result_file must be specified if action is "read_file"' if \
-            @action == 'read_file' && @result_file.nil?
+        # result file to read
+        # @return [String]
+        def result_file
+          @definition.result_file
+        end
+
+        def initialize(definition, project)
+          definition = Nanoci::Definition::TaskTestRSpecDefinition.new(definition.params)
+          super(definition, project)
         end
 
         def required_agent_capabilities(project)
           requirements = super(project)
-          requirements << RSPEC_CAP if @action == 'run_tool'
+          requirements << RSPEC_CAP if action == 'run_tool'
           requirements
         end
 
         def execute_imp(build, env)
-          case @action
+          case action
           when 'run_tool'
             execute_run_tool(build, env)
           when 'read_file'
@@ -53,7 +65,7 @@ class Nanoci
         private
 
         def execute_run_tool(build, env)
-          opts = sanitize_opts(@options.clone, env)
+          opts = sanitize_opts(options.clone, env)
           cmd = opts.map { |k, v| (k + ' ' + v).strip }.join(' ')
           rspec(env[RSPEC_CAP], cmd, stdout: build.output, stderr: build.output)
           results = read_results(opts['--out'])
