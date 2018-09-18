@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'nanoci/trigger'
+require 'nanoci/definition/repo_definition'
 require 'nanoci/mixins/provides'
 
 class Nanoci
@@ -82,12 +84,16 @@ class Nanoci
 
     ##
     # Initializes new instance of Repo
-    # @param definition [RepoDefinition]
+    # @param definition [Nanoci::Definition::RepoDefinition]
     def initialize(definition)
       @definition = definition
-      @triggers = []
       @required_agent_capabilities = []
       @current_commit = ''
+
+      @triggers = @definition.triggers.map do |td|
+        trigger = Trigger.resolve(td.type).new(self, td)
+        @triggers.push(trigger)
+      end
     end
 
     ##

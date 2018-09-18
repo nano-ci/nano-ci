@@ -16,10 +16,10 @@ require 'nanoci/options'
 require 'nanoci/plugin_loader'
 require 'nanoci/project'
 require 'nanoci/state_manager'
+require 'nanoci/utils/hash_utils'
 
 class Nanoci
   class Application
-    ##
     # nano-ci entry point
     class Service
       include Nanoci::Mixins::Logger
@@ -42,6 +42,7 @@ class Nanoci
       end
 
       def run(config, agent_manager, state_manager, project, env)
+
         EventMachine.run do
           build_scheduler = run_build_scheduler(
             config.job_scheduler_interval,
@@ -60,7 +61,7 @@ class Nanoci
 
       def load_project(project_path, state_manager)
         log.info 'reading project definition...'
-        project_definition_src = YAML.load_file project_path
+        project_definition_src = YAML.load_file(project_path).symbolize_keys
         project_definition = Definition::ProjectDefinition.new(project_definition_src)
         project = Project.new(project_definition)
         project_state = state_manager.get_state(
@@ -77,7 +78,12 @@ class Nanoci
         AgentManager.new(config, env)
       end
 
-      def run_triggers(project, build_scheduler, env)
+      # runs triggers
+      # @param project [Project]
+      # @param trigger_manager [TriggerManager]
+      # @param build_scheduler [BuildScheduler]
+      # @param env [Hash]
+      def run_triggers(project, trigger_manager, build_scheduler, env)
         project.repos.each do |_key, repo|
           repo.triggers.each do |trigger|
             trigger.run(build_scheduler, project, env)

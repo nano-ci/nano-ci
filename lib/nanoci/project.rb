@@ -13,6 +13,8 @@ class Nanoci
   # Represents a project in nano-ci
   class Project
     attr_reader :stages
+
+    # @return [Hash{Symbol => Repo}]
     attr_reader :repos
     attr_reader :variables
     attr_reader :reporters

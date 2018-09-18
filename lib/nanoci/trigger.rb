@@ -19,7 +19,7 @@ class Nanoci
 
       # Returns the provider of a resource
       # @param tag [String] tag to identify the provider
-      # @return [Class] class implementing the resource
+      # @return [Class<Trigger>] class implementing the resource
       def resolve(tag)
         super("trigger:#{tag}")
       end
