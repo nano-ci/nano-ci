@@ -2,6 +2,7 @@
 
 require 'nanoci/definition/job_definition'
 require 'nanoci/task'
+require 'nanoci/tasks/all'
 
 class Nanoci
   # A job is a collection of tasks to run actions and produce artifacts
