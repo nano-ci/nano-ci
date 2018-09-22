@@ -23,6 +23,7 @@ Gem::Specification.new do |spec|
   spec.metadata['allowed_push_host'] = "TODO: Set to 'http://mygemserver.com'"
 
   spec.add_runtime_dependency 'bundler', '~> 1.15'
+  spec.add_runtime_dependency 'concurrent-ruby', '~> 1.0'
   spec.add_runtime_dependency 'eventmachine', '~> 1.2'
   spec.add_runtime_dependency 'logging', '~> 2.2'
   spec.add_runtime_dependency 'mail', '~> 2.7'
