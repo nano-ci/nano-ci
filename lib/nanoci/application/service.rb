@@ -80,10 +80,9 @@ class Nanoci
 
       # runs triggers
       # @param project [Project]
-      # @param trigger_manager [TriggerManager]
       # @param build_scheduler [BuildScheduler]
       # @param env [Hash]
-      def run_triggers(project, trigger_manager, build_scheduler, env)
+      def run_triggers(project, build_scheduler, env)
         project.repos.each do |_key, repo|
           repo.triggers.each do |trigger|
             trigger.run(build_scheduler, project, env)

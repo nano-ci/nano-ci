@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'nanoci/trigger'
+require 'nanoci/triggers/all'
 require 'nanoci/definition/repo_definition'
 require 'nanoci/mixins/provides'
 
@@ -90,10 +90,7 @@ class Nanoci
       @required_agent_capabilities = []
       @current_commit = ''
 
-      @triggers = @definition.triggers.map do |td|
-        trigger = Trigger.resolve(td.type).new(self, td)
-        @triggers.push(trigger)
-      end
+      @triggers = @definition.triggers.map { |td| Trigger.resolve(td.type).new(self, td) }
     end
 
     ##

@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require 'eventmachine'
 require 'logging'
 
+require 'nanoci'
 require 'nanoci/build'
 require 'nanoci/definition/poll_trigger_definition'
 require 'nanoci/trigger'
@@ -29,9 +29,10 @@ class Nanoci
       def run(build_scheduler, project, env)
         super(build_scheduler, project, env)
 
-        EventMachine.add_periodic_timer(interval) do
+        @timer = Concurrent::TimerTask.new(execution_interval: @interval) do
           trigger_build
         end
+        @timer.execute
       end
     end
   end

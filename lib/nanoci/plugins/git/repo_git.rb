@@ -20,6 +20,8 @@ class Nanoci
 
         attr_reader :trusted_host_keys
 
+
+
         def initialize(definition)
           super(definition)
           @branch ||= DEFAULT_BRANCH
@@ -29,7 +31,7 @@ class Nanoci
         end
 
         def in_repo_cache(env)
-          repo_path = File.join(env['repo_cache'], tag)
+          repo_path = File.join(env['repo_cache'], tag.to_s)
           FileUtils.mkdir_p(repo_path) unless Dir.exist? repo_path
           Dir.chdir(repo_path) do
             yield
@@ -80,13 +82,17 @@ class Nanoci
 
         private
 
+        def auth
+          @definition.params[:auth]
+        end
+
         def git(cmd, env, opts = {})
           git_path = env[GIT_CAP]
           raise "Missing #{GIT_CAP} capability" if git_path.nil?
-          unless @auth[:ssh].nil?
-            ssh_opts = [ "-i #{@auth[:ssh]}" ]
-            unless (@auth[:trusted_host_keys]).nil?
-              trusted_keys = @auth[:trusted_host_keys]
+          unless auth[:ssh].nil?
+            ssh_opts = ["-i #{auth[:ssh]}"]
+            unless auth[:trusted_host_keys].nil?
+              trusted_keys = auth[:trusted_host_keys]
               known_hosts = create_ssh_known_hosts(hostname, trusted_keys)
               ssh_opts.push("-o UserKnownHostsFile=\"#{known_hosts}\"")
             end
