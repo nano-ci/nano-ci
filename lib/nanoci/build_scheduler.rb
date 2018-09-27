@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 require 'logging'
-require 'eventmachine'
 
+require 'nanoci'
 require 'nanoci/build'
 require 'nanoci/state_manager'
 
@@ -63,10 +63,13 @@ class Nanoci
     end
 
     def run(interval)
-      EventMachine.add_periodic_timer(interval) do
+      @log.info "running BuildScheduler"
+
+      @timer = Concurrent::TimerTask.new(execution_interval: interval) do
         schedule_builds
         finalize_builds
       end
+      @timer.execute
     end
 
     def finalize_builds

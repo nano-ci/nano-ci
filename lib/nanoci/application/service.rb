@@ -1,16 +1,13 @@
 # frozen_string_literal: true
 
-require 'eventmachine'
-
 require 'yaml'
-
-require 'nanoci/log'
 
 require 'nanoci'
 require 'nanoci/agent_manager'
 require 'nanoci/build_scheduler'
 require 'nanoci/config'
 require 'nanoci/definition/project_definition'
+require 'nanoci/log'
 require 'nanoci/mixins/logger'
 require 'nanoci/options'
 require 'nanoci/plugin_loader'
@@ -42,16 +39,18 @@ class Nanoci
       end
 
       def run(config, agent_manager, state_manager, project, env)
+        build_scheduler = run_build_scheduler(
+          config.job_scheduler_interval,
+          agent_manager,
+          state_manager,
+          env
+        )
 
-        EventMachine.run do
-          build_scheduler = run_build_scheduler(
-            config.job_scheduler_interval,
-            agent_manager,
-            state_manager,
-            env
-          )
-          run_triggers(project, build_scheduler, env)
-        end
+        run_triggers(project, build_scheduler, env)
+
+        event = Concurrent::Event.new
+        event.reset
+        event.wait
       end
 
       def load_plugins(plugins_path)

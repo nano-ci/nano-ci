@@ -26,6 +26,7 @@ class Nanoci
     end
 
     attr_reader :type
+    attr_reader :repo
 
     # Initializes new instance of [Trigger]
     # @param repo [Repository]
@@ -40,6 +41,8 @@ class Nanoci
       @build_scheduler = build_scheduler
       @project = project
       @env = env
+
+      @log.info("running trigger #{repo.tag}.#{type}")
     end
 
     def repo_has_changes?(repo, env)
