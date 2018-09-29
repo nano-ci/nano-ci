@@ -20,8 +20,6 @@ class Nanoci
 
         attr_reader :trusted_host_keys
 
-
-
         def initialize(definition)
           super(definition)
           @branch ||= DEFAULT_BRANCH
@@ -91,7 +89,7 @@ class Nanoci
           raise "Missing #{GIT_CAP} capability" if git_path.nil?
           unless auth[:ssh].nil?
             ssh_opts = ["-i #{auth[:ssh]}"]
-            unless auth[:trusted_host_keys].nil?
+            if auth.fetch(:validate_server_key, false)
               trusted_keys = auth[:trusted_host_keys]
               known_hosts = create_ssh_known_hosts(hostname, trusted_keys)
               ssh_opts.push("-o UserKnownHostsFile=\"#{known_hosts}\"")
@@ -104,7 +102,7 @@ class Nanoci
         end
 
         def create_ssh_known_hosts(hostname, trusted_keys)
-          content = trusted_keys.map(&method(:format_ssh_known_host_entry))
+          content = trusted_keys.map(&->(k) { format_ssh_known_host_entry(hostname, k) })
                                 .join("\n")
           file = Tempfile.new('known_hosts')
           file << content

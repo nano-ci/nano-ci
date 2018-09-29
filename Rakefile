@@ -29,6 +29,12 @@ task :gem do
 end
 
 namespace :docker do
+  namespace :mongo do
+    task :run do
+      sh 'docker run -d --name mongo mongo'
+    end
+  end
+
   task :'run' => [:'nano-ci-self'] do
     Dir.chdir 'docker' do
       sh 'docker-compose up'
@@ -78,15 +84,15 @@ namespace :docker do
     cp task.prerequisites.first, task.name
   end
 
-  task :'nano-ci-self' => ['docker/nano-ci/master.nanoci', 'docker/nano-ci/config.yml'] do
+  task :'nano-ci-self' => [:'docker:nano-ci', 'docker/nano-ci/master.nanoci', 'docker/nano-ci/config.yml'] do
     Dir.chdir 'docker/nano-ci' do
       sh 'docker build --target nano-ci-self -t nano-ci-self .'
     end
   end
 
   namespace :'nano-ci-self' do
-    task :run => :'docker:nano-ci-self' do
-      sh 'docker run nano-ci-self'
+    task :run => [:'docker:nano-ci-self'] do
+      sh 'docker run --link mongo nano-ci-self'
     end
   end
 end
