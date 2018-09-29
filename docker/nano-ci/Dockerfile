@@ -6,30 +6,24 @@ COPY ./nano-ci/Gemfile ./nano-ci/Gemfile.lock ./nano-ci/nanoci.gemspec /nano-ci/
 COPY ./nano-ci/bin/nano-ci /nano-ci/bin/
 COPY ./nano-ci/lib/nanoci/version.rb /nano-ci/lib/nanoci/
 
-RUN apk add --no-cache build-base && \
-    apk add --no-cache libstdc++ && \
+RUN apk add --no-cache build-base libstdc++ git openssh && \
     bundler install --deployment --without development && \
     gem install ruby-debug-ide && \
     apk del build-base
 
 COPY ./nano-ci /nano-ci
 
-ENV GEM_PATH=/nano-ci/gems
+ENV GEM_PATH="/usr/local/lib/ruby/gems/2.5.0:/nano-ci/gems"
 
 CMD ["ruby", "/nano-ci/bin/nano-ci"]
 
 ###
 
-FROM nano-ci-base AS nano-ci-debug
-
-EXPOSE 23456
-
-CMD ["rdebug-ide", "--host", "0.0.0.0", "--port", "23456", "--", "/nano-ci/bin/nano-ci"]
-
-###
-
 FROM nano-ci-base AS nano-ci-self
 
-COPY master.nanoci config.yml /nano-ci/
+COPY config.yml /nano-ci/
+COPY master.nanoci nanoci.key /nano-ci-agent/
 
-CMD ["ruby", "/nano-ci/bin/nano-ci", "--project", "/nano-ci/master.nanoci", "--config", "/nano-ci/config.yml"]
+RUN chmod 400 /nano-ci-agent/nanoci.key
+
+CMD ["ruby", "/nano-ci/bin/nano-ci", "--project", "/nano-ci-agent/master.nanoci", "--config", "/nano-ci/config.yml"]
