@@ -26,6 +26,10 @@ class Nanoci
       self.current_job = job
     end
 
+    def capabilities
+      @capabilities
+    end
+
     def capability(name)
       @capabilities.key?(name) ? @capabilities[name] || true : nil
     end
