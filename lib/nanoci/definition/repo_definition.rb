@@ -23,6 +23,10 @@ class Nanoci
       # @return [String]
       attr_reader :src
 
+      # Returns string with name of the branch, tag, commit hash, etc - anything points to a commit
+      # @return [String]
+      attr_reader :branch
+
       # Returns collection of triggers for the repo
       # @return [Array<TriggerDefinition>] collection of triggers for the repo
       attr_reader :triggers

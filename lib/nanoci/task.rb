@@ -22,19 +22,31 @@ class Nanoci
       end
     end
 
+    # The definition of the task
+    # @return [TaskDefinition]
+    attr_reader :definition
+
     # Task type
     # @return [Symbol]
-    attr_accessor :type
+    def type
+      definition.type
+    end
 
     # Working directory for the task. Relative to project working directory
     # @return [String]
-    attr_accessor :workdir
+    def workdir
+      definition.workdir
+    end
+
+    # Project the task is part of
+    # @return [Project]
+    attr_reader :project
 
     # Initializes new instance of [Task]
     # @param definition [TaskDefinition]
-    def initialize(definition, _project)
-      @type = definition.type
-      @workdir = definition.workdir
+    def initialize(definition, project)
+      @definition = definition
+      @project = project
     end
 
     def required_agent_capabilities

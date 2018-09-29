@@ -20,10 +20,12 @@ class Nanoci
 
         attr_reader :trusted_host_keys
 
+        def branch
+          definition.branch || DEFAULT_BRANCH
+        end
+
         def initialize(definition)
           super(definition)
-          @branch ||= DEFAULT_BRANCH
-          @trusted_host_keys = definition.params[:trusted_host_keys]
           required_agent_capabilities.push(GIT_CAP)
           required_agent_capabilities.push(SSH_CAP)
         end
@@ -39,7 +41,7 @@ class Nanoci
         def changes?(env)
           in_repo_cache(env) do
             update(env)
-            tip = tip_of_tree(@branch, env)
+            tip = tip_of_tree(branch, env)
             return tip != @current_commit
           end
         end
@@ -93,6 +95,8 @@ class Nanoci
               trusted_keys = auth[:trusted_host_keys]
               known_hosts = create_ssh_known_hosts(hostname, trusted_keys)
               ssh_opts.push("-o UserKnownHostsFile=\"#{known_hosts}\"")
+            else
+              ssh_opts.push('-o StrictHostKeyChecking=no')
             end
             ssh = "#{env[SSH_CAP]} #{ssh_opts.join(' ')}"
             opts[:env] ||= {}

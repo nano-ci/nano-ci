@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'json'
+require 'logging'
 
 require 'nanoci/definition/task_test_rspec_definition'
 require 'nanoci/tasks/task_test'
@@ -43,12 +44,13 @@ class Nanoci
         end
 
         def initialize(definition, project)
+          @log = Logging.logger[self]
           definition = Nanoci::Definition::TaskTestRSpecDefinition.new(definition.params)
           super(definition, project)
         end
 
-        def required_agent_capabilities(project)
-          requirements = super(project)
+        def required_agent_capabilities
+          requirements = super
           requirements << RSPEC_CAP if action == 'run_tool'
           requirements
         end
@@ -59,6 +61,8 @@ class Nanoci
             execute_run_tool(build, env)
           when 'read_file'
             execute_read_file(build, env)
+          else
+            @log.error("unknown action #{action}")
           end
         end
 

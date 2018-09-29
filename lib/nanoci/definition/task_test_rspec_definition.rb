@@ -17,6 +17,7 @@ class Nanoci
 
       # initializes new instance of [TaskTestRSpecDefinition]
       def initialize(hash)
+        super
         @action = hash.fetch(:action, :run_tool).to_sym
         @options = hash.fetch(:options, {})
         @result_file = hash.fetch(:result_file, nil)
