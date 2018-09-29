@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'logging'
+
 require 'nanoci/triggers/all'
 require 'nanoci/definition/repo_definition'
 require 'nanoci/mixins/provides'
@@ -86,6 +88,8 @@ class Nanoci
     # Initializes new instance of Repo
     # @param definition [Nanoci::Definition::RepoDefinition]
     def initialize(definition)
+      @log = Logging.logger[self]
+
       @definition = definition
       @required_agent_capabilities = []
       @current_commit = ''
@@ -112,12 +116,13 @@ class Nanoci
 
     def state
       {
-        tag: @tag,
+        tag: tag,
         current_commit: @current_commit
       }
     end
 
     def state=(value)
+      @log.debug("restoring state of repo #{tag} from #{value}")
       raise "tag #{tag} does not match state tag #{value[:tag]}" \
         unless tag == value[:tag].to_sym
       @current_commit = value[:current_commit]
