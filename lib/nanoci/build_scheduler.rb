@@ -94,13 +94,19 @@ class Nanoci
 
     def schedule_build(build)
       queued_jobs(build).each_entry do |j|
-        schedule_job(build, j)
+        begin
+          schedule_job(build, j)
+        rescue StandardError => e
+          @log.error("failed to schedule job #{j.tag}")
+          @log.error(e)
+        end
       end
     end
 
     def schedule_job(build, job)
       @log.debug \
         "looking for a capable agent to run the job #{build.tag}-#{job.tag}"
+      @log.debug "#{job.tag} requires capabilities: #{job.required_agent_capabilities}"
       agent = @agents_manager.find_agent(job.required_agent_capabilities)
       if agent.nil?
         @log.info "no agents available to run the job #{build.tag}-#{job.tag}"
