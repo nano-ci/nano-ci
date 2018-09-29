@@ -31,7 +31,7 @@ end
 namespace :docker do
   namespace :mongo do
     task :run do
-      sh 'docker run -d --name mongo mongo'
+      sh 'docker run -d -p 27017:27017 --name mongo mongo'
     end
   end
 
@@ -62,18 +62,6 @@ namespace :docker do
     end
   end
 
-  task :'nano-ci-debug' do
-    Dir.chdir 'docker/nano-ci' do
-      sh 'docker build --target nano-ci-debug -t nano-ci-debug .'
-    end
-  end
-
-  namespace :'nano-ci-debug' do
-    task :run => :'docker:nano-ci-debug' do
-      sh 'docker run -p 23456:23456 nano-ci-debug'
-    end
-  end
-
   file 'docker/nano-ci/master.nanoci' => 'master.nanoci' do |task|
     mkdir_p(File.dirname(task.name))
     cp task.prerequisites.first, task.name
@@ -93,6 +81,10 @@ namespace :docker do
   namespace :'nano-ci-self' do
     task :run => [:'docker:nano-ci-self'] do
       sh 'docker run --link mongo nano-ci-self'
+    end
+
+    task :debug => [:'docker:nano-ci-self'] do
+      sh 'docker run --link mongo --entrypoint "rdebug-ide" --expose 23456 -p 23456:23456 nano-ci-self --host 0.0.0.0 --port 23456 -- /nano-ci/bin/nano-ci --project /nano-ci-agent/master.nanoci --config /nano-ci/config.yml'
     end
   end
 end
