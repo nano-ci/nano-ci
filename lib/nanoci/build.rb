@@ -4,6 +4,7 @@ require 'logging'
 require 'stringio'
 
 require 'nanoci/build_stage'
+require 'nanoci/common_vars'
 require 'nanoci/timed_io'
 
 class Nanoci
@@ -55,10 +56,10 @@ class Nanoci
 
       def refresh_repos(project, env)
         project.repos.values.each do |r|
-          r.in_repo_cache(env) do
-            r.update(env)
-            r.current_commit = r.tip_of_tree(r.branch, env)
-          end
+          env = env.clone
+          env[CommonVars::WORKDIR] = r.repo_cache(env)
+          r.update(env)
+          r.current_commit = r.tip_of_tree(r.branch, env)
         end
       end
 
@@ -105,10 +106,6 @@ class Nanoci
 
     def state
       current_stage&.state || State::UNKNOWN
-    end
-
-    def workdir(env)
-      File.join(env['workdir'], tag)
     end
 
     def complete

@@ -2,6 +2,8 @@
 
 require 'logging'
 
+require 'nanoci/common_vars'
+
 class Nanoci
   # Agent is a instance of nano-ci service that executes commands from
   # a main nano-ci service to run build jobs
@@ -17,6 +19,7 @@ class Nanoci
       raise 'capabilities should be a Hash' unless capabilities.is_a? Hash
       @capabilities = config.capabilities.merge(capabilities)
       @workdir = config.workdir
+      FileUtils.mkdir_p(@workdir) unless Dir.exist? @workdir
       @env = env
       @current_job = nil
     end
@@ -52,10 +55,10 @@ class Nanoci
       @log.debug "executing task #{task.type} of #{job_tag}"
       env = @env.merge(@capabilities)
 
-      env['workdir'] = @workdir
-      FileUtils.mkdir_p(env['workdir']) unless Dir.exist? env['workdir']
+      build_work_dir = File.join(@workdir, build.tag)
+      env[CommonVars::WORKDIR] = build_work_dir
 
-      Dir.chdir(@workdir) { task.execute(build, env) }
+      task.execute(build, env)
       @log.debug "task #{task.type} of #{job_tag} is done"
     rescue StandardError => e
       @log.error "failed to execute task #{task} from job #{job_tag} of build #{build.tag}"

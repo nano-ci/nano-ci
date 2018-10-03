@@ -203,7 +203,6 @@ RSpec.describe Nanoci::Build do
     allow(repo).to receive(:tag).and_return('repo-1')
     allow(repo).to receive(:current_commit).and_return('abcdef')
     allow(repo).to receive(:current_commit=)
-    allow(repo).to receive(:in_repo_cache).and_yield
     allow(repo).to receive(:update)
     allow(repo).to receive(:branch)
     allow(repo).to receive(:tip_of_tree)

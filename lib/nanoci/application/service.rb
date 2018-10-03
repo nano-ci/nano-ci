@@ -5,6 +5,7 @@ require 'yaml'
 require 'nanoci'
 require 'nanoci/agent_manager'
 require 'nanoci/build_scheduler'
+require 'nanoci/common_vars'
 require 'nanoci/config'
 require 'nanoci/definition/project_definition'
 require 'nanoci/log'
@@ -97,7 +98,7 @@ class Nanoci
 
       def setup_env(config)
         env = config.capabilities.clone
-        env['repo_cache'] = config.repo_cache
+        env[CommonVars::REPO_CACHE] = config.repo_cache
         env['build_data_dir'] = config.build_data_dir
         env
       end

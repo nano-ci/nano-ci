@@ -27,15 +27,16 @@ class Nanoci
       @stdin = opts[:stdin] || StringIO.new
       @stdout = opts[:stdout] || StringIO.new
       @stderr = opts[:stderr] || StringIO.new
+      @chdir = opts.fetch(:chdir, '.')
       @env = opts[:env] || {}
       @cmd = cmd
       @throw_non_zero_exit_code = opts.fetch(:throw_non_zero_exit_code, true)
     end
 
     def run
-      log.debug("running #{@cmd} at #{Dir.pwd}")
+      log.debug("running #{@cmd} at #{@chdir}")
       log.debug("env:\n#{@env}")
-      p_in, p_out, p_err, @wait_thr = Open3.popen3(@env, @cmd)
+      p_in, p_out, p_err, @wait_thr = Open3.popen3(@env, @cmd, chdir: @chdir)
       connect([
                 { from: @stdin, to: p_in },
                 { from: p_out, to: @stdout },

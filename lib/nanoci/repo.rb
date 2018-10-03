@@ -97,6 +97,12 @@ class Nanoci
       @triggers = @definition.triggers.map { |td| Trigger.resolve(td.type).new(self, td) }
     end
 
+    def repo_cache(env)
+      repo_path = File.join(env[CommonVars::REPO_CACHE], tag.to_s)
+      FileUtils.mkdir_p(repo_path) unless Dir.exist? repo_path
+      repo_path
+    end
+
     ##
     # Detect changes in source
     # Returns true is there are new changes; false otherwise

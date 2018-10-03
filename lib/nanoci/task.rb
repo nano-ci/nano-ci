@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'nanoci/common_vars'
 require 'nanoci/mixins/provides'
 
 class Nanoci
@@ -54,11 +55,11 @@ class Nanoci
     end
 
     def execute(build, env)
-      task_workdir = File.join(build.workdir(env), workdir)
+      env = env.clone
+      task_workdir = File.join(env[CommonVars::WORKDIR], build.tag, workdir)
       FileUtils.mkdir_p(task_workdir) unless Dir.exist? task_workdir
-      Dir.chdir(task_workdir) do
-        execute_imp(build, env)
-      end
+      env[CommonVars::WORKDIR] = task_workdir
+      execute_imp(build, env)
     end
 
     def execute_imp(build, env); end

@@ -3,6 +3,7 @@
 require 'fileutils'
 require 'tempfile'
 
+require 'nanoci/common_vars'
 require 'nanoci/repo'
 require 'nanoci/tool_error'
 require 'nanoci/tool_process'
@@ -30,20 +31,11 @@ class Nanoci
           required_agent_capabilities.push(SSH_CAP)
         end
 
-        def in_repo_cache(env)
-          repo_path = File.join(env['repo_cache'], tag.to_s)
-          FileUtils.mkdir_p(repo_path) unless Dir.exist? repo_path
-          Dir.chdir(repo_path) do
-            yield
-          end
-        end
-
         def changes?(env)
-          in_repo_cache(env) do
-            update(env)
-            tip = tip_of_tree(branch, env)
-            return tip != @current_commit
-          end
+          env = env.clone
+          env[CommonVars::WORKDIR] = repo_cache(env)
+          update(env)
+          tip_of_tree(branch, env) != @current_commit
         end
 
         def update(env)
@@ -102,6 +94,7 @@ class Nanoci
             opts[:env] ||= {}
             opts[:env]['GIT_SSH_COMMAND'] = ssh
           end
+          opts[:chdir] = env[CommonVars::WORKDIR]
           ToolProcess.run("\"#{git_path}\" #{cmd}", opts).wait
         end
 
