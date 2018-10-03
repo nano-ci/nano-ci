@@ -3,6 +3,7 @@
 require 'json'
 require 'logging'
 
+require 'nanoci/common_vars'
 require 'nanoci/definition/task_test_rspec_definition'
 require 'nanoci/tasks/task_test'
 require 'nanoci/test'
@@ -57,9 +58,9 @@ class Nanoci
 
         def execute_imp(build, env)
           case action
-          when 'run_tool'
+          when :run_tool
             execute_run_tool(build, env)
-          when 'read_file'
+          when :read_file
             execute_read_file(build, env)
           else
             @log.error("unknown action #{action}")
@@ -71,7 +72,7 @@ class Nanoci
         def execute_run_tool(build, env)
           opts = sanitize_opts(options.clone, env)
           cmd = opts.map { |k, v| (k + ' ' + v).strip }.join(' ')
-          rspec(env[RSPEC_CAP], cmd, stdout: build.output, stderr: build.output)
+          rspec(env[RSPEC_CAP], cmd, chdir: env[CommonVars::WORKDIR], stdout: build.output, stderr: build.output)
           results = read_results(opts['--out'])
           handle_results(results, build)
         end
@@ -90,6 +91,7 @@ class Nanoci
         end
 
         def read_results(path)
+          return [] unless File.exist? path
           data = File.read(path)
           json = JSON.parse(data)
           json['examples'].map do |example|
