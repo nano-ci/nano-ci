@@ -17,6 +17,14 @@ class Nanoci
 
     attr_reader :pid
 
+    # Runs a new process
+    # @param cmd [String] command to execute
+    # @param opts [Hash]  options
+    # @option opts [IO] :stdin stream to pass to stdin of the new process
+    # @option opts [IO] :stdout stream to receive the output of the new process
+    # @option opts [IO] :stderr stream to receive the error output of the new process
+    # @option opts [String] :chdir the working directory of the new process
+    # @option opts [Hash] :end environment variables for the new process
     def self.run(cmd, opts)
       process = ToolProcess.new(cmd, opts)
       process.run
