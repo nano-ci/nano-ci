@@ -41,8 +41,8 @@ class Nanoci
 
     def insert_time(string)
       time = "#{Time.now.strftime(TIME_FORMAT)} "
-      string = string.gsub(/\n.+/, '\n' + time)
-      @stream.pos.zero? || peek('\n') ? time + string : string
+      string = string.gsub(/\n.+/, "\n" + time)
+      @stream.pos.zero? || peek("\n") ? time + string : string
     end
 
     def method_missing(method, *args, &block)
