@@ -47,9 +47,13 @@ class Nanoci
     def wait
       @wait_thr.join
       @connect_threads.each(&:join)
-      raise ToolError.new(@cmd, status_code, error) \
-        if @throw_non_zero_exit_code && !status_code.zero?
-      self
+      return self if status_code.zero?
+      case status_code
+      when 127
+        raise ToolError.new(@cmd, status_code, "command not found: #{@cmd}")
+      else
+        raise ToolError.new(@cmd, status_code, error)
+      end
     end
 
     def output

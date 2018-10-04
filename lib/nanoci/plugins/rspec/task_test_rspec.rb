@@ -86,7 +86,6 @@ class Nanoci
         def execute_read_file(build, env); end
 
         def rspec(rspec_path, cmd, opts = {})
-          opts[:throw_non_zero_exit_code] = false
           ToolProcess.run("\"#{rspec_path}\" #{cmd}", opts).wait
         end
 
