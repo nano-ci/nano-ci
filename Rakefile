@@ -80,11 +80,11 @@ namespace :docker do
 
   namespace :'nano-ci-self' do
     task :run => [:'docker:nano-ci-self'] do
-      sh 'docker run --link mongo nano-ci-self'
+      sh 'docker run --detach --link mongo nano-ci-self'
     end
 
     task :debug => [:'docker:nano-ci-self'] do
-      sh 'docker run --link mongo --entrypoint "rdebug-ide" --expose 23456 -p 23456:23456 nano-ci-self --host 0.0.0.0 --port 23456 -- /nano-ci/bin/nano-ci --project /nano-ci-agent/master.nanoci --config /nano-ci/config.yml'
+      sh 'docker run --detach --link mongo --entrypoint "rdebug-ide" --expose 23456 -p 23456:23456 nano-ci-self --host 0.0.0.0 --port 23456 -- /nano-ci/bin/nano-ci --project /nano-ci-agent/master.nanoci --config /nano-ci/config.yml'
     end
   end
 end
