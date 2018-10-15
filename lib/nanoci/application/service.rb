@@ -100,6 +100,10 @@ class Nanoci
         env = config.capabilities.clone
         env[CommonVars::REPO_CACHE] = config.repo_cache
         env[CommonVars::BUILD_DATA_DIR] = config.build_data_dir
+
+        norm_env_vars = Hash[Bundler::ORIGINAL_ENV].transform_keys(&:to_sym)
+
+        env.merge(norm_env_vars)
       end
     end
   end

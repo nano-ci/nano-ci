@@ -15,7 +15,7 @@ class Nanoci
       class TaskTestRSpec < Nanoci::Tasks::TaskTest
         provides 'test-rspec'
 
-        RSPEC_CAP = 'tools.rspec'
+        RSPEC_CAP = :'tools.rspec'
 
         @status_mapping = {
           'passed' => Test::State::PASS,

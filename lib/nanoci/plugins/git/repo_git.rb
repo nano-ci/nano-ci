@@ -15,8 +15,8 @@ class Nanoci
       class RepoGit < Repo
         provides 'git'
 
-        GIT_CAP = 'tools.git'
-        SSH_CAP = 'tools.ssh'
+        GIT_CAP = :'tools.git'
+        SSH_CAP = :'tools.ssh'
         DEFAULT_BRANCH = 'master'
 
         attr_reader :trusted_host_keys
