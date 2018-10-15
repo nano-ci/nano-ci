@@ -8,7 +8,7 @@ require 'nanoci/variable'
 RSpec.describe Nanoci::Variable do
   it 'reads tag from src' do
     var_def = Nanoci::Definition::VariableDefinition.new(
-      tag: 'var1'
+      var1: true
     )
     var = Nanoci::Variable.new(var_def)
     expect(var.tag).to eq :var1
@@ -16,8 +16,7 @@ RSpec.describe Nanoci::Variable do
 
   it 'reads value from src' do
     var_def = Nanoci::Definition::VariableDefinition.new(
-      tag: 'var1',
-      value: 'value'
+      var1: 'value'
     )
     var = Nanoci::Variable.new(var_def)
     expect(var.value).to eq 'value'
@@ -25,8 +24,7 @@ RSpec.describe Nanoci::Variable do
 
   it 'expand throws error on cycle' do
     var_def = Nanoci::Definition::VariableDefinition.new(
-      tag: 'var1',
-      value: '${var1}'
+      var1: '${var1}'
     )
     var = Nanoci::Variable.new(var_def)
     expect { var.expand({}) }
@@ -35,12 +33,10 @@ RSpec.describe Nanoci::Variable do
 
   it 'expands value with variables' do
     var1_def = Nanoci::Definition::VariableDefinition.new(
-      tag: 'var1',
-      value: '${var2}'
+      var1: '${var2}'
     )
     var2_def = Nanoci::Definition::VariableDefinition.new(
-      tag: 'var2',
-      value: 'abc'
+      var2: 'abc'
     )
     var1 = Nanoci::Variable.new(var1_def)
     var2 = Nanoci::Variable.new(var2_def)
@@ -49,8 +45,7 @@ RSpec.describe Nanoci::Variable do
 
   it 'returns memento' do
     var_def = Nanoci::Definition::VariableDefinition.new(
-      tag: 'var1',
-      value: 'abc'
+      var1: 'abc'
     )
     var1 = Nanoci::Variable.new(var_def)
     memento = var1.memento
@@ -61,8 +56,7 @@ RSpec.describe Nanoci::Variable do
 
   it 'restores from memento' do
     var_def = Nanoci::Definition::VariableDefinition.new(
-      tag: 'var1',
-      value: 'value'
+      var1: 'value'
     )
     var1 = Nanoci::Variable.new(var_def)
     memento = { tag: :var1, value: 'def' }
