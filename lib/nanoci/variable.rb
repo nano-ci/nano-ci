@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'nanoci/definition/variable_definition'
+
 class Nanoci
   ##
   # A variable is an object to hold string value to use in task configuration
@@ -17,12 +19,18 @@ class Nanoci
       @value = definition.value
     end
 
+    # Expands variable value, i.e. substitutes var references with var values
+    # @param variables [Hash<Symbol, Variable|String>]
+    # @return [String] Expanded value of the variable
     def expand(variables)
       result = value
       if result.is_a? String
         until (match = PATTERN.match(result)).nil?
-          raise "Cycle in expanding variable #{tag}" if match[1] == tag.to_s
-          result = value.sub(match[0], variables[match[1]]&.value || '')
+          var_reference = match[1].to_sym
+          raise "Cycle in expanding variable #{tag}" if var_reference == tag
+          sub = variables[var_reference] || ''
+          sub_value = sub.is_a?(Variable) ? sub.value : sub
+          result = value.sub(match[0], sub_value)
         end
       end
       result
