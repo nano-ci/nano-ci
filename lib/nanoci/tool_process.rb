@@ -24,7 +24,7 @@ class Nanoci
     # @option opts [IO] :stdout stream to receive the output of the new process
     # @option opts [IO] :stderr stream to receive the error output of the new process
     # @option opts [String] :chdir the working directory of the new process
-    # @option opts [Hash] :end environment variables for the new process
+    # @option opts [Hash<Symbol, String>] :env environment variables for the new process
     def self.run(cmd, opts)
       process = ToolProcess.new(cmd, opts)
       process.run
