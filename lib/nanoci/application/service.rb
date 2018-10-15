@@ -99,8 +99,7 @@ class Nanoci
       def setup_env(config)
         env = config.capabilities.clone
         env[CommonVars::REPO_CACHE] = config.repo_cache
-        env['build_data_dir'] = config.build_data_dir
-        env
+        env[CommonVars::BUILD_DATA_DIR] = config.build_data_dir
       end
     end
   end

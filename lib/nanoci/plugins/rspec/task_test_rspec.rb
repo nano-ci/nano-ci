@@ -79,7 +79,7 @@ class Nanoci
 
         def sanitize_opts(opts, env)
           opts['--format'] = 'json'
-          opts['--out'] = File.join(env['build_data_dir'], 'rspec_output.json')
+          opts['--out'] = File.join(env[CommonVars::BUILD_DATA_DIR], 'rspec_output.json')
           opts
         end
 
