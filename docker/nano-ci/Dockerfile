@@ -13,7 +13,7 @@ RUN apk add --no-cache build-base libstdc++ git openssh && \
 
 COPY ./nano-ci /nano-ci
 
-ENV GEM_PATH="/usr/local/lib/ruby/gems/2.5.0:/nano-ci/gems"
+ENV GEM_PATH="/usr/local/lib/ruby/gems/2.5.0:/usr/local/bundle"
 
 CMD ["ruby", "/nano-ci/bin/nano-ci"]
 
