@@ -1,0 +1,67 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+		{
+			"name": "Run current fule",
+			"type": "Ruby",
+			"request": "launch",
+			"cwd": "${workspaceRoot}",
+			"program": "${file}",
+
+		},
+		{
+			"name": "Run nano-ci - sample",
+			"type": "Ruby",
+			"request": "launch",
+			"cwd": "${workspaceRoot}",
+			"pathToBundler": "C:/tools/Ruby25-x64/bin/bundler.bat",
+			"useBundler": true,
+			"pathToRDebugIDE": "C:/Ruby25-x64/bin/rdebug-ide.bat",
+			"program": "${workspaceRoot}/bin/nano-ci",
+			"args": [
+				"--project", "samples/sample.nanoci", "--config", "samples/config.yml"
+			]
+		},
+		{
+			"name": "Run nano-ci - nanoci",
+			"type": "Ruby",
+			"request": "launch",
+			"cwd": "${workspaceRoot}",
+			"program": "${workspaceRoot}/bin/nano-ci",
+			"args": [
+				"--project", "samples/nano-ci.nanoci", "--config", "samples/config.yml"
+			]
+		},
+        {
+			"name": "RSpec - all",
+			"type": "Ruby",
+			"request": "launch",
+			"cwd": "${workspaceRoot}",
+			"program": "C:/software/Ruby25-x64/bin/rspec",
+			"args": [
+				"--format", "documentation"
+			]
+		},
+		{
+			"name": "RSpec - open spec file",
+			"type": "Ruby",
+			"request": "launch",
+			"cwd": "${workspaceRoot}",
+			"program": "C:/software/Ruby25-x64/bin/rspec",
+			"args": ["${file}"]
+		},
+		{
+			"name": "Attach to debugger",
+			"type": "Ruby",
+			"request": "attach",
+			"preLaunchTask": "rake: docker:nano-ci-self:debug",
+			"cwd": "${workspaceRoot}",
+			"remoteHost": "127.0.0.1",
+			"remotePort": "23456",
+			"remoteWorkspaceRoot": "/nano-ci/"
+		}
+    ]
+}

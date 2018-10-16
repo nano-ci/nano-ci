@@ -6,7 +6,6 @@
 /pkg/
 /spec/reports/
 /tmp/
-/.vscode
 
 /docker/nano-ci/nano-ci
 /docker/nano-ci/*.nanoci
