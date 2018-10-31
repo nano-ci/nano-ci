@@ -9,7 +9,7 @@ class Nanoci
     class TaskShellDefinition < Nanoci::Definition::TaskDefinition
 
       # Prefix added to variable tag
-      VARIABLE_PREFIX = "task_shell"
+      VARIABLE_PREFIX = 'task_shell'
 
       # Returns the command to execute
       # @return [String]
