@@ -4,7 +4,7 @@ require 'json'
 require 'logging'
 
 require 'nanoci/common_vars'
-require 'nanoci/definition/task_test_rspec_definition'
+require 'nanoci/plugins/rspec/task_test_rspec_definition'
 require 'nanoci/tasks/task_test'
 require 'nanoci/test'
 
