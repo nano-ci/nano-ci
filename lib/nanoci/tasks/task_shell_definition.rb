@@ -32,6 +32,7 @@ class Nanoci
       # @param env_vars [Array<Hash>]
       # @return [Hash<Symbol, VariableDefinition>]
       def read_env(env_vars)
+        env_vars ||= []
         env_vars.map do |x|
           x = x.transform_keys { |k| "#{VARIABLE_PREFIX}.#{k}".to_sym }
           Nanoci::Definition::VariableDefinition.new(x)
