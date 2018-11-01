@@ -24,7 +24,6 @@ class Nanoci
       def execute_imp(build, env)
         task_env_vars = variables.map { |x| [x.tag, x.expand(env)] }
                                  .to_h
-                                 .transform_keys { |x| strip_var_prefix(x) }
 
         ToolProcess.run(@definition.cmd,
                         env: task_env_vars,
@@ -37,10 +36,6 @@ class Nanoci
 
       def variables
         definition.env.map { |x| Variable.new(x) }
-      end
-
-      def strip_var_prefix(name)
-        name.to_s.sub("#{TaskShellDefinition::VARIABLE_PREFIX}.", '')
       end
     end
   end

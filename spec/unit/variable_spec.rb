@@ -24,10 +24,23 @@ RSpec.describe Nanoci::Variable do
 
   it 'expand throws error on cycle' do
     var_def = Nanoci::Definition::VariableDefinition.new(
-      var1: '${var1}'
+      var1: '${var2}'
     )
     var = Nanoci::Variable.new(var_def)
-    expect { var.expand({}) }
+    expect { var.expand(var2: '${var2}') }
+      .to raise_error.with_message('Cycle in expanding variable var1')
+  end
+
+  it 'expand throws error on indirect cycle' do
+    var_def = Nanoci::Definition::VariableDefinition.new(
+      var1: '${var2}'
+    )
+    var = Nanoci::Variable.new(var_def)
+    variables = {
+      var2: '${var3}',
+      var3: '${var2}'
+    }
+    expect { var.expand(variables) }
       .to raise_error.with_message('Cycle in expanding variable var1')
   end
 
@@ -40,7 +53,7 @@ RSpec.describe Nanoci::Variable do
     )
     var1 = Nanoci::Variable.new(var1_def)
     var2 = Nanoci::Variable.new(var2_def)
-    expect(var1.expand('var2' => var2)).to eq 'abc'
+    expect(var1.expand(var2: var2)).to eq 'abc'
   end
 
   it 'returns memento' do

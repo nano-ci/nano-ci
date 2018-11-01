@@ -25,16 +25,12 @@ class Nanoci
     def expand(variables)
       result = value
       if result.is_a? String
-        until (match = PATTERN.match(result)).nil?
-          var_reference = match[1].to_sym
-          raise "Cycle in expanding variable #{tag}" if var_reference == tag
-          sub = variables[var_reference] || ''
-          sub_value = sub.is_a?(Variable) ? sub.value : sub
-          result = value.sub(match[0], sub_value)
-        end
+        result = expand_string(result, variables)
       end
       result
     end
+
+
 
     def memento
       {
@@ -47,6 +43,21 @@ class Nanoci
       raise "tag #{tag} does not match state tag #{value[:tag]}" \
         unless tag == value[:tag]
       self.value = value[:value]
+    end
+
+    private
+
+    def expand_string(str, variables)
+      expanded_variables = Set[]
+      until (match = PATTERN.match(str)).nil?
+        var_reference = match[1].to_sym
+        raise "Cycle in expanding variable #{tag}" if expanded_variables.include? var_reference
+        expanded_variables.add(var_reference)
+        sub = variables[var_reference] || ''
+        sub_value = sub.is_a?(Variable) ? sub.value : sub
+        str = str.sub(match[0], sub_value)
+      end
+      str
     end
   end
 end
