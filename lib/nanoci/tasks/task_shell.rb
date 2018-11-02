@@ -1,11 +1,9 @@
 # frozen_string_literal: true
 
 require 'nanoci/common_vars'
-require 'nanoci/definition/variable_definition'
 require 'nanoci/task'
 require 'nanoci/tasks/task_shell_definition'
 require 'nanoci/tool_process'
-require 'nanoci/variable'
 
 class Nanoci
   class Tasks
@@ -22,20 +20,12 @@ class Nanoci
       end
 
       def execute_imp(build, env)
-        task_env_vars = variables.map { |x| [x.tag, x.expand(env)] }
-                                 .to_h
-
         ToolProcess.run(@definition.cmd,
-                        env: task_env_vars,
+                        env: definition.env,
+                        vars: env,
                         chdir: env[CommonVars::WORKDIR],
                         stdout: build.output,
                         stderr: build.output).wait
-      end
-
-      private
-
-      def variables
-        definition.env.map { |x| Variable.new(x) }
       end
     end
   end

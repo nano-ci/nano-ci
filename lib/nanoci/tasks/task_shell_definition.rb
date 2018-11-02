@@ -5,7 +5,7 @@ require 'nanoci/definition/variable_definition'
 
 class Nanoci
   class Tasks
-    # Definition for [TaskShell]
+    # [TaskShell] definition
     class TaskShellDefinition < Nanoci::Definition::TaskDefinition
 
       # Prefix added to variable tag
@@ -23,17 +23,7 @@ class Nanoci
         super(hash)
 
         @cmd = hash.fetch(:cmd, '')
-        @env = read_env(hash.fetch(:env, []))
-      end
-
-      private
-
-      # Reads a set of env variables from source
-      # @param env_vars [Array<Hash>]
-      # @return [Hash<Symbol, VariableDefinition>]
-      def read_env(env_vars)
-        env_vars ||= []
-        env_vars.map { |x| Nanoci::Definition::VariableDefinition.new(x) }
+        @env = hash.fetch(:env) { |src| (src || []).to_h.transform_keys(&:to_sym) }
       end
     end
   end
