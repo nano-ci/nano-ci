@@ -7,10 +7,28 @@ class Nanoci
   # A variable is an object to hold string value to use in task configuration
   # Task may reference a variable using syntax ${var_name}
   class Variable
+    PATTERN = /\$\{([^\}]+)\}/
+
+    class << self
+      # Expands a string using hash of variables
+      # @param str [String]
+      # @param vars [Hash<Symbol, Variable|String>]
+      def expand_string(str, vars)
+        expanded_vars = Set[]
+        until (match = PATTERN.match(str)).nil?
+          var_tag = match[1].to_sym
+          raise "Cycle in expanding variable #{tag}" if expanded_vars.include? var_tag
+          expanded_vars.add(var_tag)
+          sub_value = vars.fetch(var_tag, '').to_s
+          str = str.sub(match[0], sub_value)
+        end
+        str
+      end
+    end
+
     attr_accessor :tag
     attr_accessor :value
 
-    PATTERN = /\$\{([^\}]+)\}/
 
     # Initializes new instance of Variable
     # @param definition [VariableDefinition]
@@ -25,12 +43,10 @@ class Nanoci
     def expand(variables)
       result = value
       if result.is_a? String
-        result = expand_string(result, variables)
+        result = Variable.expand_string(result, variables)
       end
       result
     end
-
-
 
     def memento
       {
@@ -45,19 +61,8 @@ class Nanoci
       self.value = value[:value]
     end
 
-    private
-
-    def expand_string(str, variables)
-      expanded_variables = Set[]
-      until (match = PATTERN.match(str)).nil?
-        var_reference = match[1].to_sym
-        raise "Cycle in expanding variable #{tag}" if expanded_variables.include? var_reference
-        expanded_variables.add(var_reference)
-        sub = variables[var_reference] || ''
-        sub_value = sub.is_a?(Variable) ? sub.value : sub
-        str = str.sub(match[0], sub_value)
-      end
-      str
+    def to_s
+      value
     end
   end
 end
