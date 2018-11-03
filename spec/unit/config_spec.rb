@@ -38,14 +38,12 @@ RSpec.describe Nanoci::Config do
     config = Nanoci::Config.new('capabilities' => ['abc', {'def' => 'ghi'}])
     expect(config.capabilities).to be_a(Hash)
     expect(config.capabilities.length).to eq 2
-    expect(config.capabilities.key?('abc')).to be true
-    expect(config.capabilities['abc']).to be nil
-    expect(config.capabilities.key?('def')).to be true
-    expect(config.capabilities['def']).to eq 'ghi'
+    expect(config.capabilities).to include(abc: nil)
+    expect(config.capabilities).to include(def: 'ghi')
   end
 
   it 'property agents returns empty array if the src value is absent' do
-    config = Nanoci::Config::new({})
+    config = Nanoci::Config.new({})
     expect(config.agents).to be_a(Array)
     expect(config.agents.length).to eq 0
   end
