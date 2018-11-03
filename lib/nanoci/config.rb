@@ -38,7 +38,7 @@ class Nanoci
         when Hash then x.entries[0]
         end
       end
-      caps.to_h
+      caps.map { |x| [x[0].to_sym, x[1]] }.to_h
     end
 
     def repo_cache

@@ -43,10 +43,8 @@ stages:
     jobs:
       - tag: dummy
 variables:
-  - tag: var1
-    value: abc
-  - tag: var2
-    value: ${var1}-def
+  - var1: abc
+  - var2: ${var1}-def
 feature-branches:
   enabled: true
   master-branches:

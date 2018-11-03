@@ -5,30 +5,52 @@ require 'stringio'
 
 require 'nanoci/mixins/logger'
 require 'nanoci/tool_error'
+require 'nanoci/variable'
 
 class Nanoci
   ##
   # Class to run external tool and capture stdout and stderr
   class ToolProcess
     include Nanoci::Mixins::Logger
+
     attr_reader :stdin
     attr_reader :stdout
     attr_reader :stderr
+    attr_reader :cmd
+    attr_reader :env
 
     attr_reader :pid
 
+    # Runs a new process
+    # @param cmd [String] command to execute
+    # @param opts [Hash]  options
+    # @option opts [IO] :stdin stream to pass to stdin of the new process
+    # @option opts [IO] :stdout stream to receive the output of the new process
+    # @option opts [IO] :stderr stream to receive the error output of the new process
+    # @option opts [String] :chdir the working directory of the new process
+    # @option opts [Hash<Symbol, String>] :env environment variables for the new process
+    # @option opts [Hash<Symbol, String>] :vars variables to use for expanding
     def self.run(cmd, opts)
       process = ToolProcess.new(cmd, opts)
       process.run
       process
     end
 
+    # Initializes new instance of [ToolProcess]
+    # @param cmd [String] command to execute
+    # @param opts [Hash]  options
+    # @option opts [IO] :stdin stream to pass to stdin of the new process
+    # @option opts [IO] :stdout stream to receive the output of the new process
+    # @option opts [IO] :stderr stream to receive the error output of the new process
+    # @option opts [String] :chdir the working directory of the new process
+    # @option opts [Hash<Symbol, String>] :env environment variables for the new process
+    # @option opts [Hash<Symbol, String>] :vars variables to use for expanding
     def initialize(cmd, opts = {})
       @stdin = opts[:stdin] || StringIO.new
       @stdout = opts[:stdout] || StringIO.new
       @stderr = opts[:stderr] || StringIO.new
       @chdir = opts.fetch(:chdir, '.')
-      @env = opts[:env] || {}
+      @env = expand_env(opts.fetch(:env, {}), opts.fetch(:vars, {}))
       @cmd = cmd
       @throw_non_zero_exit_code = opts.fetch(:throw_non_zero_exit_code, true)
     end
@@ -109,6 +131,13 @@ class Nanoci
       retry
     rescue EOFError
       false
+    end
+
+    # Expands env variables using hash of variables
+    # @param env [Hash<Symbol, String>]
+    # @param vars [Hash<Symbol, String>]
+    def expand_env(env, vars)
+      env.transform_values { |v| Variable.expand_string(v, vars) }
     end
   end
 end

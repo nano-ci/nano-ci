@@ -4,7 +4,7 @@ require 'json'
 require 'logging'
 
 require 'nanoci/common_vars'
-require 'nanoci/definition/task_test_rspec_definition'
+require 'nanoci/plugins/rspec/task_test_rspec_definition'
 require 'nanoci/tasks/task_test'
 require 'nanoci/test'
 
@@ -15,7 +15,7 @@ class Nanoci
       class TaskTestRSpec < Nanoci::Tasks::TaskTest
         provides 'test-rspec'
 
-        RSPEC_CAP = 'tools.rspec'
+        RSPEC_CAP = :'tools.rspec'
 
         @status_mapping = {
           'passed' => Test::State::PASS,
@@ -79,7 +79,7 @@ class Nanoci
 
         def sanitize_opts(opts, env)
           opts['--format'] = 'json'
-          opts['--out'] = File.join(env['build_data_dir'], 'rspec_output.json')
+          opts['--out'] = File.join(env[CommonVars::BUILD_DATA_DIR], 'rspec_output.json')
           opts
         end
 

@@ -138,7 +138,7 @@ class Nanoci
       @start_time = Time.now
       self.number = number + 1
       setup_stages(@project)
-      env['build_data_dir'] = File.join(env['build_data_dir'], tag)
+      env[CommonVars::BUILD_DATA_DIR] = File.join(env[CommonVars::BUILD_DATA_DIR], tag)
       setup_output(env, tag)
     end
 
@@ -148,8 +148,8 @@ class Nanoci
     end
 
     def setup_output(env, tag)
-      FileUtils.mkpath(env['build_data_dir'])
-      output_file_name = File.join(env['build_data_dir'], "#{tag}.log")
+      FileUtils.mkpath(env[CommonVars::BUILD_DATA_DIR])
+      output_file_name = File.join(env[CommonVars::BUILD_DATA_DIR], "#{tag}.log")
       @output = TimedIO.create_path(output_file_name)
     end
   end
