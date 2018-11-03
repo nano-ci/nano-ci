@@ -20,7 +20,4 @@ stages:
           - type: source-control
             action: checkout
             repo: main-repo
-          - type: shell
-            cmd: bundler install --deployment
-            env:
           - type: test-rspec
