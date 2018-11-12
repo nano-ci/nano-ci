@@ -18,6 +18,10 @@ NANO_CI_FILES = Rake::FileList[
   'README.md'
 ]
 
+PROTOBUF_FILES = Rake::FileList[
+  'protos/*.proto'
+]
+
 RSpec::Core::RakeTask.new(:spec)
 
 task default: :spec
@@ -48,6 +52,17 @@ namespace :docker do
     end
 
     task :'nano-ci' => "docker/nano-ci/nano-ci/#{src}"
+  end
+
+  directory 'lib/nanoci/remote'
+
+  PROTOBUF_FILES.each do |src|
+    src_file = File.basename(src, '.rb')
+    file "lib/nanoci/remote/#{src_file}_pb.rb" => ['lib/nanoci/remote', src] do
+      sh "grpc_tools_ruby_protoc -I ./protos --ruby_out=lib/nanoci/remote --grpc_out=lib/nanoci/remote #{src}"
+    end
+
+    task :'nano-ci' => "lib/nanoci/remote/#{src_file}_pb.rb"
   end
 
   task :'nano-ci' do

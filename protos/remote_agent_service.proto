@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package nanoci.remote;
+
+enum AgentStatus {
+	UNKNOWN = 0;
+	IDLE = 1;
+	BUSY = 2;
+}
+
+message ReportAgentStatusRequest {
+	string agent_name = 1;
+	AgentStatus agent_status = 2;
+}
+message ReportAgentStatusResponse { }
+
+service RemoteAgentService {
+	rpc ReportAgentStatus(ReportAgentStatusRequest) returns (ReportAgentStatusResponse);
+}
