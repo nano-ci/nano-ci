@@ -46,7 +46,7 @@ class Nanoci
 
         def initialize(definition, project)
           @log = Logging.logger[self]
-          definition = Nanoci::Definition::TaskTestRSpecDefinition.new(definition.params)
+          definition = Nanoci::Plugins::RSpec::TaskTestRSpecDefinition.new(definition.params)
           super(definition, project)
         end
 
