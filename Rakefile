@@ -3,6 +3,10 @@
 require 'bundler/gem_tasks'
 require 'rspec/core/rake_task'
 
+# tools
+
+GRPC = 'grpc_tools_ruby_protoc'
+
 Dir['lib/rake/*.rb'].each { |file| require file }
 
 NANO_CI_GEM = 'nanoci-0.1.0.gem'
@@ -59,7 +63,7 @@ namespace :docker do
   PROTOBUF_FILES.each do |src|
     src_file = File.basename(src, '.rb')
     file "lib/nanoci/remote/#{src_file}_pb.rb" => ['lib/nanoci/remote', src] do
-      sh "grpc_tools_ruby_protoc -I ./protos --ruby_out=lib/nanoci/remote --grpc_out=lib/nanoci/remote #{src}"
+      sh "#{GRPC} -I ./protos --ruby_out=lib/nanoci/remote --grpc_out=lib/nanoci/remote #{src}"
     end
 
     task :'nano-ci' => "lib/nanoci/remote/#{src_file}_pb.rb"
