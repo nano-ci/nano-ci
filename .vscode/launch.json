@@ -59,7 +59,7 @@
 			"request": "attach",
 			"preLaunchTask": "rake: docker:nano-ci-self:debug",
 			"cwd": "${workspaceRoot}",
-			"remoteHost": "127.0.0.1",
+			"remoteHost": "local.docker.nanoci.cloud",
 			"remotePort": "23456",
 			"remoteWorkspaceRoot": "/nano-ci/"
 		}
