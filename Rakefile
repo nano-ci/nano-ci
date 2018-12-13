@@ -36,6 +36,19 @@ task :gem do
   sh 'gem build nanoci.gemspec'
 end
 
+REMOTE_GRPC_PATH = 'lib/nanoci_remote'
+directory REMOTE_GRPC_PATH
+
+PROTOBUF_FILES.each do |src|
+  src_file = File.basename(src, '.rb')
+  dst = File.join(REMOTE_GRPC_PATH, "#{src_file}_pb.rb")
+  file dst => ['lib/nanoci_remote', src] do
+    sh "#{GRPC} -I ./protos --ruby_out=lib/nanoci_remote --grpc_out=lib/nanoci_remote #{src}"
+  end
+
+  task :'grpc' => dst
+end
+
 namespace :docker do
   namespace :mongo do
     task :run do
@@ -58,18 +71,7 @@ namespace :docker do
     task :'nano-ci' => "docker/nano-ci/nano-ci/#{src}"
   end
 
-  directory 'lib/nanoci/remote'
-
-  PROTOBUF_FILES.each do |src|
-    src_file = File.basename(src, '.rb')
-    file "lib/nanoci/remote/#{src_file}_pb.rb" => ['lib/nanoci/remote', src] do
-      sh "#{GRPC} -I ./protos --ruby_out=lib/nanoci/remote --grpc_out=lib/nanoci/remote #{src}"
-    end
-
-    task :'nano-ci' => "lib/nanoci/remote/#{src_file}_pb.rb"
-  end
-
-  task :'nano-ci' do
+  task :'nano-ci' => [:grpc] do
     Dir.chdir 'docker/nano-ci' do
       sh 'docker build --target nano-ci-base -t nano-ci .'
     end

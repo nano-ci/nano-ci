@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+import "agent_status.proto";
+
+package nanociRemote;
+
+message ReportAgentStatusRequest {
+	string agent_tag = 1;
+	AgentStatus agent_status = 2;
+	repeated string agent_capabilities = 3;
+}
+
+message ReportAgentStatusResponse { }
