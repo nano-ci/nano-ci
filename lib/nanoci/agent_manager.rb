@@ -18,6 +18,13 @@ module Nanoci
       end
     end
 
+    # returns agent with specified tag
+    # @param tag [Symbol]
+    # @return [Agent]
+    def get_agent(tag)
+      agents.select { |a| a.tag == tag }.first
+    end
+
     def find_agent(required_agent_capabilities)
       @agents.find do |a|
         @log.debug("#{a.name} has capabilities #{a.capabilities}")

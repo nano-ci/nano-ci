@@ -6,9 +6,9 @@ require 'google/protobuf'
 require 'agent_status_pb'
 Google::Protobuf::DescriptorPool.generated_pool.build do
   add_message "nanoci.remote.ReportAgentStatusRequest" do
-    optional :agent_tag, :string, 1
-    optional :agent_status, :enum, 2, "nanoci.remote.AgentStatus"
-    repeated :agent_capabilities, :string, 3
+    optional :tag, :string, 1
+    optional :status, :enum, 2, "nanoci.remote.AgentStatus"
+    repeated :capabilities, :string, 3
   end
   add_message "nanoci.remote.ReportAgentStatusResponse" do
   end

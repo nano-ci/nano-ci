@@ -5,9 +5,9 @@ import "agent_status.proto";
 package nanoci.remote;
 
 message ReportAgentStatusRequest {
-	string agent_tag = 1;
-	AgentStatus agent_status = 2;
-	repeated string agent_capabilities = 3;
+	string tag = 1;
+	AgentStatus status = 2;
+	repeated string capabilities = 3;
 }
 
 message ReportAgentStatusResponse { }
