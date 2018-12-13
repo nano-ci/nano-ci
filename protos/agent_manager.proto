@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package nanociRemote;
+package nanoci.remote;
 
 import "report_agent_status_message.proto";
 

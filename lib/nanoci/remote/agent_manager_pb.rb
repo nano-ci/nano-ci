@@ -7,5 +7,7 @@ require 'report_agent_status_message_pb'
 Google::Protobuf::DescriptorPool.generated_pool.build do
 end
 
-module NanociRemote
+module Nanoci
+  module Remote
+  end
 end

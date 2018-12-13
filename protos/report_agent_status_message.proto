@@ -2,7 +2,7 @@ syntax = "proto3";
 
 import "agent_status.proto";
 
-package nanociRemote;
+package nanoci.remote;
 
 message ReportAgentStatusRequest {
 	string agent_tag = 1;

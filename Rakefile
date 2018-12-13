@@ -36,14 +36,14 @@ task :gem do
   sh 'gem build nanoci.gemspec'
 end
 
-REMOTE_GRPC_PATH = 'lib/nanoci_remote'
+REMOTE_GRPC_PATH = 'lib/nanoci/remote'
 directory REMOTE_GRPC_PATH
 
 PROTOBUF_FILES.each do |src|
   src_file = File.basename(src, '.rb')
   dst = File.join(REMOTE_GRPC_PATH, "#{src_file}_pb.rb")
-  file dst => ['lib/nanoci_remote', src] do
-    sh "#{GRPC} -I ./protos --ruby_out=lib/nanoci_remote --grpc_out=lib/nanoci_remote #{src}"
+  file dst => [REMOTE_GRPC_PATH, src] do
+    sh "#{GRPC} -I ./protos --ruby_out=#{REMOTE_GRPC_PATH} --grpc_out=#{REMOTE_GRPC_PATH} #{src}"
   end
 
   task :'grpc' => dst
