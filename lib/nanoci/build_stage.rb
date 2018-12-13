@@ -2,7 +2,7 @@
 
 require 'nanoci/build_job'
 
-class Nanoci
+module Nanoci
   ##
   # BuildStage is the class to track Build Stage execution
   class BuildStage

@@ -7,7 +7,7 @@ require 'nanoci/build'
 require 'nanoci/definition/poll_trigger_definition'
 require 'nanoci/trigger'
 
-class Nanoci
+module Nanoci
   # Built-in nano-ci triggers
   class Triggers
     # Poll trigger class

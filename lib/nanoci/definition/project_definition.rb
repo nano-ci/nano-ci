@@ -6,7 +6,7 @@ require 'nanoci/definition/repo_definition'
 require 'nanoci/definition/stage_definition'
 require 'nanoci/definition/variable_definition'
 
-class Nanoci
+module Nanoci
   class Definition
     # Project Definition
     class ProjectDefinition

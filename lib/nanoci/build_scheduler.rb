@@ -6,7 +6,7 @@ require 'nanoci'
 require 'nanoci/build'
 require 'nanoci/state_manager'
 
-class Nanoci
+module Nanoci
   ##
   # Build scheduler maintains queue of jobs
   # and schedules job execution on build agents

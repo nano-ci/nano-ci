@@ -2,7 +2,7 @@
 
 require 'nanoci/definition/job_definition'
 
-class Nanoci
+module Nanoci
   class Definition
     class StageDefinition
       # Returns stage tag

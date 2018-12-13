@@ -2,7 +2,7 @@
 
 require 'nanoci/build'
 
-class Nanoci
+module Nanoci
   ##
   # BuildJob is the class to track execution of a Job on agent
   class BuildJob

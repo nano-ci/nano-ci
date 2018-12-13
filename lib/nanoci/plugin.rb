@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Nanoci
+module Nanoci
   ##
   # Base class for nano-ci plugins
   class Plugin

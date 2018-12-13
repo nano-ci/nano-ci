@@ -2,7 +2,7 @@
 
 require 'nanoci/definition/variable_definition'
 
-class Nanoci
+module Nanoci
   ##
   # A variable is an object to hold string value to use in task configuration
   # Task may reference a variable using syntax ${var_name}

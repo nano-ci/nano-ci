@@ -3,7 +3,7 @@
 require 'nanoci/resource_map'
 
 # Root class of nano-ci
-class Nanoci
+module Nanoci
   class << self
     attr_accessor :config
 

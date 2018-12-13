@@ -3,7 +3,7 @@
 require 'nanoci/task'
 require 'nanoci/test_error'
 
-class Nanoci
+module Nanoci
   class Tasks
     # Base class for test tool task
     # It is supposed to be a base class for plugin tasks

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Nanoci
+module Nanoci
   ##
   # A resource map holds mappings of resource type to ruby class
   class ResourceMap

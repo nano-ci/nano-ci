@@ -6,7 +6,7 @@ require 'nanoci/triggers/all'
 require 'nanoci/definition/repo_definition'
 require 'nanoci/mixins/provides'
 
-class Nanoci
+module Nanoci
   ##
   # Source control repository
   class Repo

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Nanoci
+module Nanoci
   class Definition
     # Variable definition
     class VariableDefinition

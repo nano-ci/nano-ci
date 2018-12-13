@@ -16,7 +16,7 @@ require 'nanoci/project'
 require 'nanoci/state_manager'
 require 'nanoci/utils/hash_utils'
 
-class Nanoci
+module Nanoci
   class Application
     # nano-ci entry point
     class Service

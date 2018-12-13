@@ -2,7 +2,7 @@
 
 require 'mongo'
 
-class Nanoci
+module Nanoci
   ##
   # State manager persists or retrieves object state from a storage
   class StateManager

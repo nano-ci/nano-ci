@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Nanoci
+module Nanoci
   # names of common variables
   module CommonVars
     # Full path to directory to store builds data

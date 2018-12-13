@@ -2,7 +2,7 @@
 
 require 'logging'
 
-class Nanoci
+module Nanoci
   class Mixins
     ##
     # Mixin class that enables logging for a class

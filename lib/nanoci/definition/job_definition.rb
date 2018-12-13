@@ -2,7 +2,7 @@
 
 require 'nanoci/definition/task_definition'
 
-class Nanoci
+module Nanoci
   class Definition
     # Job definition
     class JobDefinition

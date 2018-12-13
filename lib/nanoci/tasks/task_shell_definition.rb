@@ -3,7 +3,7 @@
 require 'nanoci/definition/task_definition'
 require 'nanoci/definition/variable_definition'
 
-class Nanoci
+module Nanoci
   class Tasks
     # [TaskShell] definition
     class TaskShellDefinition < Nanoci::Definition::TaskDefinition

@@ -2,7 +2,7 @@
 
 require 'optimist'
 
-class Nanoci
+module Nanoci
   ##
   # Command line options for nano-ci
   class Options

@@ -3,7 +3,7 @@
 require 'nanoci/common_vars'
 require 'nanoci/mixins/provides'
 
-class Nanoci
+module Nanoci
   # Base class for nano-ci build task
   class Task
     extend Mixins::Provides

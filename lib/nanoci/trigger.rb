@@ -4,7 +4,7 @@ require 'logging'
 
 require 'nanoci/mixins/provides'
 
-class Nanoci
+module Nanoci
   ##
   # Base class for nano-ci triggers
   class Trigger

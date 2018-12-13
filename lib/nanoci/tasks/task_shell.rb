@@ -5,7 +5,7 @@ require 'nanoci/task'
 require 'nanoci/tasks/task_shell_definition'
 require 'nanoci/tool_process'
 
-class Nanoci
+module Nanoci
   class Tasks
     # Task to execute shell command
     class TaskShell < Task

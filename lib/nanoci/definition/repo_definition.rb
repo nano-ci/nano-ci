@@ -2,7 +2,7 @@
 
 require 'nanoci/definition/trigger_definition'
 
-class Nanoci
+module Nanoci
   class Definition
     # Repo definition
     class RepoDefinition

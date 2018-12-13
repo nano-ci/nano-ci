@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Nanoci
+module Nanoci
   ##
   # Error class representing test execution error
   class TestError < StandardError

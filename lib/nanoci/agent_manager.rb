@@ -5,7 +5,7 @@ require 'set'
 
 require 'nanoci/local_agent'
 
-class Nanoci
+module Nanoci
   # Agent manager controlls access to build agents
   class AgentManager
     attr_reader :agents

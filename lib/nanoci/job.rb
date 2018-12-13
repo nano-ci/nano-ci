@@ -4,7 +4,7 @@ require 'nanoci/definition/job_definition'
 require 'nanoci/task'
 require 'nanoci/tasks/all'
 
-class Nanoci
+module Nanoci
   # A job is a collection of tasks to run actions and produce artifacts
   class Job
     attr_accessor :tag

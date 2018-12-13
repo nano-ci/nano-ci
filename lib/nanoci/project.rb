@@ -8,7 +8,7 @@ require 'nanoci/repo'
 require 'nanoci/stage'
 require 'nanoci/variable'
 
-class Nanoci
+module Nanoci
   ##
   # Represents a project in nano-ci
   class Project

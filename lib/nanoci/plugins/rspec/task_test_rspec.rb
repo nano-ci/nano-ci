@@ -8,7 +8,7 @@ require 'nanoci/plugins/rspec/task_test_rspec_definition'
 require 'nanoci/tasks/task_test'
 require 'nanoci/test'
 
-class Nanoci
+module Nanoci
   class Plugins
     class RSpec
       # RSpec run task class

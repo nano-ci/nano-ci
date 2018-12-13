@@ -2,7 +2,7 @@
 
 require 'stringio'
 
-class Nanoci
+module Nanoci
   ##
   # TimedIO is the text stream class that appends current time to each line
   class TimedIO

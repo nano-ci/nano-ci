@@ -8,7 +8,7 @@ require 'nanoci/repo'
 require 'nanoci/tool_error'
 require 'nanoci/tool_process'
 
-class Nanoci
+module Nanoci
   class Plugins
     class Git
       # Git repo class. Implements interface of Nanoci::Repo class

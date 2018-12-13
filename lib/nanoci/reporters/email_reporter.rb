@@ -4,7 +4,7 @@ require 'nanoci'
 require 'nanoci/mixins/logger'
 require 'nanoci/reporter'
 
-class Nanoci
+module Nanoci
   class Reporters
     class EmailReporter < Reporter
       include Nanoci::Mixins::Logger

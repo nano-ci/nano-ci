@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Nanoci
+module Nanoci
   ##
   # nano-ci config which is read from config file
   class Config

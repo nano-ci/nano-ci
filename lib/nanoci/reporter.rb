@@ -1,6 +1,6 @@
 require 'nanoci/not_implemented_error'
 
-class Nanoci
+module Nanoci
   class Reporter
     module What
       ALL = :all

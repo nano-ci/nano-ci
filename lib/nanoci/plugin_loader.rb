@@ -2,7 +2,7 @@
 
 require 'nanoci/plugin'
 
-class Nanoci
+module Nanoci
   ##
   # nano-ci plugin loader
   class PluginLoader

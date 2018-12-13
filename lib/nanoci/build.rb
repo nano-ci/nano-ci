@@ -7,7 +7,7 @@ require 'nanoci/build_stage'
 require 'nanoci/common_vars'
 require 'nanoci/timed_io'
 
-class Nanoci
+module Nanoci
   ##
   # Build is the type that represents one integration cycle for a project
   class Build # rubocop:disable Metrics/ClassLength

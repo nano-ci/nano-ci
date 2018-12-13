@@ -3,7 +3,7 @@
 require 'nanoci/definition/task_source_control_definition'
 require 'nanoci/task'
 
-class Nanoci
+module Nanoci
   # Build-in nano-ci tasks
   class Tasks
     # Task to work with SCM tools

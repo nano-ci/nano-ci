@@ -7,7 +7,7 @@ require 'nanoci/mixins/logger'
 require 'nanoci/tool_error'
 require 'nanoci/variable'
 
-class Nanoci
+module Nanoci
   ##
   # Class to run external tool and capture stdout and stderr
   class ToolProcess

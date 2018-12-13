@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Nanoci
+module Nanoci
   ##
   # Error class representing error while executing external tool
   class ToolError < StandardError

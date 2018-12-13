@@ -4,7 +4,7 @@ require 'logging'
 
 require 'nanoci/common_vars'
 
-class Nanoci
+module Nanoci
   # Agent is a instance of nano-ci service that executes commands from
   # a main nano-ci service to run build jobs
   class Agent

@@ -2,7 +2,7 @@
 
 require 'nanoci/nanoci_class'
 
-class Nanoci
+module Nanoci
   class Mixins
     ##
     # Module Provides deines a plug-in mechanism

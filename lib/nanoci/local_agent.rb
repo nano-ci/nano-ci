@@ -5,7 +5,7 @@ require 'logging'
 require 'nanoci/agent'
 require 'nanoci/build'
 
-class Nanoci
+module Nanoci
   ##
   # Local agent is the agent that executes jobs in the main nano-ci process
   class LocalAgent < Agent
