@@ -40,7 +40,7 @@
 			"type": "Ruby",
 			"request": "launch",
 			"cwd": "${workspaceRoot}",
-			"program": "C:/software/Ruby25-x64/bin/rspec",
+			"program": "C:/tools/Ruby25-x64/bin/rspec",
 			"args": [
 				"--format", "documentation"
 			]
@@ -50,7 +50,7 @@
 			"type": "Ruby",
 			"request": "launch",
 			"cwd": "${workspaceRoot}",
-			"program": "C:/software/Ruby25-x64/bin/rspec",
+			"program": "C:/tools/Ruby25-x64/bin/rspec",
 			"args": ["${file}"]
 		},
 		{

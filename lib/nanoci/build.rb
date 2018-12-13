@@ -2,6 +2,7 @@
 
 require 'logging'
 require 'stringio'
+require 'ruby-enum'
 
 require 'nanoci/build_stage'
 require 'nanoci/common_vars'
@@ -13,26 +14,15 @@ module Nanoci
   class Build # rubocop:disable Metrics/ClassLength
     ##
     # Build state enumeration
-    module State
-      UNKNOWN = 0
-      QUEUED = 1
-      RUNNING = 2
-      ABORTED = 3
-      FAILED = 4
-      COMPLETED = 5
+    class State
+      include Ruby::Enum
 
-      @mapping = {
-        UNKNOWN => :unknown,
-        QUEUED => :queued,
-        RUNNING => :running,
-        ABORTED => :aborted,
-        FAILED => :failed,
-        COMPLETED => :completed
-      }
-
-      def self.to_sym(val)
-        @mapping[val] || val
-      end
+      define :UNKNOWN, 0
+      define :QUEUED, 1
+      define :RUNNING, 2
+      define :ABORTED, 3
+      define :FAILED, 4
+      define :COMPLETED, 5
     end
 
     class << self
