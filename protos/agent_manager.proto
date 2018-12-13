@@ -4,6 +4,6 @@ package nanociRemote;
 
 import "report_agent_status_message.proto";
 
-service RemoteAgentService {
+service AgentManager {
 	rpc ReportAgentStatus(ReportAgentStatusRequest) returns (ReportAgentStatusResponse);
 }
