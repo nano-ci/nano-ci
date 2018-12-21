@@ -29,5 +29,24 @@ module Nanoci
       end
       self.current_job = nil
     end
+
+    def execute_tasks(tasks, job_tag, build)
+      tasks.each { |task| execute_task(build, job_tag, task) }
+    end
+
+    def execute_task(build, job_tag, task)
+      @log.debug "executing task #{task.type} of #{job_tag}"
+      env = @env.merge(@capabilities)
+
+      build_work_dir = File.join(@workdir, build.tag)
+      env[CommonVars::WORKDIR] = build_work_dir
+
+      task.execute(build, env)
+      @log.debug "task #{task.type} of #{job_tag} is done"
+    rescue StandardError => e
+      @log.error "failed to execute task #{task} from job #{job_tag} of build #{build.tag}"
+      @log.error(e)
+      raise e
+    end
   end
 end

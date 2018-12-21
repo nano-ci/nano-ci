@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-require 'nanoci_remote/agent_manager_services_pb'
+require 'nanoci/remote_agent'
+require 'nanoci/remote/agent_manager_services_pb'
 
 class Nanoci
   class Remote
@@ -12,13 +13,20 @@ class Nanoci
         @agent_manager = agent_manager
       end
 
-
+      # Report remote agent status and capabilities
+      # @param report_agent_status_request [ReportAgentStatusRequest]
+      # @param _call [Object]
       def report_agent_status(report_agent_status_request, _call)
-        agent = agent_manager.get_agent(report_agent_status_request.tag)
+        tag = report_agent_status_request.tag
+        status = report_agent_status_request.status
+        capabilities = report_agent_status_request.capabilities
+        agent = agent_manager.get_agent(tag)
         if agent.nil?
-          # TODO: Create new agent
+          agent = RemoteAgent.new(tag, capabilities)
+          agent_manager.add_agent_to_pool(agent)
         end
-        agent.status =
+        agent.status = status
+        agent.capabilities = capabilities
       end
     end
   end

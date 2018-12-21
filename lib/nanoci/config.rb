@@ -68,7 +68,7 @@ module Nanoci
         @src = src
       end
 
-      def name
+      def tag
         @src['name']
       end
 

@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'concurrent'
 require 'logging'
 require 'set'
 
@@ -10,11 +11,14 @@ module Nanoci
   class AgentManager
     attr_reader :agents
 
-    def initialize(config, env)
+    def initialize(config)
       @log = Logging.logger[self]
+      @agents = []
+      @agent_status_check_interval = 5 * 60
+      @agent_status_timeout = 5 * 60
 
-      @agents = config.agents.map do |ac|
-        LocalAgent.new(ac, config.capabilities, env)
+      @timer = Concurrent::TimerTask.new(execution_interval: @agent_status_check_interval) do
+        check_agents
       end
     end
 
@@ -30,6 +34,31 @@ module Nanoci
         @log.debug("#{a.name} has capabilities #{a.capabilities}")
         a.capabilities?(required_agent_capabilities) && a.current_job.nil?
       end
+    end
+
+    # Adds a new agent to the agents pool
+    # @param agent [Agent]
+    # @return [void]
+    def add_agent(agent)
+      raise "agent with tag #{agent.tag} exists in pool" unless get_agent(agent.tag).nil?
+      @agents.push(agent)
+      return
+    end
+
+    # Removes an agent from the agents pool
+    # @param agent [Agent]
+    # @return [void]
+    def remove_agent(agent)
+      raise "agent with tag #{agent.tag} does not exist in pool" if get_agent(agent.tag).nil?
+      @agents.delete(agent)
+    end
+
+    private
+
+    def check_agents
+      @agents
+        .select { |x| Time.now.utc - x.status_timestamp > @agent_status_timeout }
+        .each { |x| remove_agent(x) }
     end
   end
 end
