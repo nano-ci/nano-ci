@@ -2,18 +2,26 @@
 
 require 'yaml'
 
+require 'nanoci/config/service_config'
+require 'nanoci/config/system_config'
 require 'nanoci/utils/hash_utils'
 
 module Nanoci
   module Config
-    # UCS is a unified config system
+    # UCS is an unified config system
     class UCS
+      include ServiceConfig
+      include SystemConfig
+
       class << self
+        # @return [UCS] an instance of UCS
         def instance
           raise 'UCS is not initialized' if @instance.nil?
           @instance
         end
 
+        # Initializes an UCS
+        # @return [UCS]
         def initialize(argv = ARGV, config_path = nil)
           @instance ||= UCS.new(argv, config_path)
         end
