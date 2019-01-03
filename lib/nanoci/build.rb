@@ -8,6 +8,7 @@ require 'nanoci/build_stage'
 require 'nanoci/common_vars'
 require 'nanoci/config/ucs'
 require 'nanoci/timed_io'
+require 'nanoci/variable'
 
 module Nanoci
   # Build is the type that represents one integration cycle for a project
@@ -57,9 +58,14 @@ module Nanoci
         log.info "variables: \n #{build.variables}"
       end
 
+      # Expands project variables
+      # @param project_variables [Hash<Symbol, Nanoci::Variable>]
+      # @param env_variables [Hash<Symbol, String>]
       def expand_variables(project_variables, env_variables)
         all_variables = project_variables.merge(env_variables)
-        all_variables.map { |k, v| [k, v.expand(all_variables)] }.to_h
+        all_variables.transform_values do |v|
+          Variable.expand_string(v.to_s, all_variables)
+        end
       end
     end
 
