@@ -100,14 +100,14 @@ module Nanoci
 
     def repo_cache
       repo_path = File.join(Config::UCS.repo_cache, tag.to_s)
-      FileUtils.mkdir_p(repo_path) unless Dir.exist? repo_path
+      FileUtils.mkdir_p(repo_path)
       repo_path
     end
 
     ##
     # Detect changes in source
     # Returns true is there are new changes; false otherwise
-    def changes?(_workdir)
+    def changes?
       true
     end
 

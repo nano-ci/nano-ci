@@ -31,15 +31,18 @@ module Nanoci
           required_agent_capabilities.push(SSH_CAP)
         end
 
-        def changes?(workdir)
-          workdir = repo_cache(workdir)
+        def changes?
+          workdir = repo_cache
           update(workdir)
           tip_of_tree(workdir, branch) != @current_commit
         end
 
         def update(workdir)
-          clone(workdir, no_checkout: true) unless exists?(workdir)
-          fetch(workdir)
+          if exists?(workdir)
+            fetch(workdir)
+          else
+            clone(workdir, no_checkout: true)
+          end
         end
 
         def tip_of_tree(workdir, branch)
