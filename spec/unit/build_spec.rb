@@ -3,7 +3,6 @@
 require 'spec_helper'
 
 require 'nanoci/build'
-require 'nanoci/common_vars'
 require 'nanoci/definition/project_definition'
 require 'nanoci/definition/variable_definition'
 require 'nanoci/project'

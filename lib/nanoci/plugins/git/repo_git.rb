@@ -3,7 +3,6 @@
 require 'fileutils'
 require 'tempfile'
 
-require 'nanoci/common_vars'
 require 'nanoci/repo'
 require 'nanoci/tool_error'
 require 'nanoci/tool_process'

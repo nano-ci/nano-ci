@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'nanoci/common_vars'
 require 'nanoci/mixins/provides'
 
 module Nanoci

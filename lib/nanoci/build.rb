@@ -5,7 +5,6 @@ require 'stringio'
 require 'ruby-enum'
 
 require 'nanoci/build_stage'
-require 'nanoci/common_vars'
 require 'nanoci/config/ucs'
 require 'nanoci/timed_io'
 require 'nanoci/variable'

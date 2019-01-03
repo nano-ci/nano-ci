@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'nanoci/common_vars'
 require 'nanoci/task'
 require 'nanoci/tasks/task_shell_definition'
 require 'nanoci/tool_process'
