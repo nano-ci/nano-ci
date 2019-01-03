@@ -4,19 +4,28 @@ module Nanoci
   module Config
     # UCS config module to access nano-ci service variables
     module ServiceConfig
-      # @return job scheduler executin interval in seconds
+      # Job scheduler execution interval in seconds
+      # @return [Number]
       def job_scheduler_interval
         get(ServiceConfig::JOB_SCHEDULER_INTERVAL)
       end
 
-      # @return MongoDB connection string
+      # MongoDB connection string
+      # @return [String]
       def mongo_connection_string
         get(ServiceConfig::MONGO_CONNECTION_STRING)
       end
 
-      # @return path to project definition file
+      # path to project definition file
+      # @return [String]
       def project
-        get(ServiceConfig::Project)
+        get(ServiceConfig::PROJECT)
+      end
+
+      # path to repo cache directory
+      # @return [String]
+      def repo_cache
+        get(ServiceConfig::REPO_CACHE)
       end
 
       # job-scheduler-interval config name
@@ -27,6 +36,9 @@ module Nanoci
 
       # project config name
       PROJECT = :project
+
+      # repo-cache config name
+      REPO_CACHE = :'repo-cache'
     end
   end
 end

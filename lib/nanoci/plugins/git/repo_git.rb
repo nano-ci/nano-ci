@@ -31,45 +31,44 @@ module Nanoci
           required_agent_capabilities.push(SSH_CAP)
         end
 
-        def changes?(env)
-          env = env.clone
-          env[CommonVars::WORKDIR] = repo_cache(env)
-          update(env)
-          tip_of_tree(branch, env) != @current_commit
+        def changes?(workdir)
+          workdir = repo_cache(workdir)
+          update(workdir)
+          tip_of_tree(workdir, branch) != @current_commit
         end
 
-        def update(env)
-          clone(env, no_checkout: true) unless exists?(env)
-          fetch(env)
+        def update(workdir)
+          clone(workdir, no_checkout: true) unless exists?(workdir)
+          fetch(workdir)
         end
 
-        def tip_of_tree(branch, env = {})
-          git_process = git("rev-parse --verify origin/#{branch}", env)
+        def tip_of_tree(workdir, branch)
+          git_process = git("rev-parse --verify origin/#{branch}", workdir)
           git_process.output
         end
 
-        def clone(env, opts = {})
+        def clone(workdir, opts = {})
           args = []
           args.push '--no-checkout' if opts[:no_checkout]
           args.push src
           args.push '.'
           cmd = "clone #{args.join(' ')}"
-          git(cmd, env, opts)
+          git(cmd, workdir, opts)
         end
 
-        def fetch(env, opts = {})
-          git('fetch origin', env, opts)
+        def fetch(workdir, opts = {})
+          git('fetch origin', workdir, opts)
         end
 
-        def exists?(env, opts = {})
-          git('status', env, opts)
+        def exists?(workdir, opts = {})
+          git('status', workdir, opts)
         rescue ToolError
           false
         end
 
-        def checkout(branch, env, opts = {})
+        def checkout(workdir, branch, opts = {})
           branch ||= @branch
-          git("checkout #{branch}", env, opts)
+          git("checkout #{branch}", workdir, opts)
         end
 
         private
@@ -78,8 +77,9 @@ module Nanoci
           @definition.params[:auth]
         end
 
-        def git(cmd, env, opts = {})
-          git_path = env[GIT_CAP]
+        def git(cmd, workdir, opts = {})
+          agent_capabilities = Config::UCS.capabilities
+          git_path = agent_capabilities[GIT_CAP]
           raise "Missing #{GIT_CAP} capability" if git_path.nil?
           unless auth[:ssh].nil?
             ssh_opts = ["-i #{auth[:ssh]}"]
@@ -90,11 +90,11 @@ module Nanoci
             else
               ssh_opts.push('-o StrictHostKeyChecking=no')
             end
-            ssh = "#{env[SSH_CAP]} #{ssh_opts.join(' ')}"
+            ssh = "#{agent_capabilities[SSH_CAP]} #{ssh_opts.join(' ')}"
             opts[:env] ||= {}
             opts[:env]['GIT_SSH_COMMAND'] = ssh
           end
-          opts[:chdir] = env[CommonVars::WORKDIR]
+          opts[:chdir] = workdir
           ToolProcess.run("\"#{git_path}\" #{cmd}", opts).wait
         end
 

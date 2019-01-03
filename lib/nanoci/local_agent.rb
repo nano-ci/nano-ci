@@ -36,12 +36,10 @@ module Nanoci
 
     def execute_task(build, job_tag, task)
       @log.debug "executing task #{task.type} of #{job_tag}"
-      env = @env.merge(@capabilities)
 
       build_work_dir = File.join(@workdir, build.tag)
-      env[CommonVars::WORKDIR] = build_work_dir
 
-      task.execute(build, env)
+      task.execute(build, build_work_dir)
       @log.debug "task #{task.type} of #{job_tag} is done"
     rescue StandardError => e
       @log.error "failed to execute task #{task} from job #{job_tag} of build #{build.tag}"

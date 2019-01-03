@@ -2,6 +2,7 @@
 
 require 'yaml'
 
+require 'nanoci/config/agent_config'
 require 'nanoci/config/service_config'
 require 'nanoci/config/system_config'
 require 'nanoci/utils/hash_utils'
@@ -10,6 +11,7 @@ module Nanoci
   module Config
     # UCS is an unified config system
     class UCS
+      include AgentConfig
       include ServiceConfig
       include SystemConfig
 

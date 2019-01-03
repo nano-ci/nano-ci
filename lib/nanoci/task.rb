@@ -54,14 +54,12 @@ module Nanoci
       Set[]
     end
 
-    def execute(build, env)
-      env = env.clone
-      task_workdir = File.join(env[CommonVars::WORKDIR], build.tag, workdir)
+    def execute(build, workdir)
+      task_workdir = File.join(workdir, build.tag, workdir)
       FileUtils.mkdir_p(task_workdir) unless Dir.exist? task_workdir
-      env[CommonVars::WORKDIR] = task_workdir
-      execute_imp(build, env)
+      execute_imp(build, workdir)
     end
 
-    def execute_imp(build, env); end
+    def execute_imp(build, workdir); end
   end
 end

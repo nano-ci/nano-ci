@@ -6,13 +6,12 @@ require 'ruby-enum'
 
 require 'nanoci/build_stage'
 require 'nanoci/common_vars'
+require 'nanoci/config/ucs'
 require 'nanoci/timed_io'
 
 module Nanoci
-  ##
   # Build is the type that represents one integration cycle for a project
-  class Build # rubocop:disable Metrics/ClassLength
-    ##
+  class Build
     # Build state enumeration
     class State
       include Ruby::Enum
@@ -31,12 +30,12 @@ module Nanoci
         Logging.logger[self]
       end
 
-      def run(project, trigger, env_variables, env)
+      def run(project, trigger, env_variables)
         variables = expand_variables(project.variables, env_variables)
 
-        refresh_repos(project, env)
+        refresh_repos(project)
 
-        build = Build.new(project, trigger, variables, env)
+        build = Build.new(project, trigger, variables)
         build&.current_stage&.jobs&.each { |j| j.state = State::QUEUED }
 
         log_build(build)
@@ -44,12 +43,11 @@ module Nanoci
         build
       end
 
-      def refresh_repos(project, env)
+      def refresh_repos(project)
         project.repos.values.each do |r|
-          env = env.clone
-          env[CommonVars::WORKDIR] = r.repo_cache(env)
-          r.update(env)
-          r.current_commit = r.tip_of_tree(r.branch, env)
+          workdir = r.repo_cache
+          r.update(workdir)
+          r.current_commit = r.tip_of_tree(workdir, r.branch)
         end
       end
 
@@ -71,6 +69,9 @@ module Nanoci
     attr_accessor :end_time
     attr_accessor :stages
     attr_accessor :current_stage
+
+    # Build variables
+    # @return [Hash<String, Nanoci::Variable>]
     attr_accessor :variables
     attr_reader   :output
 
@@ -121,15 +122,15 @@ module Nanoci
 
     private
 
-    def initialize(project, trigger, variables, env)
+    def initialize(project, trigger, variables)
       @project = project
       @trigger = trigger
       @variables = variables
       @start_time = Time.now
       self.number = number + 1
       setup_stages(@project)
-      env[CommonVars::BUILD_DATA_DIR] = File.join(env[CommonVars::BUILD_DATA_DIR], tag)
-      setup_output(env, tag)
+      build_data_dir = File.join(Config::UCS.build_data_dir, tag)
+      setup_output(build_data_dir, tag)
     end
 
     def setup_stages(project)
@@ -137,9 +138,9 @@ module Nanoci
       @current_stage = @stages.select { |x| x.jobs.any? }.first
     end
 
-    def setup_output(env, tag)
-      FileUtils.mkpath(env[CommonVars::BUILD_DATA_DIR])
-      output_file_name = File.join(env[CommonVars::BUILD_DATA_DIR], "#{tag}.log")
+    def setup_output(build_data_dir, tag)
+      FileUtils.mkpath(build_data_dir)
+      output_file_name = File.join(build_data_dir, "#{tag}.log")
       @output = TimedIO.create_path(output_file_name)
     end
   end

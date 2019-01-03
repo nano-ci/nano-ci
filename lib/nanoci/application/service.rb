@@ -7,6 +7,7 @@ require 'nanoci/agent_manager'
 require 'nanoci/build_scheduler'
 require 'nanoci/common_vars'
 require 'nanoci/config'
+require 'nanoci/config/ucs'
 require 'nanoci/definition/project_definition'
 require 'nanoci/log'
 require 'nanoci/mixins/logger'
@@ -22,32 +23,45 @@ module Nanoci
     class Service
       include Nanoci::Mixins::Logger
 
-      def main(args) # rubocop:disable Metrics/AbcSize
+      def main(argv)
         log.info 'nano-ci starting...'
 
-        options = Options.parse(args)
-        config = Config.new(YAML.load_file(options.config))
-        Nanoci.config = config
-        env = setup_env(config)
-        agent_manager = run_agents(config, env)
-        load_plugins(File.expand_path(config.plugins_path))
-        state_manager = StateManager.new(config.mongo_connection_string)
-        project = load_project(options.project, state_manager)
+        Config::UCS.initialize(argv)
+        setup_components(argv)
+        project = load_project(ucs.project)
 
         log.info 'nano-ci is running'
 
-        run(config, agent_manager, state_manager, project, env)
+        run(project)
       end
 
-      def run(config, agent_manager, state_manager, project, env)
+      private
+
+      # @return [Nanoci::AgentManager]
+      attr_reader :agent_manager
+
+      # @return [Nanoci::StateManager]
+      attr_reader :state_manager
+
+      def setup_components
+        ucs = Config::UCS.instance
+        load_plugins(File.expand_path(ucs.plugins_path))
+        log.debug 'running agents...'
+        @agent_manager = AgentManager.new
+        @state_manager = StateManager.new(ucs.mongo_connection_string)
+      end
+
+      # runs a nano-ci main service
+      # @param ucs [Nanoci::Config::UCS]
+      # @return [void]
+      def run(project)
         build_scheduler = run_build_scheduler(
-          config.job_scheduler_interval,
+          Config::UCS.instance.job_scheduler_interval,
           agent_manager,
-          state_manager,
-          env
+          state_manager
         )
 
-        run_triggers(project, build_scheduler, env)
+        run_triggers(project, build_scheduler)
 
         event = Concurrent::Event.new
         event.reset
@@ -60,47 +74,37 @@ module Nanoci
       end
 
       def load_project(project_path, state_manager)
-        log.info 'reading project definition...'
+        log.info "reading project definition from #{project_path}..."
         project_definition_src = YAML.load_file(project_path).symbolize_keys
         project_definition = Definition::ProjectDefinition.new(project_definition_src)
         project = Project.new(project_definition)
-        project_state = state_manager.get_state(
-          StateManager::Types::PROJECT,
-          project.tag
-        )
+        project_state = state_manager.get_state(StateManager::Types::PROJECT, project.tag)
         project.state = project_state unless project_state.nil?
         log.info "read project #{project.tag}"
         project
       end
 
-      def run_agents(config, env)
-        log.debug 'running agents...'
-        AgentManager.new(config, env)
-      end
-
       # runs triggers
-      # @param project [Project]
-      # @param build_scheduler [BuildScheduler]
-      # @param env [Hash]
-      def run_triggers(project, build_scheduler, env)
+      # @param project [Nanoci::Project]
+      # @param build_scheduler [Nanoci::BuildScheduler]
+      # @param ucs [Nanoci::Config::UCS]
+      def run_triggers(project, build_scheduler)
         project.repos.each do |_key, repo|
           repo.triggers.each do |trigger|
-            trigger.run(build_scheduler, project, env)
+            trigger.run(build_scheduler, project)
           end
         end
       end
 
-      def run_build_scheduler(interval, agent_manager, state_manager, env)
-        build_scheduler = BuildScheduler.new(agent_manager, state_manager, env)
+      # runs a build scheduler
+      # @param interval [Number]
+      # @param agent_manager [Nanoci::AgentManager]
+      # @param state_manager [Nanoci::StateManager]
+      # @param ucs [Nanoci::Config::UCS]
+      def run_build_scheduler(interval, agent_manager, state_manager)
+        build_scheduler = BuildScheduler.new(agent_manager, state_manager)
         build_scheduler.run(interval)
         build_scheduler
-      end
-
-      def setup_env(config)
-        env[CommonVars::REPO_CACHE] = config.repo_cache
-        norm_env_vars = Hash[Bundler::ORIGINAL_ENV].transform_keys(&:to_sym)
-
-        env.merge(norm_env_vars)
       end
     end
   end

@@ -180,7 +180,7 @@ RSpec.describe Nanoci::BuildScheduler do
   it 'does not triggers multiple builds for the same project' do
     state_manager = double('state_manager')
     allow(state_manager).to receive(:put_state)
-    build_scheduler = Nanoci::BuildScheduler.new(nil, state_manager, {CommonVars::BUILD_DATA_DIR => '/abc'})
+    build_scheduler = Nanoci::BuildScheduler.new(nil, state_manager)
     project = double('project')
     allow(project).to receive(:tag).and_return 'project-abc'
     allow(project).to receive(:variables).and_return({})

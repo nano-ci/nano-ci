@@ -32,19 +32,19 @@ module Nanoci
         super + repo.required_agent_capabilities
       end
 
-      def execute_imp(build, env)
+      def execute_imp(build, workdir)
         repo = build.project.repos[repo_tag]
         raise "Missing repo definition #{repo_tag}" if repo.nil?
         case action
         when 'checkout'
-          execute_checkout(repo, env, build.output)
+          execute_checkout(repo, workdir, build.output)
         end
       end
 
-      def execute_checkout(repo, env, output)
-        repo.update(env)
+      def execute_checkout(repo, workdir, output)
+        repo.update(workdir)
         changeset = branch || repo.current_commit
-        repo.checkout(changeset, env, stdout: output, stderr: output)
+        repo.checkout(workdir, changeset, stdout: output, stderr: output)
       end
     end
   end

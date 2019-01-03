@@ -4,6 +4,7 @@ require 'logging'
 
 require 'nanoci'
 require 'nanoci/build'
+require 'nanoci/config/ucs'
 require 'nanoci/state_manager'
 
 module Nanoci
@@ -13,16 +14,15 @@ module Nanoci
   class BuildScheduler
     attr_accessor :builds
 
-    def initialize(agents_manager, state_manager, env)
+    def initialize(agents_manager, state_manager)
       @log = Logging.logger[self]
       @agents_manager = agents_manager
       @state_manager = state_manager
       @builds = []
-      @env = env
     end
 
     def start_new_build(project, trigger)
-      build = Nanoci::Build.run(project, trigger, {}, @env)
+      build = Nanoci::Build.run(project, trigger, Config::UCS.instance.env)
       @state_manager.put_state(StateManager::Types::PROJECT, project.state)
       @log.info "a new build #{build.tag} triggered by #{trigger}"
       build

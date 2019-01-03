@@ -1,31 +1,8 @@
 # frozen_string_literal: true
 
 module Nanoci
-  ##
   # nano-ci config which is read from config file
-  class Config
-    def self.env(name)
-      return name unless name.is_a? String
-      match = /\$\{([^}]*)\}/.match(name)
-      if match.nil? || ENV[match[1]].nil?
-        name
-      else
-        ENV[match[1]]
-      end
-    end
-
-    def initialize(src)
-      @src = src
-    end
-
-    def job_scheduler_interval
-      @src['job_scheduler_interval'] || 5
-    end
-
-    def mongo_connection_string
-      @src['mongo-connection-string']
-    end
-
+  module Config
     def email
       EmailConfig.new(@src['email'] || {})
     end

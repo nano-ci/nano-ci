@@ -19,11 +19,14 @@ module Nanoci
         super(definition, project)
       end
 
-      def execute_imp(build, env)
+      # Executes [TaskShell]
+      # @param build [Nanoci::Build]
+      # @param workdir [String]
+      def execute_imp(build, workdir)
         ToolProcess.run(@definition.cmd,
                         env: definition.env,
-                        vars: env,
-                        chdir: env[CommonVars::WORKDIR],
+                        vars: build.variables,
+                        chdir: workdir,
                         stdout: build.output,
                         stderr: build.output).wait
       end

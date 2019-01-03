@@ -4,13 +4,14 @@ module Nanoci
   # Module to group config classes
   module Config
     # nano-ci agent service config
-    class AgentConfig < CommonConfig
+    module AgentConfig
       def tag
-        @src['tag']
+        get(AgentConfig::AGENT_TAG)
       end
 
+      # @return [Hash<Symbol, String>]
       def capabilities
-        caps = (@src['capabilities'] || []).map do |x|
+        caps = (get(AgentConfig::CAPABILITIES) || []).map do |x|
           case x
           when String then [x, nil]
           when Hash then x.entries[0]
@@ -19,13 +20,17 @@ module Nanoci
         caps.map { |x| [x[0].to_sym, x[1]] }.to_h
       end
 
-      def repo_cache
-        @src['repo-cache']
+      def workdir
+        get(AgentConfig::WORKDIR)
       end
 
-      def workdir
-        @src['workdir']
-      end
+      # agent.tag config name
+      AGENT_TAG = :'agent.tag'
+
+      CAPABILITIES = :'agent.capabilities'
+
+      # workdir config name
+      WORKDIR = :workdir
     end
   end
 end

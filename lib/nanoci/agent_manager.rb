@@ -11,7 +11,8 @@ module Nanoci
   class AgentManager
     attr_reader :agents
 
-    def initialize(config)
+    # Initializes new instance of [AgentManager]
+    def initialize
       @log = Logging.logger[self]
       @agents = []
       @agent_status_check_interval = 5 * 60
