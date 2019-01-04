@@ -4,8 +4,6 @@ require 'concurrent'
 require 'logging'
 require 'set'
 
-require 'nanoci/local_agent'
-
 module Nanoci
   # Agent manager controlls access to build agents
   class AgentManager
