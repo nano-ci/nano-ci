@@ -1,10 +1,11 @@
 plugins-path: '/nano-ci/lib/nanoci/plugins'
 repo-cache: '/nano-ci-agent/workdir/repo-cache'
 build-data-dir: '/nano-ci-agent/workdir/builds'
-capabilities:
-  - 'tools.git': '/usr/bin/git'
-  - 'tools.ssh': '/usr/bin/ssh'
-  - 'tools.rspec': '/usr/local/bin/rspec'
+agent:
+  capabilities:
+    - 'tools.git': '/usr/bin/git'
+    - 'tools.ssh': '/usr/bin/ssh'
+    - 'tools.rspec': '/usr/local/bin/rspec'
 agents:
   - name: 'Local Agent #1'
     workdir: '/nano-ci-agent/workdir/agents/agent-1'
