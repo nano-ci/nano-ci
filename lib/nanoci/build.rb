@@ -134,7 +134,7 @@ module Nanoci
       @start_time = Time.now
       self.number = number + 1
       setup_stages(@project)
-      build_data_dir = File.join(Config::UCS.build_data_dir, tag)
+      build_data_dir = File.join(Config::UCS.instance.build_data_dir, tag)
       setup_output(build_data_dir, tag)
     end
 

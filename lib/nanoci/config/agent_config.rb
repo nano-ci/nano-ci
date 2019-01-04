@@ -9,6 +9,10 @@ module Nanoci
         get(AgentConfig::AGENT_TAG)
       end
 
+      def build_data_dir
+        get(AgentConfig::BUILD_DATA_DIR)
+      end
+
       # @return [Hash<Symbol, String>]
       def capabilities
         caps = (get(AgentConfig::CAPABILITIES) || []).map do |x|
@@ -26,6 +30,9 @@ module Nanoci
 
       # agent.tag config name
       AGENT_TAG = :'agent.tag'
+
+      # build-data-dir config name
+      BUILD_DATA_DIR = :'build-data-dir'
 
       CAPABILITIES = :'agent.capabilities'
 

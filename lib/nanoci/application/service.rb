@@ -26,8 +26,8 @@ module Nanoci
         log.info 'nano-ci starting...'
 
         Config::UCS.initialize(argv)
-        setup_components(argv)
-        project = load_project(ucs.project)
+        setup_components
+        project = load_project(Config::UCS.instance.project)
 
         log.info 'nano-ci is running'
 
@@ -72,7 +72,7 @@ module Nanoci
         PluginLoader.load(plugins_path)
       end
 
-      def load_project(project_path, state_manager)
+      def load_project(project_path)
         log.info "reading project definition from #{project_path}..."
         project_definition_src = YAML.load_file(project_path).symbolize_keys
         project_definition = Definition::ProjectDefinition.new(project_definition_src)

@@ -7,7 +7,7 @@ module Nanoci
       # Job scheduler execution interval in seconds
       # @return [Number]
       def job_scheduler_interval
-        get(ServiceConfig::JOB_SCHEDULER_INTERVAL)
+        get(ServiceConfig::JOB_SCHEDULER_INTERVAL, 5)
       end
 
       # MongoDB connection string

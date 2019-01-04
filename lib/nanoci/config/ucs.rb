@@ -36,7 +36,7 @@ module Nanoci
             raise "invalid option #{item} - does not start with --" unless item.start_with? '--'
             raise "invalid option #{item} - does not have = to split key and value" unless item.match(/.+=.+/)
             item.slice(2, item.length - 2).split('=')
-          end.to_hash.symbolize_keys
+          end.to_h.symbolize_keys
         end
       end
 
@@ -55,11 +55,12 @@ module Nanoci
       # * config
       # @param key [Symbol] config key
       # @return [String] config value
-      def get(key)
+      def get(key, default=nil)
         return @argv.fetch(key) if @argv.key?(key)
         return @env.fetch(key) if @env.key?(key)
         return @config.fetch(key) if !@config.nil? && @config.key?(key)
-        raise "missing config key '#{key}'"
+        raise "missing config key '#{key}'" if default.nil?
+        default
       end
 
       private
@@ -68,10 +69,10 @@ module Nanoci
       # @param argv [Array<String>] argument vector AKA command line arguments
       # @param config_path [String] path to config file
       def initialize(argv = ARGV, config_path = nil)
-        @argv = parse_argv(argv).freeze
+        @argv = UCS.parse_argv(argv).freeze
         @env = Hash[ENV].symbolize_keys.freeze
 
-        config_path |= system_config_path
+        config_path ||= system_config_path
 
         @config = YAML.load_file(config_path).flatten_hash_value.freeze if File.exist?(config_path)
       end

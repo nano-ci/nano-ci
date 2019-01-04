@@ -99,7 +99,7 @@ module Nanoci
     end
 
     def repo_cache
-      repo_path = File.join(Config::UCS.repo_cache, tag.to_s)
+      repo_path = File.join(Config::UCS.instance.repo_cache, tag.to_s)
       FileUtils.mkdir_p(repo_path)
       repo_path
     end
