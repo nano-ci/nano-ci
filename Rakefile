@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'bundler/gem_tasks'
+require 'rake/clean'
 require 'rspec/core/rake_task'
 
 # tools
@@ -25,6 +26,8 @@ NANO_CI_FILES = Rake::FileList[
 PROTOBUF_FILES = Rake::FileList[
   'protos/*.proto'
 ]
+
+CLEAN.include("docker/nano-ci/nano-ci/*")
 
 RSpec::Core::RakeTask.new(:spec)
 
@@ -100,12 +103,21 @@ namespace :docker do
   end
 
   namespace :'nano-ci-self' do
+    CONTAINER_NAME = "nanocidebug"
     task :run => [:'docker:nano-ci-self'] do
       sh 'docker run --detach --link mongo nano-ci-self'
     end
 
     task :debug => [:'docker:nano-ci-self'] do
-      sh 'docker run --detach --link mongo --entrypoint "rdebug-ide" --expose 23456 -p 23456:23456 nano-ci-self --host 0.0.0.0 --port 23456 -- /nano-ci/bin/nano-ci --project /nano-ci-agent/master.nanoci --config /nano-ci/config.yml'
+      sh "docker run --detach --link mongo --name #{CONTAINER_NAME} --entrypoint \"rdebug-ide\" --expose 23456 -p 23456:23456 nano-ci-self --host 0.0.0.0 --port 23456 -- /nano-ci/bin/nano-ci --project=/nano-ci-agent/master.nanoci"
+    end
+
+    task :'debug-logs' do
+      sh "docker logs #{CONTAINER_NAME}"
+    end
+
+    task :'debug-clean' => [:'debug-logs'] do
+      sh "docker container rm #{CONTAINER_NAME}"
     end
   end
 end

@@ -11,6 +11,14 @@
 				"kind": "build",
 				"isDefault": true
 			}
+		},
+		{
+			"label": "rake: docker:nano-ci-self:debug-clean",
+			"type": "shell",
+			"command": "rake docker:nano-ci-self:debug-clean",
+			"group": {
+				"kind": "build"
+			}
 		}
 	]
 }

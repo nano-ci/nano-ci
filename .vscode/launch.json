@@ -58,6 +58,7 @@
 			"type": "Ruby",
 			"request": "attach",
 			"preLaunchTask": "rake: docker:nano-ci-self:debug",
+			"postDebugTask": "rake: docker:nano-ci-self:debug-clean",
 			"cwd": "${workspaceRoot}",
 			"remoteHost": "local.docker.nanoci.cloud",
 			"remotePort": "23456",
