@@ -4,13 +4,16 @@ require 'logging'
 
 require 'nanoci/agent'
 require 'nanoci/build'
+require 'nanoci/config/ucs'
 
 module Nanoci
   ##
   # Local agent is the agent that executes jobs in the main nano-ci process
   class LocalAgent < Agent
-    def initialize(*args)
-      super
+    def initialize
+      tag = Config::UCS.instance.agent_tag
+      capabilities = Config::UCS.instance.agent_capabilities
+      super(tag, capabilities)
 
       @log = Logging.logger[self]
     end

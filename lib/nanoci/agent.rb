@@ -7,6 +7,9 @@ module Nanoci
   # a main nano-ci service to run build jobs
   class Agent
     attr_accessor :tag
+
+    # Agent capabilities
+    # @return [Hash<Symbol, String>]
     attr_reader :capabilities
 
     attr_reader :status

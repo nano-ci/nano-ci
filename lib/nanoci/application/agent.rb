@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-require 'nanoci/agent_options'
+require 'nanoci/agent_engine'
+require 'nanoci/config/ucs'
 require 'nanoci/mixins/logger'
 
 module Nanoci
@@ -9,19 +10,13 @@ module Nanoci
     class Agent
       include Nanoci::Mixins::Logger
 
-      def main(cli_args)
+      def main(argv)
         log.info('nano-ci agent is starting...')
 
-        args = AgentOptions.parse(cli_args)
+        Config::UCS.initialize(argv)
 
-      end
-
-      private
-
-      def setup_env(config)
-        norm_env_vars = Hash[Bundler::ORIGINAL_ENV].transform_keys(&:to_sym)
-
-        env.merge(norm_env_vars)
+        engine = AgentEngine.new
+        engine.run
       end
     end
   end
