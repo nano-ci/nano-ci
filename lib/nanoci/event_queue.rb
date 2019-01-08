@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'concurrent'
+require 'concurrent-edge'
 
 module Nanoci
   # EventQueue provides sync access to queue of events for [AgentEngine] to handle

@@ -2,6 +2,7 @@
 
 require 'nanoci/agent_engine'
 require 'nanoci/config/ucs'
+require 'nanoci/log'
 require 'nanoci/mixins/logger'
 
 module Nanoci

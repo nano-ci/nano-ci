@@ -59,7 +59,7 @@ namespace :docker do
     end
   end
 
-  task :'run' => [:'nano-ci-self'] do
+  task :'run' => [:'nano-ci-master'] do
     Dir.chdir 'docker' do
       sh 'docker-compose up'
     end
@@ -91,25 +91,51 @@ namespace :docker do
     cp task.prerequisites.first, task.name
   end
 
-  file 'docker/nano-ci/config.yml' => 'config.yml' do |task|
-    mkdir_p(File.dirname(task.name))
-    cp task.prerequisites.first, task.name
-  end
-
-  task :'nano-ci-self' => [:'docker:nano-ci', 'docker/nano-ci/master.nanoci', 'docker/nano-ci/config.yml'] do
+  task :'nano-ci-master' => [:'docker:nano-ci', 'docker/nano-ci/master.nanoci'] do
     Dir.chdir 'docker/nano-ci' do
-      sh 'docker build --target nano-ci-self -t nano-ci-self .'
+      sh 'docker build --target nano-ci-master -t nano-ci-master .'
     end
   end
 
-  namespace :'nano-ci-self' do
-    CONTAINER_NAME = "nanocidebug"
-    task :run => [:'docker:nano-ci-self'] do
-      sh 'docker run --detach --link mongo nano-ci-self'
+  task :'nano-ci-agent' => [:'docker:nano-ci'] do
+    Dir.chdir 'docker/nano-ci-agent' do
+      sh 'docker build --target nano-ci-agent -t nano-ci-agent .'
+    end
+  end
+
+  NANO_CI_MASTER_CONTAINER = 'nanoci'
+  NANO_CI_MASTER_DEBUG_CONTAINER = 'nanocidebug'
+  NANO_CI_AGENT_CONTAINER = 'nanociagent'
+  NANO_CI_AGENT_DEBUG_CONTAINER = 'nanociagentdebug'
+  NANO_CI_NET = 'nano-ci-net'
+  NANO_CI_DEBUG_NET = 'nano-ci-debug-net'
+
+  namespace :'nano-ci-master' do
+    task :run => [:'docker:nano-ci-master'] do
+      sh "docker run --detach --network #{NANO_CI_NET} --hostname nanoci --name #{NANO_CI_MASTER_CONTAINER} nano-ci-master"
     end
 
-    task :debug => [:'docker:nano-ci-self'] do
-      sh "docker run --detach --link mongo --name #{CONTAINER_NAME} --entrypoint \"rdebug-ide\" --expose 23456 -p 23456:23456 nano-ci-self --host 0.0.0.0 --port 23456 -- /nano-ci/bin/nano-ci --project=/nano-ci-agent/master.nanoci"
+    task :debug => [:'docker:nano-ci-master'] do
+      sh "docker run --detach --network #{NANO_CI_DEBUG_NET} --hostname nanoci --name #{NANO_CI_MASTER_DEBUG_CONTAINER} --entrypoint \"rdebug-ide\" --expose 23456 -p 23456:23456 nano-ci-master --host 0.0.0.0 --port 23456 -- /nano-ci/bin/nano-ci --project=/nano-ci-agent/master.nanoci"
+    end
+
+    task :'debug-logs' do
+      sh "docker logs #{NANO_CI_MASTER_DEBUG_CONTAINER}"
+    end
+
+    task :'debug-clean' => [:'debug-logs'] do
+      sh "docker container rm #{NANO_CI_MASTER_DEBUG_CONTAINER}"
+    end
+  end
+
+  namespace :'nano-ci-agent' do
+    CONTAINER_NAME = NANO_CI_AGENT_CONTAINER
+    task :run => [:'docker:nano-ci-agent', :'docker:nano-ci-master:run'] do
+      sh "docker run --detach --network #{NANO_CI_NET} --name #{NANO_CI_AGENT_CONTAINER} nano-ci-agent"
+    end
+
+    task :debug => [:'docker:nano-ci-agent', :'docker:nano-ci-master:debug'] do
+      sh "docker run --detach --network #{NANO_CI_DEBUG_NET} --name #{NANO_CI_AGENT_DEBUG_CONTAINER} --entrypoint \"rdebug-ide\" --expose 23456 -p 23456:23456 nano-ci-agent --host 0.0.0.0 --port 23456 -- /nano-ci/bin/nano-ci-agent"
     end
 
     task :'debug-logs' do

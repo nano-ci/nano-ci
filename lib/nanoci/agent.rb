@@ -21,7 +21,7 @@ module Nanoci
       @log = Logging.logger[self]
       @tag = tag
 
-      raise 'capabilities should be a Hash' unless pabilities.is_a? Hash
+      raise 'capabilities should be a Hash' unless capabilities.is_a? Hash
       @capabilities = capabilities
       @current_job = nil
     end

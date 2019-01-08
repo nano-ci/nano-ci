@@ -1,0 +1,9 @@
+plugins-path: '/nano-ci/lib/nanoci/plugins'
+build-data-dir: '/nano-ci-agent/workdir/builds'
+agent:
+  tag: 'nano-ci-agent'
+  capabilities:
+    - 'tools.git': '/usr/bin/git'
+    - 'tools.ssh': '/usr/bin/ssh'
+    - 'tools.rspec': '/usr/local/bin/rspec'
+  manager_service_uri: 'nanoci:33765'
