@@ -53,9 +53,27 @@ PROTOBUF_FILES.each do |src|
 end
 
 namespace :docker do
+  NANO_CI_MASTER_CONTAINER = 'nanoci'
+  NANO_CI_MASTER_DEBUG_CONTAINER = 'nanocidebug'
+  NANO_CI_AGENT_CONTAINER = 'nanociagent'
+  NANO_CI_AGENT_DEBUG_CONTAINER = 'nanociagentdebug'
+
+  NANO_CI_NET = 'nano-ci-net'
+  NANO_CI_DEBUG_NET = 'nano-ci-debug-net'
+
+  task :'nano-ci-net' do
+    sh "docker network create #{NANO_CI_NET}"
+  end
+
+  task :'nano-ci-debug-net' do
+    sh "docker network create #{NANO_CI_DEBUG_NET}"
+  end
+
   namespace :mongo do
     task :run do
       sh 'docker run -d -p 27017:27017 --name mongo mongo'
+      sh "docker network connect #{NANO_CI_NET} mongo"
+      sh "docker network connect #{NANO_CI_DEBUG_NET} mongo"
     end
   end
 
@@ -103,12 +121,7 @@ namespace :docker do
     end
   end
 
-  NANO_CI_MASTER_CONTAINER = 'nanoci'
-  NANO_CI_MASTER_DEBUG_CONTAINER = 'nanocidebug'
-  NANO_CI_AGENT_CONTAINER = 'nanociagent'
-  NANO_CI_AGENT_DEBUG_CONTAINER = 'nanociagentdebug'
-  NANO_CI_NET = 'nano-ci-net'
-  NANO_CI_DEBUG_NET = 'nano-ci-debug-net'
+
 
   namespace :'nano-ci-master' do
     task :run => [:'docker:nano-ci-master'] do
@@ -129,21 +142,20 @@ namespace :docker do
   end
 
   namespace :'nano-ci-agent' do
-    CONTAINER_NAME = NANO_CI_AGENT_CONTAINER
-    task :run => [:'docker:nano-ci-agent', :'docker:nano-ci-master:run'] do
+    task :run => [:'docker:nano-ci-agent'] do
       sh "docker run --detach --network #{NANO_CI_NET} --name #{NANO_CI_AGENT_CONTAINER} nano-ci-agent"
     end
 
-    task :debug => [:'docker:nano-ci-agent', :'docker:nano-ci-master:debug'] do
-      sh "docker run --detach --network #{NANO_CI_DEBUG_NET} --name #{NANO_CI_AGENT_DEBUG_CONTAINER} --entrypoint \"rdebug-ide\" --expose 23456 -p 23456:23456 nano-ci-agent --host 0.0.0.0 --port 23456 -- /nano-ci/bin/nano-ci-agent"
+    task :debug => [:'docker:nano-ci-agent'] do
+      sh "docker run --detach --network #{NANO_CI_DEBUG_NET} --name #{NANO_CI_AGENT_DEBUG_CONTAINER} --entrypoint \"rdebug-ide\" --expose 23457 -p 23457:23457 nano-ci-agent --host 0.0.0.0 --port 23457 -- /nano-ci/bin/nano-ci-agent"
     end
 
     task :'debug-logs' do
-      sh "docker logs #{CONTAINER_NAME}"
+      sh "docker logs #{NANO_CI_AGENT_DEBUG_CONTAINER}"
     end
 
     task :'debug-clean' => [:'debug-logs'] do
-      sh "docker container rm #{CONTAINER_NAME}"
+      sh "docker container rm #{NANO_CI_AGENT_DEBUG_CONTAINER}"
     end
   end
 end
