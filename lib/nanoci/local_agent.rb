@@ -3,6 +3,7 @@
 require 'logging'
 
 require 'nanoci/agent'
+require 'nanoci/agent_status'
 require 'nanoci/build'
 require 'nanoci/config/ucs'
 
@@ -22,6 +23,7 @@ module Nanoci
       super(build, job)
 
       begin
+        self.status = AgentStatus::BUSY
         job.state = Build::State::RUNNING
         execute_tasks(job.definition.tasks, job.tag, build)
         job.state = Build::State::COMPLETED
@@ -31,6 +33,7 @@ module Nanoci
         job.state = Build::State::FAILED
       end
       self.current_job = nil
+      self.status = AgentStatus::IDLE
     end
 
     def execute_tasks(tasks, job_tag, build)

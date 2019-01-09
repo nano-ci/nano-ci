@@ -2,6 +2,8 @@
 
 require 'logging'
 
+require 'nanoci/agent_status'
+
 module Nanoci
   # Agent is an instance of nano-ci service that executes commands from
   # a main nano-ci service to run build jobs
@@ -24,6 +26,7 @@ module Nanoci
       raise 'capabilities should be a Hash' unless capabilities.is_a? Hash
       @capabilities = capabilities
       @current_job = nil
+      self.status = AgentStatus::IDLE
     end
 
     def status=(value)

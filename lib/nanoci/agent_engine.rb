@@ -2,6 +2,7 @@
 
 require 'concurrent'
 
+require 'nanoci/agent_status'
 require 'nanoci/config/ucs'
 require 'nanoci/event_queue'
 require 'nanoci/events/report_status_event'
@@ -30,7 +31,7 @@ module Nanoci
       interval = Config::UCS.instance.report_status_interval
 
       # @type [Concurrent::TimerTask]
-      @report_status_timer = Concurrent::TimerTask.new(execution_interval: interval) do
+      @report_status_timer = Concurrent::TimerTask.new(execution_interval: interval, run_now: true) do
         schedule_report_status
       end
     end
@@ -38,6 +39,7 @@ module Nanoci
     # Runs the [AgentEngine]
     def run
       log.info('AgentEngine is running')
+      @report_status_timer.execute
       event_loop
       log.info('AgentEngine is stopped')
     end
@@ -45,6 +47,7 @@ module Nanoci
     # Enqueues a new task to execute
     # @param event [Nanoci::Event]
     def enqueue_task(event)
+      log.debug "enqueueing a new event #{event}"
       @queue.enqueue(event)
     end
 
@@ -56,6 +59,7 @@ module Nanoci
         event_promise = @queue.dequeue
         begin
           event = event_promise.value!
+          log.debug("took an event #{event} from event queue")
         rescue StandardError
           raise 'failed to dequeue event from event queue'
         end
@@ -66,12 +70,15 @@ module Nanoci
 
     # Dispatches event to appropriate handler
     def dispatch(event)
+      log.info("dispatching event #{event}")
       event_class = event.class
       raise "unknown event class #{event_class}" unless @handlers.key?(event_class)
       handler = @handlers.fetch(event_class)
       handler.call(event)
-    rescue StandardError
+      log.info("event #{event} dispatched")
+    rescue StandardError => e
       log.error "failed to dispatch #{event}"
+      log.error e
     end
 
     def schedule_report_status
@@ -80,10 +87,12 @@ module Nanoci
     end
 
     def handle_report_status(_event)
+      log.debug('reporting agent status...')
       tag = @agent.tag
-      status = @agent.status
+      status = AgentStatus.key(@agent.status)
       capabilities = @agent.capabilities.keys
       @service_client.report_agent_status(tag, status, capabilities)
+      log.debug('successfully reported agent status')
     end
   end
 end
