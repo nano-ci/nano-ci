@@ -29,7 +29,7 @@ module Nanoci
       end
 
       def report_status_interval
-        get(AgentConfig::REPORT_STATUS_INTERVAL, 150)
+        get(AgentConfig::REPORT_STATUS_INTERVAL, 60)
       end
 
       def workdir
