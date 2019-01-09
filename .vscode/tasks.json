@@ -4,21 +4,31 @@
     "version": "2.0.0",
 	"tasks": [
 		{
-			"label": "rake: docker:nano-ci-self:debug",
+			"label": "rake: docker:nano-ci-master:debug",
 			"type": "shell",
-			"command": "rake docker:nano-ci-self:debug",
+			"command": "rake docker:nano-ci-master:debug",
 			"group": {
 				"kind": "build",
 				"isDefault": true
 			}
 		},
 		{
-			"label": "rake: docker:nano-ci-self:debug-clean",
+			"label": "rake: docker:nano-ci-master:debug-clean",
 			"type": "shell",
-			"command": "rake docker:nano-ci-self:debug-clean",
-			"group": {
-				"kind": "build"
-			}
-		}
+			"command": "rake docker:nano-ci-master:debug-clean",
+			"group": "build"
+		},
+		{
+			"label": "rake: docker:nano-ci-agent:debug",
+			"type": "shell",
+			"command": "rake docker:nano-ci-agent:debug",
+			"group": "build"
+		},
+		{
+			"label": "rake: docker:nano-ci-agent:debug-clean",
+			"type": "shell",
+			"command": "rake docker:nano-ci-agent:debug-clean",
+			"group": "build"
+		},
 	]
 }
