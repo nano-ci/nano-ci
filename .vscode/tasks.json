@@ -13,6 +13,16 @@
 			}
 		},
 		{
+			"label": "rake: docker:nano-ci-master:debug-logs-follow",
+			"type": "shell",
+			"command": "rake docker:nano-ci-master:debug-logs-follow",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"problemMatcher": []
+		},
+		{
 			"label": "rake: docker:nano-ci-master:debug-clean",
 			"type": "shell",
 			"command": "rake docker:nano-ci-master:debug-clean",
@@ -25,10 +35,17 @@
 			"group": "build"
 		},
 		{
+			"label": "rake: docker:nano-ci-agent:debug-logs-follow",
+			"type": "shell",
+			"command": "rake docker:nano-ci-agent:debug-logs-follow",
+			"group": "build",
+			"problemMatcher": []
+		},
+		{
 			"label": "rake: docker:nano-ci-agent:debug-clean",
 			"type": "shell",
 			"command": "rake docker:nano-ci-agent:debug-clean",
 			"group": "build"
-		},
+		}
 	]
 }

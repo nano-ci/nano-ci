@@ -53,10 +53,10 @@ PROTOBUF_FILES.each do |src|
 end
 
 namespace :docker do
-  NANO_CI_MASTER_CONTAINER = 'nanoci'
-  NANO_CI_MASTER_DEBUG_CONTAINER = 'nanocidebug'
-  NANO_CI_AGENT_CONTAINER = 'nanociagent'
-  NANO_CI_AGENT_DEBUG_CONTAINER = 'nanociagentdebug'
+  NANO_CI_MASTER_CONTAINER = 'nano-ci'
+  NANO_CI_MASTER_DEBUG_CONTAINER = 'nano-ci-debug'
+  NANO_CI_AGENT_CONTAINER = 'nano-ci-agent'
+  NANO_CI_AGENT_DEBUG_CONTAINER = 'nano-ci-agent-debug'
 
   NANO_CI_NET = 'nano-ci-net'
   NANO_CI_DEBUG_NET = 'nano-ci-debug-net'
@@ -125,15 +125,19 @@ namespace :docker do
 
   namespace :'nano-ci-master' do
     task :run => [:'docker:nano-ci-master'] do
-      sh "docker run --detach --network #{NANO_CI_NET} --hostname nanoci --name #{NANO_CI_MASTER_CONTAINER} nano-ci-master"
+      sh "docker run --detach --network #{NANO_CI_NET} --net-alias nanoci --name #{NANO_CI_MASTER_CONTAINER} nano-ci-master"
     end
 
     task :debug => [:'docker:nano-ci-master'] do
-      sh "docker run --detach --network #{NANO_CI_DEBUG_NET} --hostname nanoci --name #{NANO_CI_MASTER_DEBUG_CONTAINER} --entrypoint \"rdebug-ide\" --expose 23456 -p 23456:23456 nano-ci-master --host 0.0.0.0 --port 23456 -- /nano-ci/bin/nano-ci --project=/nano-ci-agent/master.nanoci"
+      sh "docker run --detach --network #{NANO_CI_DEBUG_NET} --net-alias nanoci --name #{NANO_CI_MASTER_DEBUG_CONTAINER} --entrypoint \"rdebug-ide\" --expose 23456 -p 23456:23456 nano-ci-master --host 0.0.0.0 --port 23456 -- /nano-ci/bin/nano-ci --project=/nano-ci-agent/master.nanoci"
     end
 
     task :'debug-logs' do
       sh "docker logs #{NANO_CI_MASTER_DEBUG_CONTAINER}"
+    end
+
+    task :'debug-logs-follow' do
+      sh "docker logs --follow #{NANO_CI_MASTER_DEBUG_CONTAINER}"
     end
 
     task :'debug-clean' => [:'debug-logs'] do
@@ -152,6 +156,10 @@ namespace :docker do
 
     task :'debug-logs' do
       sh "docker logs #{NANO_CI_AGENT_DEBUG_CONTAINER}"
+    end
+
+    task :'debug-logs-follow' do
+      sh "docker logs --follow #{NANO_CI_AGENT_DEBUG_CONTAINER}"
     end
 
     task :'debug-clean' => [:'debug-logs'] do
