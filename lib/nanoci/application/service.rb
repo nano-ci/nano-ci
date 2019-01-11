@@ -12,6 +12,7 @@ require 'nanoci/log'
 require 'nanoci/mixins/logger'
 require 'nanoci/plugin_loader'
 require 'nanoci/project'
+require 'nanoci/remote/agent_manager_service_host'
 require 'nanoci/state_manager'
 require 'nanoci/utils/hash_utils'
 
@@ -46,6 +47,7 @@ module Nanoci
         load_plugins(File.expand_path(ucs.plugins_path))
         log.debug 'running agents...'
         @agent_manager = AgentManager.new
+        @agent_manager_service = Remote::AgentManagerServiceHost.new(@agent_manager)
         @state_manager = StateManager.new(ucs.mongo_connection_string)
       end
 
@@ -53,6 +55,7 @@ module Nanoci
       # @param ucs [Nanoci::Config::UCS]
       # @return [void]
       def run(project)
+        @agent_manager_service.run
         build_scheduler = run_build_scheduler(
           Config::UCS.instance.job_scheduler_interval,
           agent_manager,

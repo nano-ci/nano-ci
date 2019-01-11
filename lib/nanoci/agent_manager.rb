@@ -7,11 +7,12 @@ require 'set'
 module Nanoci
   # Agent manager controlls access to build agents
   class AgentManager
+    include Logging.globally
+
     attr_reader :agents
 
     # Initializes new instance of [AgentManager]
     def initialize
-      @log = Logging.logger[self]
       @agents = []
       @agent_status_check_interval = 5 * 60
       @agent_status_timeout = 5 * 60
@@ -30,7 +31,7 @@ module Nanoci
 
     def find_agent(required_agent_capabilities)
       @agents.find do |a|
-        @log.debug("#{a.name} has capabilities #{a.capabilities}")
+        logger.debug("#{a.name} has capabilities #{a.capabilities}")
         a.capabilities?(required_agent_capabilities) && a.current_job.nil?
       end
     end
@@ -41,6 +42,7 @@ module Nanoci
     def add_agent(agent)
       raise "agent with tag #{agent.tag} exists in pool" unless get_agent(agent.tag).nil?
       @agents.push(agent)
+      logger.info("added a new agent #{agent.tag} to agents pool.")
       return
     end
 
@@ -50,6 +52,8 @@ module Nanoci
     def remove_agent(agent)
       raise "agent with tag #{agent.tag} does not exist in pool" if get_agent(agent.tag).nil?
       @agents.delete(agent)
+      logger.info("remoted the agent #{agent.tag} from agents pool")
+      return
     end
 
     private

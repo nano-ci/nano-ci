@@ -28,6 +28,10 @@ module Nanoci
         get(ServiceConfig::REPO_CACHE)
       end
 
+      def agent_service_host_address
+        get(ServiceConfig::AGENT_SERVICE_HOST_ADDRESS)
+      end
+
       # job-scheduler-interval config name
       JOB_SCHEDULER_INTERVAL = :'job-scheduler-interval'
 
@@ -39,6 +43,9 @@ module Nanoci
 
       # repo-cache config name
       REPO_CACHE = :'repo-cache'
+
+      # agent-service-host-address config name
+      AGENT_SERVICE_HOST_ADDRESS = :'agent-service-host-address'
     end
   end
 end

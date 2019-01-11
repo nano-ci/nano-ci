@@ -5,6 +5,8 @@
 # so grpc generated files are able to find each other
 $LOAD_PATH.unshift __dir__
 
+require 'logging'
+
 require 'nanoci/config/ucs'
 require 'nanoci/remote/agent_manager_services_pb'
 require 'nanoci/remote/report_agent_status_message_pb.rb'
@@ -13,8 +15,11 @@ module Nanoci
   module Remote
     # Agent manager service client
     class AgentManagerServiceClient
+      include Logging.globally
+
       def initialize
         @service_uri = Config::UCS.instance.agent_manager_service_uri
+        logger.info("reporting to agent manager service at #{@service_uri}")
         @client = AgentManager::Stub.new(@service_uri, :this_channel_is_insecure)
       end
 
