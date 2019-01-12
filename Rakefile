@@ -43,7 +43,7 @@ REMOTE_GRPC_PATH = 'lib/nanoci/remote'
 directory REMOTE_GRPC_PATH
 
 PROTOBUF_FILES.each do |src|
-  src_file = File.basename(src, '.rb')
+  src_file = File.basename(src, '.proto')
   dst = File.join(REMOTE_GRPC_PATH, "#{src_file}_pb.rb")
   file dst => [REMOTE_GRPC_PATH, src] do
     sh "#{GRPC} -I ./protos --ruby_out=#{REMOTE_GRPC_PATH} --grpc_out=#{REMOTE_GRPC_PATH} #{src}"
