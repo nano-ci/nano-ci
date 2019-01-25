@@ -9,6 +9,7 @@ module Nanoci
 
     define :UNKNOWN, 0
     define :IDLE, 1
-    define :BUSY, 2
+    define :PENDING, 2
+    define :BUSY, 3
   end
 end

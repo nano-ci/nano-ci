@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
+require 'nanoci/agent_status'
 require 'nanoci/mixins/logger'
 require 'nanoci/remote_agent'
 require 'nanoci/remote/agent_manager_services_pb'
+require 'nanoci/remote/get_next_job_message_pb'
 require 'nanoci/remote/report_agent_status_message_pb'
 
 module Nanoci
@@ -22,14 +24,43 @@ module Nanoci
       # Report remote agent status and capabilities
       # @param report_agent_status_request [ReportAgentStatusRequest]
       # @param _call [Object]
+      # @return [Nanoci::Remote::ReportAgentStatusResponse]
       def report_agent_status(report_agent_status_request, _call)
         tag = report_agent_status_request.tag.to_sym
         status = report_agent_status_request.status
         capabilities = report_agent_status_request.capabilities.map { |x| [x.to_sym, true] }.to_h
-        agent = get_agent(tag)
-        agent.status = status
+        agent = get_agent(tag) || add_agent(tag, capabilities)
+        agent.status = Nanoci::AgentStatus.value(status)
         agent.capabilities = capabilities
         ReportAgentStatusResponse.new
+      end
+
+      # Process a request from remote agent for a next job
+      # @param request [Nanoci::Remote::GetNextJobRequest]
+      # @param _call [Object]
+      # @return [Nanoci::Remote::GetNextJobResponse]
+      def get_next_job(request, _call)
+        tag = request.tag
+        agent = get_agent(tag)
+        raise "agent #{tag} not found" if agent.nil?
+        (_fulfilled, job, reason) = agent.pending_job.result(60)
+        raise reason unless reason.nil
+        if job.nil?
+          response = GetNextJobResponse.new(
+            has_job: false
+          )
+        else
+          build = agent.build
+          response = GetNextJobResponse.new(
+            has_job: true,
+            build_tag: build.tag,
+            project_tag: build.project.tag,
+            stage_tag: build.current_stage.tag,
+            job_tag: job.tag,
+            project_definition: build.project.definition.to_yaml
+          )
+        end
+        response
       end
 
       private
@@ -39,13 +70,12 @@ module Nanoci
       # @param tag [Symbol]
       # @return [Nanoci::Agent]
       def get_agent(tag)
-        agent = agent_manager.get_agent(tag)
-        if agent.nil?
-          agent = RemoteAgent.new(tag, capabilities)
-          agent_manager.add_agent(agent)
-        end
+        agent_manager.get_agent(tag)
+      end
 
-        agent
+      def add_agent(tag, capabilities)
+        agent = RemoteAgent.new(tag, capabilities)
+        agent_manager.add_agent(agent)
       end
     end
   end

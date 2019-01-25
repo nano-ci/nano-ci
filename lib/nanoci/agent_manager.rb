@@ -4,6 +4,8 @@ require 'concurrent'
 require 'logging'
 require 'set'
 
+require 'nanoci/agent_status'
+
 module Nanoci
   # Agent manager controlls access to build agents
   class AgentManager
@@ -31,8 +33,8 @@ module Nanoci
 
     def find_agent(required_agent_capabilities)
       @agents.find do |a|
-        logger.debug("#{a.name} has capabilities #{a.capabilities}")
-        a.capabilities?(required_agent_capabilities) && a.current_job.nil?
+        logger.debug("#{a.tag} has capabilities #{a.capabilities}")
+        a.capabilities?(required_agent_capabilities) && a.status == AgentStatus::IDLE
       end
     end
 
@@ -43,7 +45,7 @@ module Nanoci
       raise "agent with tag #{agent.tag} exists in pool" unless get_agent(agent.tag).nil?
       @agents.push(agent)
       logger.info("added a new agent #{agent.tag} to agents pool.")
-      return
+      agent
     end
 
     # Removes an agent from the agents pool

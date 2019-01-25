@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'concurrent'
 require 'logging'
 
 require 'nanoci/agent'
@@ -22,18 +23,26 @@ module Nanoci
     def run_job(build, job)
       super(build, job)
 
-      begin
+      future = Concurrent::Promises.future do
         self.status = AgentStatus::BUSY
         job.state = Build::State::RUNNING
         execute_tasks(job.definition.tasks, job.tag, build)
         job.state = Build::State::COMPLETED
-      rescue StandardError => e
+      end
+
+      future = future.then begin
+        @current_job = nil
+        @build = nil
+        self.status = AgentStatus::IDLE
+      end
+
+      future = future.rescue do
         @log.error "failed to execute job #{job.tag} of build #{build.tag}"
         @log.error e
         job.state = Build::State::FAILED
       end
-      self.current_job = nil
-      self.status = AgentStatus::IDLE
+
+      future
     end
 
     def execute_tasks(tasks, job_tag, build)

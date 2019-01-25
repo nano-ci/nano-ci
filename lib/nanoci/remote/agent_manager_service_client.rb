@@ -7,9 +7,12 @@ $LOAD_PATH.unshift __dir__
 
 require 'logging'
 
+require 'nanoci/build'
 require 'nanoci/config/ucs'
+require 'nanoci/definition/project_definition'
 require 'nanoci/remote/agent_manager_services_pb'
-require 'nanoci/remote/report_agent_status_message_pb.rb'
+require 'nanoci/remote/get_next_job_message_pb'
+require 'nanoci/remote/report_agent_status_message_pb'
 
 module Nanoci
   module Remote
@@ -21,6 +24,30 @@ module Nanoci
         @service_uri = Config::UCS.instance.agent_manager_service_uri
         logger.info("reporting to agent manager service at #{@service_uri}")
         @client = AgentManager::Stub.new(@service_uri, :this_channel_is_insecure)
+      end
+
+      # Requests next job for an agent
+      # @param tag [Symbol] agent tag
+      # @return [Nanoci::BuildJob]
+      def get_next_job(tag)
+        request = GetNextJobRequest.new(
+          tag: tag.to_s
+        )
+        response = @client.get_next_job(request)
+        build_job = nil
+
+        if response.has_job
+          project_src = YAML.safe_load(response.project_definition).symbolize_keys
+          project_definition = Definition::ProjectDefinition.new(project_src)
+          project = Project.new(project_definition)
+          build = Build.new(project, nil, response.variables)
+          build.commits = response.commits
+          build_job = build
+                      .stages.select { |s| s.tag == response.stage_tag }.first
+                      .jobs.select { |j| j.tag == response.job_tag }.first
+        end
+
+        build_job
       end
 
       # Reports agent status to nano-ci service

@@ -66,8 +66,18 @@ module Nanoci
       @log.info "running BuildScheduler"
 
       @timer = Concurrent::TimerTask.new(execution_interval: interval) do
-        schedule_builds
-        finalize_builds
+        begin
+          schedule_builds
+        rescue StandardError => e
+          @log.fatal 'failed to schedule builds'
+          @log.fatal e
+        end
+        begin
+          finalize_builds
+        rescue StandardError => e
+          @log.fatal 'failed to finalize builds'
+          @log.fatal e
+        end
       end
       @timer.execute
     end
@@ -86,24 +96,19 @@ module Nanoci
 
     def schedule_builds
       @log.debug 'scheduling the builds...'
-      queued_builds.each do |b|
-        schedule_build(b)
-      end
-      @log.debug 'processed all builds in the queue'
-    end
-
-    def schedule_build(build)
-      queued_jobs(build).each_entry do |j|
+      queued_jobs.each_entry do |j|
         begin
-          schedule_job(build, j)
+          schedule_job(j)
         rescue StandardError => e
           @log.error("failed to schedule job #{j.tag}")
           @log.error(e)
         end
       end
+      @log.debug 'processed all builds in the queue'
     end
 
-    def schedule_job(build, job)
+    def schedule_job(job)
+      build = job.build
       @log.debug \
         "looking for a capable agent to run the job #{build.tag}-#{job.tag}"
       @log.debug "#{job.tag} requires capabilities: #{job.required_agent_capabilities}"
@@ -111,6 +116,8 @@ module Nanoci
       if agent.nil?
         @log.info "no agents available to run the job #{build.tag}-#{job.tag}"
       else
+        job.state = Build::State::PENDING
+        @state_manager.put_state(StateManager::Types::BUILD, build.memento)
         agent.run_job(build, job)
         @state_manager.put_state(StateManager::Types::BUILD, build.memento)
       end
@@ -124,8 +131,12 @@ module Nanoci
       @builds.find_all { |b| b.state == Build::State::QUEUED }
     end
 
-    def queued_jobs(build)
-      build.current_stage.jobs.find_all { |j| j.state == Build::State::QUEUED }
+
+
+    # Returns an [Enumerator] to enumerator queued jobs
+    # @return [Enumerator]
+    def queued_jobs
+      queued_builds.flat_map(&:stages).flat_map(&:jobs).select { |j| j.state == Build::State::QUEUED }
     end
   end
 end
