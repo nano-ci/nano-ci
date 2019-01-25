@@ -9,46 +9,56 @@ module Nanoci
 
       # Returns the tag of the repo
       # @return [Symbol] the tag of the repo
-      attr_reader :tag
+      def tag
+        @hash.fetch(:tag).to_sym
+      end
 
       # Returns the type of the repo
       # @return [Symbol] the type of the repo
-      attr_reader :type
+      def type
+        @hash.fetch(:type).to_sym
+      end
 
       # Returns flag saying if this is main repo for a project
       # @return [Boolean] flag saying if this is main repo for a project
-      attr_reader :main
+      def main
+        @hash.fetch(:main, false)
+      end
 
       # Returns string with source location of the repo
       # @return [String]
-      attr_reader :src
+      def src
+        @hash.fetch(:src)
+      end
 
       # Returns string with name of the branch, tag, commit hash, etc - anything points to a commit
       # @return [String]
-      attr_reader :branch
+      def branch
+        @hash.fetch(:branch, nil)
+      end
 
       # Returns collection of triggers for the repo
       # @return [Array<TriggerDefinition>] collection of triggers for the repo
-      attr_reader :triggers
+      def triggers
+        read_triggers(@hash.fetch(:triggers, []))
+      end
 
       # Returns authorization params for the repo
       # @return [Hash]
-      attr_reader :auth
+      def auth
+        @hash.fetch(:auth, nil)
+      end
 
       # Returns type-specific paras of the repo
       # @return [Hash]
-      attr_reader :params
+      def params
+        @hash
+      end
 
       # Initializes new instance of RepoDefinition
       # @param hash [Hash]
       def initialize(hash)
-        @tag = hash.fetch(:tag).to_sym
-        @type = hash.fetch(:type).to_sym
-        @main = hash.fetch(:main, false)
-        @src = hash.fetch(:src)
-        @auth = hash.fetch(:auth, nil)
-        @params = hash
-        @triggers = read_triggers(hash.fetch(:triggers, []))
+        @hash = hash
       end
 
       # Reads trigger definitions from src

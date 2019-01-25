@@ -7,23 +7,16 @@ module Nanoci
   class Tasks
     # [TaskShell] definition
     class TaskShellDefinition < Nanoci::Definition::TaskDefinition
-
-      # Prefix added to variable tag
-      VARIABLE_PREFIX = 'task_shell'
-
       # Returns the command to execute
       # @return [String]
-      attr_reader :cmd
+      def cmd
+        @hash.fetch(:cmd, '')
+      end
 
       # Returns a set of environment variables
       # @return [Hash<Symbol, VariableDefinition>]
-      attr_reader :env
-
-      def initialize(hash)
-        super(hash)
-
-        @cmd = hash.fetch(:cmd, '')
-        @env = hash.fetch(:env) { |src| (src || []).to_h.transform_keys(&:to_sym) }
+      def env
+        hash.fetch(:env) { |src| (src || []).to_h.transform_keys(&:to_sym) }
       end
     end
   end
