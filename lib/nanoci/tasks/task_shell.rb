@@ -12,10 +12,9 @@ module Nanoci
 
       # Initializes new instance of [TaskShell]
       # @param definition [TaskDefinition]
-      # @param project [Project]
-      def initialize(definition, project)
+      def initialize(definition)
         definition = TaskShellDefinition.new(definition.params)
-        super(definition, project)
+        super
       end
 
       # Executes [TaskShell]

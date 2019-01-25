@@ -19,6 +19,8 @@ module Nanoci
     attr_reader :variables
     attr_reader :reporters
 
+    # Project definition
+    # @return [Nanoci::Definition::ProjectDefinition]
     attr_reader :definition
 
     def name
@@ -103,7 +105,7 @@ module Nanoci
     # @param repo_definitions [Array<RepoDefinition>]
     # @return [Array<Repo>]
     def read_stages(stage_definitions)
-      stage_definitions.map { |d| Stage.new(d, self) }
+      stage_definitions.map { |d| Stage.new(d) }
     end
 
     # Reads repos from array of repo definitions

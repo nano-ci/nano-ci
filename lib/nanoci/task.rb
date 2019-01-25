@@ -32,24 +32,18 @@ module Nanoci
       definition.type
     end
 
-    # Working directory for the task. Relative to project working directory
+    # Working directory for the task. Relative to build working directory
     # @return [String]
     def workdir
       definition.workdir
     end
 
-    # Project the task is part of
-    # @return [Project]
-    attr_reader :project
-
     # Initializes new instance of [Task]
-    # @param definition [TaskDefinition]
-    def initialize(definition, project)
+    def initialize(definition)
       @definition = definition
-      @project = project
     end
 
-    def required_agent_capabilities
+    def required_agent_capabilities(_build)
       Set[]
     end
 

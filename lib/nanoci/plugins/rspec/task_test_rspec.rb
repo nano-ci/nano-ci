@@ -43,14 +43,14 @@ module Nanoci
           @definition.result_file
         end
 
-        def initialize(definition, project)
+        def initialize(definition)
           @log = Logging.logger[self]
           definition = Nanoci::Plugins::RSpec::TaskTestRSpecDefinition.new(definition.params)
-          super(definition, project)
+          super(definition)
         end
 
-        def required_agent_capabilities
-          requirements = super
+        def required_agent_capabilities(build)
+          requirements = super(build)
           requirements << RSPEC_CAP if action == 'run_tool'
           requirements
         end
