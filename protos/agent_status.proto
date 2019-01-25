@@ -5,5 +5,6 @@ package nanoci.remote;
 enum AgentStatus {
 	UNKNOWN = 0;
 	IDLE = 1;
-	BUSY = 2;
+	PENDING = 2;
+	BUSY = 3;
 }

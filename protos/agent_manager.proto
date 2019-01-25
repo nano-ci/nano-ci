@@ -2,8 +2,10 @@ syntax = "proto3";
 
 package nanoci.remote;
 
+import "get_next_job_message.proto";
 import "report_agent_status_message.proto";
 
 service AgentManager {
+	rpc GetNextJob(GetNextJobRequest) returns (GetNextJobResponse);
 	rpc ReportAgentStatus(ReportAgentStatusRequest) returns (ReportAgentStatusResponse);
 }

@@ -15,6 +15,7 @@ module Nanoci
         self.unmarshal_class_method = :decode
         self.service_name = 'nanoci.remote.AgentManager'
 
+        rpc :GetNextJob, GetNextJobRequest, GetNextJobResponse
         rpc :ReportAgentStatus, ReportAgentStatusRequest, ReportAgentStatusResponse
       end
 
