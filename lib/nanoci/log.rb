@@ -12,6 +12,7 @@ Logging.appenders.stdout(
 )
 
 root = Logging.logger.root
+root.level = :info
 root.add_appenders(
   Logging.appenders.stdout
 )
