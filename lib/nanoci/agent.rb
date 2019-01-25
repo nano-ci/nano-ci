@@ -14,9 +14,13 @@ module Nanoci
     # @return [Hash<Symbol, String>]
     attr_reader :capabilities
 
+    # Build the agent currently working on
+    # @return [Nanoci::Build]
+    attr_reader :build
+
     attr_reader :status
     attr_reader :status_timestamp
-    attr_accessor :current_job
+    attr_reader :current_job
     attr_accessor :workdir
 
     def initialize(tag, capabilities)
@@ -48,9 +52,10 @@ module Nanoci
       Set.new(@capabilities.keys.to_set).superset? required_capabilities
     end
 
-    def run_job(_build, job)
+    def run_job(build, job)
       @log.info "running job #{job.tag} on #{tag}"
-      self.current_job = job
+      @current_job = job
+      @build = build
     end
   end
 end
