@@ -18,14 +18,14 @@ module Nanoci
 
       define :UNKNOWN, 0
       define :QUEUED, 1
-      define :RUNNING, 2
-      define :ABORTED, 3
-      define :FAILED, 4
-      define :COMPLETED, 5
+      define :PENDING, 2
+      define :RUNNING, 3
+      define :ABORTED, 4
+      define :FAILED, 5
+      define :COMPLETED, 6
     end
 
     class << self
-
       def log
         Logging.logger[self]
       end
@@ -68,6 +68,8 @@ module Nanoci
       end
     end
 
+    # Build project
+    # @return [Nanoci::Project]
     attr_accessor :project
     attr_accessor :trigger
     attr_accessor :start_time
@@ -79,6 +81,17 @@ module Nanoci
     # @return [Hash<String, Nanoci::Variable>]
     attr_accessor :variables
     attr_reader   :output
+
+    def initialize(project, trigger, variables)
+      @project = project
+      @trigger = trigger
+      @variables = variables
+      @start_time = Time.now
+      self.number = number + 1
+      setup_stages(@project)
+      build_data_dir = File.join(Config::UCS.instance.build_data_dir, tag)
+      setup_output(build_data_dir, tag)
+    end
 
     def tag
       "#{@project.tag}-#{number}"
@@ -92,13 +105,11 @@ module Nanoci
       variables['buildNumber'] || 0
     end
 
-    private def number=(number)
-      variables['buildNumber'] = number
-    end
-
     def commits
       @commits ||= Hash[@project.repos.map { |t, r| [t, r.current_commit] }]
     end
+
+    attr_writer :commits
 
     def state
       current_stage&.state || State::UNKNOWN
@@ -116,7 +127,7 @@ module Nanoci
         project: project.tag,
         start_time: start_time,
         end_time: end_time,
-        state: State.to_sym(state),
+        state: State.key(state),
         stages: Hash[stages.map { |s| [s.tag, s.memento] }],
         current_stage: current_stage.tag,
         tests: tests.map(&:memento),
@@ -127,19 +138,12 @@ module Nanoci
 
     private
 
-    def initialize(project, trigger, variables)
-      @project = project
-      @trigger = trigger
-      @variables = variables
-      @start_time = Time.now
-      self.number = number + 1
-      setup_stages(@project)
-      build_data_dir = File.join(Config::UCS.instance.build_data_dir, tag)
-      setup_output(build_data_dir, tag)
+    def number=(number)
+      variables['buildNumber'] = number
     end
 
     def setup_stages(project)
-      @stages = project.stages.map { |x| BuildStage.new(x) }
+      @stages = project.stages.map { |x| BuildStage.new(self, x) }
       @current_stage = @stages.select { |x| x.jobs.any? }.first
     end
 
