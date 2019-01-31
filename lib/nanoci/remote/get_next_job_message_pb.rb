@@ -14,8 +14,8 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     optional :stage_tag, :string, 4
     optional :job_tag, :string, 5
     optional :project_definition, :string, 6
-    optional :variables, :string, 7
-    optional :commits, :string, 8
+    map :variables, :string, :string, 7
+    map :commits, :string, :string, 8
   end
 end
 

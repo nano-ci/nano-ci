@@ -10,6 +10,7 @@ require 'logging'
 require 'nanoci/build'
 require 'nanoci/config/ucs'
 require 'nanoci/definition/project_definition'
+require 'nanoci/project'
 require 'nanoci/remote/agent_manager_services_pb'
 require 'nanoci/remote/get_next_job_message_pb'
 require 'nanoci/remote/report_agent_status_message_pb'
@@ -37,14 +38,19 @@ module Nanoci
         build_job = nil
 
         if response.has_job
-          project_src = YAML.safe_load(response.project_definition).symbolize_keys
+          project_src = YAML.safe_load(response.project_definition, [Symbol])
+                            .symbolize_keys
           project_definition = Definition::ProjectDefinition.new(project_src)
           project = Project.new(project_definition)
-          build = Build.new(project, nil, response.variables)
-          build.commits = response.commits
+          variables = response.variables.to_hash.symbolize_keys
+          commits = response.commits.to_hash.symbolize_keys
+          build = Build.new(project, nil, variables)
+          build.commits = commits
+          stage_tag = response.stage_tag.to_sym
+          job_tag = response.job_tag.to_sym
           build_job = build
-                      .stages.select { |s| s.tag == response.stage_tag }.first
-                      .jobs.select { |j| j.tag == response.job_tag }.first
+                      .stages.select { |s| s.tag == stage_tag }.first
+                      .jobs.select { |j| j.tag == job_tag }.first
         end
 
         build_job

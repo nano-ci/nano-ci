@@ -40,11 +40,11 @@ module Nanoci
       # @param _call [Object]
       # @return [Nanoci::Remote::GetNextJobResponse]
       def get_next_job(request, _call)
-        tag = request.tag
+        tag = request.tag.to_sym
         agent = get_agent(tag)
         raise "agent #{tag} not found" if agent.nil?
         (_fulfilled, job, reason) = agent.pending_job.result(60)
-        raise reason unless reason.nil
+        raise reason unless reason.nil?
         if job.nil?
           response = GetNextJobResponse.new(
             has_job: false
@@ -57,7 +57,9 @@ module Nanoci
             project_tag: build.project.tag,
             stage_tag: build.current_stage.tag,
             job_tag: job.tag,
-            project_definition: build.project.definition.to_yaml
+            project_definition: build.project.definition.to_yaml,
+            variables: build.variables.map { |k, v| [k.to_s, v.to_s]}.to_h,
+            commits: build.commits.map { |k, v| [k.to_s, v.to_s]}.to_h
           )
         end
         response

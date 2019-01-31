@@ -13,6 +13,6 @@ message GetNextJobResponse {
 	string stage_tag = 4;
 	string job_tag = 5;
 	string project_definition = 6;
-	string variables = 7;
-	string commits = 8;
+	map<string, string> variables = 7;
+	map<string, string> commits = 8;
 }
