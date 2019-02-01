@@ -22,9 +22,6 @@ module Nanoci
 
       @agent = LocalAgent.new
 
-      # @type
-
-
       # @type [EventQueue]
       @queue = EventQueue.new
       interval = Config::UCS.instance.report_status_interval
@@ -93,6 +90,11 @@ module Nanoci
       enqueue_task(event)
     end
 
+    def schedule_get_next_job
+      event = Events::GetNextJobEvent.new
+      enqueue_task(event)
+    end
+
     def handle_report_status(_event)
       logger.debug('reporting agent status...')
       tag = @agent.tag
@@ -100,12 +102,14 @@ module Nanoci
       capabilities = @agent.capabilities.keys
       @service_client.report_agent_status(tag, status, capabilities)
       logger.debug('successfully reported agent status')
+
+      schedule_get_next_job if @agent.status == AgentStatus::IDLE
     end
 
     def handle_get_next_job(_event)
       logger.debug('requesting next job for the agent...')
       build_job = @service_client.get_next_job(@agent.tag)
-      @agent.run_job(build_job)
+      @agent.run_job(build_job.build, build_job) unless build_job.nil?
       logger.debug('successfully requested next job for the agent')
     end
   end
