@@ -75,7 +75,7 @@ module Nanoci
             '--out' => output
           }
           cmd = opts.map { |k, v| (k + ' ' + v).strip }.join(' ')
-          agent_capabilities = Config::UCS.capabilities
+          agent_capabilities = Config::UCS.instance.agent_capabilities
           rspec(agent_capabilities[RSPEC_CAP], cmd, chdir: workdir, stdout: build.output, stderr: build.output)
           results = read_results(output)
           handle_results(results, build)
