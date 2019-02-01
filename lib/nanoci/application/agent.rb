@@ -4,6 +4,7 @@ require 'nanoci/agent_engine'
 require 'nanoci/config/ucs'
 require 'nanoci/log'
 require 'nanoci/mixins/logger'
+require 'nanoci/plugin_loader'
 
 module Nanoci
   class Application
@@ -14,10 +15,16 @@ module Nanoci
       def main(argv)
         log.info('nano-ci agent is starting...')
 
-        Config::UCS.initialize(argv)
+        ucs = Config::UCS.initialize(argv)
+        load_plugins(File.expand_path(ucs.plugins_path))
 
         engine = AgentEngine.new
         engine.run
+      end
+
+      def load_plugins(plugins_path)
+        log.debug "loading plugins from #{plugins_path}..."
+        PluginLoader.load(plugins_path)
       end
     end
   end
