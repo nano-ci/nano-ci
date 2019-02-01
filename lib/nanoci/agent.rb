@@ -8,7 +8,7 @@ module Nanoci
   # Agent is an instance of nano-ci service that executes commands from
   # a main nano-ci service to run build jobs
   class Agent
-    attr_accessor :tag
+    attr_reader :tag
 
     # Agent capabilities
     # @return [Hash<Symbol, String>]
