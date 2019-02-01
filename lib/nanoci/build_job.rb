@@ -1,11 +1,15 @@
 # frozen_string_literal: true
 
+require 'logging'
+
 require 'nanoci/build'
 
 module Nanoci
   ##
   # BuildJob is the class to track execution of a Job on agent
   class BuildJob
+    include Logging.globally
+
     # A build the job belongs to
     # @return [Nanoci::Build]
     attr_reader :build
@@ -13,7 +17,13 @@ module Nanoci
     # A job that definex this build
     # @return [Nanoci::Job]
     attr_reader :definition
-    attr_accessor :state
+
+    attr_reader :state
+
+    def state=(value)
+      logger.debug("build job #{build.tag}.#{definition.tag} state changed from #{Build::State.key(@state)} to #{Build::State.key(value)}")
+      @state = value
+    end
 
     def tag
       definition.tag
