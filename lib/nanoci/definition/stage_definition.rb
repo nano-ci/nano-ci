@@ -8,7 +8,7 @@ module Nanoci
       # Returns stage tag
       # @return [Symbol]
       def tag
-        @hash.fetch(:tag)
+        @hash.fetch(:tag).to_sym
       end
 
       # Returns array of jobs in the stage
