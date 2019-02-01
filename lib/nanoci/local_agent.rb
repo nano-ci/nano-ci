@@ -12,12 +12,13 @@ module Nanoci
   ##
   # Local agent is the agent that executes jobs in the main nano-ci process
   class LocalAgent < Agent
-    def initialize
-      tag = Config::UCS.instance.agent_tag
-      capabilities = Config::UCS.instance.agent_capabilities
-      super(tag, capabilities)
+    include Logging.globally
 
-      @log = Logging.logger[self]
+    def initialize
+      @tag = Config::UCS.instance.agent_tag
+      @capabilities = Config::UCS.instance.agent_capabilities
+      @workdir = Config::UCS.instance.workdir
+      super(tag, capabilities)
     end
 
     def run_job(build, job)
@@ -30,16 +31,16 @@ module Nanoci
         job.state = Build::State::COMPLETED
       end
 
-      future = future.then begin
+      future = future.rescue do |reason|
+        logger.error "failed to execute job #{job.tag} of build #{build.tag}"
+        logger.error reason
+        job.state = Build::State::FAILED
+      end
+
+      future = future.then do
         @current_job = nil
         @build = nil
         self.status = AgentStatus::IDLE
-      end
-
-      future = future.rescue do
-        @log.error "failed to execute job #{job.tag} of build #{build.tag}"
-        @log.error e
-        job.state = Build::State::FAILED
       end
 
       future
@@ -50,15 +51,15 @@ module Nanoci
     end
 
     def execute_task(build, job_tag, task)
-      @log.debug "executing task #{task.type} of #{job_tag}"
+      logger.debug "executing task #{task.type} of #{job_tag}"
 
       build_work_dir = File.join(@workdir, build.tag)
 
       task.execute(build, build_work_dir)
-      @log.debug "task #{task.type} of #{job_tag} is done"
+      logger.debug "task #{task.type} of #{job_tag} is done"
     rescue StandardError => e
-      @log.error "failed to execute task #{task} from job #{job_tag} of build #{build.tag}"
-      @log.error(e)
+      logger.error "failed to execute task #{task} from job #{job_tag} of build #{build.tag}"
+      logger.error(e)
       raise e
     end
   end
