@@ -5,6 +5,7 @@ require 'nanoci/mixins/provides'
 module Nanoci
   # Base class for nano-ci build task
   class Task
+    include Logging.globally
     extend Mixins::Provides
 
     class << self
@@ -48,7 +49,8 @@ module Nanoci
     end
 
     def execute(build, workdir)
-      task_workdir = File.join(workdir, build.tag, workdir)
+      task_workdir = File.join(workdir, definition.workdir)
+      logger.info "executing task #{type} in #{task_workdir} with env\n #{Hash[ENV].to_s}"
       FileUtils.mkdir_p(task_workdir) unless Dir.exist? task_workdir
       execute_imp(build, workdir)
     end
