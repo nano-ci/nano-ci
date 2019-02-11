@@ -12,7 +12,7 @@ RSpec.describe Nanoci::Agent do
     tag = :test
     caps = {}
     agent = Nanoci::Agent.new(tag, caps)
-    expect(agent.name).to eq('test')
+    expect(agent.tag).to eq(:test)
   end
 
   it 'reads capabilities from config' do
@@ -25,11 +25,12 @@ RSpec.describe Nanoci::Agent do
   it 'sets current job when it runs a job' do
     tag = :test
     caps = {}
+    build = double('build')
     agent = Nanoci::Agent.new(tag, caps)
     job_definition = Nanoci::Definition::JobDefinition.new(
       tag: 'test'
     )
-    job = Nanoci::BuildJob.new(Nanoci::Job.new(job_definition, nil))
+    job = Nanoci::BuildJob.new(build, Nanoci::Job.new(job_definition))
     agent.run_job(nil, job)
     expect(agent.current_job).not_to be_nil
   end
@@ -53,5 +54,15 @@ RSpec.describe Nanoci::Agent do
     caps = { 'test.cap' => 'test.cap.value' }
     agent = Nanoci::Agent.new(tag, caps)
     expect(agent.capability('test.cap')).to eq 'test.cap.value'
+  end
+
+  describe '#status=' do
+    it 'call sets #status_timestamp to Time.now.utc' do
+      agent = Nanoci::Agent.new(:test, test_cap: true)
+      original_status_timestamp = agent.status_timestamp
+      agent.status = Nanoci::AgentStatus::PENDING
+      expect(agent.status_timestamp).not_to eq original_status_timestamp
+      expect(agent.status_timestamp).to be_within(0.1).of(Time.now.utc)
+    end
   end
 end

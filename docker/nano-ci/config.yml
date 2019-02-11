@@ -8,3 +8,4 @@ agent:
     - 'tools.rspec': '/usr/local/bin/rspec'
 agent-service-host-address: '0.0.0.0:33765'
 mongo-connection-string: mongodb://mongo:27017/nanoci
+pending-job-timeout: 60

@@ -241,4 +241,52 @@ RSpec.describe Nanoci::BuildScheduler do
 
     expect(build_scheduler.builds.length).to eq 1
   end
+
+  it 'cancels execution of pending job if agent did not start on time' do
+    state_manager = double('state_manager')
+    allow(state_manager).to receive(:put_state)
+
+    project = double('project')
+    allow(project).to receive(:tag).and_return 'project-abc'
+    allow(project).to receive(:variables).and_return({})
+    queued_job = double('queued_job')
+    allow(queued_job).to receive(:required_agent_capabilities)
+    allow(queued_job).to receive(:tag).and_return('abc-1-def')
+
+    stage = double('stage')
+    allow(stage).to receive(:jobs).and_return([queued_job])
+    allow(stage).to receive(:tag)
+
+    allow(project).to receive(:stages).and_return([stage])
+    allow(project).to receive(:repos).and_return({})
+    allow(project).to receive(:state)
+
+    pending_job_timeout = 15
+
+    agent_manager = double('agent_manager')
+    agent = double('agent')
+    allow(agent_manager).to receive(:find_agent).and_return(agent)
+    expect(agent_manager).to receive(:timedout_agents).with(pending_job_timeout).and_return([agent])
+    expect(agent).to receive(:run_job).with(kind_of(Nanoci::Build), kind_of(Nanoci::BuildJob))
+    expect(agent).to receive(:cancel_job)
+
+    Nanoci::Config::UCS.instance.override(Nanoci::Config::ServiceConfig::PENDING_JOB_TIMEOUT, 15)
+
+    build_scheduler = Nanoci::BuildScheduler.new(agent_manager, state_manager)
+
+    timer = double('timer')
+    expect(timer).to receive(:execute)
+    timer_callback = nil
+    timer_task = class_double(Concurrent::TimerTask).as_stubbed_const
+    allow(timer_task).to receive(:new) do |&block|
+      timer_callback = block
+      timer
+    end
+
+    build_scheduler.run(1)
+
+    build_scheduler.trigger_build(project, nil)
+
+    timer_callback.call
+  end
 end

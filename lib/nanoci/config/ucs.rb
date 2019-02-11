@@ -25,7 +25,12 @@ module Nanoci
         # Initializes an UCS
         # @return [UCS]
         def initialize(argv = ARGV, config_path = nil)
-          @instance ||= UCS.new(argv, config_path)
+          @instance ||= UCS.new(argv || [], config_path)
+        end
+
+        # Destroys an UCS instance
+        def destroy
+          @instance = nil
         end
 
         # parses ARGV into Hash
@@ -55,12 +60,17 @@ module Nanoci
       # * config
       # @param key [Symbol] config key
       # @return [String] config value
-      def get(key, default=nil)
+      def get(key, default = nil)
         return @argv.fetch(key) if @argv.key?(key)
         return @env.fetch(key) if @env.key?(key)
         return @config.fetch(key) if !@config.nil? && @config.key?(key)
+        return @override.fetch(key) if @override.key?(key)
         raise "missing config key '#{key}'" if default.nil?
         default
+      end
+
+      def override(key, value)
+        @override[key] = value
       end
 
       private
@@ -75,6 +85,14 @@ module Nanoci
         config_path ||= system_config_path
 
         @config = YAML.load_file(config_path).flatten_hash_value.freeze if File.exist?(config_path)
+
+        @override = {}
+      end
+
+      def destroy
+        @argv = nil
+        @env = nil
+        @config = nil
       end
 
       # Expands references to environment variables
@@ -86,7 +104,7 @@ module Nanoci
         if match.nil? || ENV[match[1]].nil?
           name
         else
-          ENV[match[1]]
+          name.sub("${#{match[1]}}", ENV[match[1]])
         end
       end
 

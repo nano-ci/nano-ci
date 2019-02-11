@@ -31,6 +31,18 @@ module Nanoci
       agents.select { |a| a.tag == tag }.first
     end
 
+    # Returns agents with pending jobs
+    # @return [Enumerator]
+    def pending_agents
+      agents.select { |x| x.status == AgentStatus::PENDING }
+    end
+
+    # Returns agents that didn't picked up pending job on time
+    # @return [Enumerator]
+    def timedout_agents(timeout)
+      pending_agents.select { |x| (Time.now.utc - x.status_timestamp) > timeout }
+    end
+
     def find_agent(required_agent_capabilities)
       @agents.find do |a|
         logger.debug("#{a.tag} has capabilities #{a.capabilities}")

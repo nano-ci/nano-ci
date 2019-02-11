@@ -32,6 +32,10 @@ module Nanoci
         get(ServiceConfig::AGENT_SERVICE_HOST_ADDRESS)
       end
 
+      def pending_job_timeout
+        get(ServiceConfig::PENDING_JOB_TIMEOUT).to_i
+      end
+
       # job-scheduler-interval config name
       JOB_SCHEDULER_INTERVAL = :'job-scheduler-interval'
 
@@ -46,6 +50,8 @@ module Nanoci
 
       # agent-service-host-address config name
       AGENT_SERVICE_HOST_ADDRESS = :'agent-service-host-address'
+
+      PENDING_JOB_TIMEOUT = :'pening-job-timeout'
     end
   end
 end

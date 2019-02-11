@@ -8,15 +8,19 @@ require 'nanoci/config/ucs'
 require 'nanoci/state_manager'
 
 module Nanoci
-  ##
   # Build scheduler maintains queue of jobs
   # and schedules job execution on build agents
   class BuildScheduler
     attr_accessor :builds
 
+    # Initializes new instnance of [BuildScheduler]
+    # @param agents_manager [Nanoci:AgentsManager]
+    # @param state_manager [Nanoci::StateManager]
     def initialize(agents_manager, state_manager)
       @log = Logging.logger[self]
+      # @type [AgentManager]
       @agents_manager = agents_manager
+      # @type [Nanoci::StateManager]
       @state_manager = state_manager
       @builds = []
     end
@@ -63,7 +67,7 @@ module Nanoci
     end
 
     def run(interval)
-      @log.info "running BuildScheduler"
+      @log.info 'running BuildScheduler'
 
       @timer = Concurrent::TimerTask.new(execution_interval: interval) do
         begin
@@ -78,6 +82,12 @@ module Nanoci
           @log.fatal 'failed to finalize builds'
           @log.fatal e
         end
+        begin
+          cancel_timedout_pending_jobs
+          rescue StandardError => e
+            @log.fatal 'failed to cancel timed out pending jobs'
+            @log.fatal e
+          end
       end
       @timer.execute
     end
@@ -107,6 +117,11 @@ module Nanoci
       @log.debug 'processed all builds in the queue'
     end
 
+    def cancel_timedout_pending_jobs
+      timeout = Config::UCS.instance.pending_job_timeout
+      @agents_manager.timedout_agents(timeout).each(&:cancel_job)
+    end
+
     def schedule_job(job)
       build = job.build
       @log.debug \
@@ -131,12 +146,12 @@ module Nanoci
       @builds.find_all { |b| b.state == Build::State::QUEUED }
     end
 
-
-
     # Returns an [Enumerator] to enumerator queued jobs
     # @return [Enumerator]
     def queued_jobs
-      queued_builds.flat_map(&:stages).flat_map(&:jobs).select { |j| j.state == Build::State::QUEUED }
+      queued_builds.flat_map(&:stages)
+                   .flat_map(&:jobs)
+                   .select { |j| j.state == Build::State::QUEUED }
     end
   end
 end
