@@ -52,7 +52,6 @@ module Nanoci
       end
 
       # runs a nano-ci main service
-      # @param ucs [Nanoci::Config::UCS]
       # @return [void]
       def run(project)
         @agent_manager_service.run
@@ -88,7 +87,6 @@ module Nanoci
       # runs triggers
       # @param project [Nanoci::Project]
       # @param build_scheduler [Nanoci::BuildScheduler]
-      # @param ucs [Nanoci::Config::UCS]
       def run_triggers(project, build_scheduler)
         project.repos.each do |_key, repo|
           repo.triggers.each do |trigger|
@@ -101,7 +99,6 @@ module Nanoci
       # @param interval [Number]
       # @param agent_manager [Nanoci::AgentManager]
       # @param state_manager [Nanoci::StateManager]
-      # @param ucs [Nanoci::Config::UCS]
       def run_build_scheduler(interval, agent_manager, state_manager)
         build_scheduler = BuildScheduler.new(agent_manager, state_manager)
         build_scheduler.run(interval)
