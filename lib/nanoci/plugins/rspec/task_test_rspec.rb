@@ -3,7 +3,6 @@
 require 'json'
 require 'logging'
 
-require 'nanoci/common_vars'
 require 'nanoci/plugins/rspec/task_test_rspec_definition'
 require 'nanoci/tasks/task_test'
 require 'nanoci/test'
@@ -44,24 +43,24 @@ module Nanoci
           @definition.result_file
         end
 
-        def initialize(definition, project)
+        def initialize(definition)
           @log = Logging.logger[self]
           definition = Nanoci::Plugins::RSpec::TaskTestRSpecDefinition.new(definition.params)
-          super(definition, project)
+          super(definition)
         end
 
-        def required_agent_capabilities
-          requirements = super
+        def required_agent_capabilities(build)
+          requirements = super(build)
           requirements << RSPEC_CAP if action == 'run_tool'
           requirements
         end
 
-        def execute_imp(build, env)
+        def execute_imp(build, workdir)
           case action
           when :run_tool
-            execute_run_tool(build, env)
+            execute_run_tool(build, workdir)
           when :read_file
-            execute_read_file(build, env)
+            execute_read_file(build, workdir)
           else
             @log.error("unknown action #{action}")
           end
@@ -69,21 +68,20 @@ module Nanoci
 
         private
 
-        def execute_run_tool(build, env)
-          opts = sanitize_opts(options.clone, env)
+        def execute_run_tool(build, workdir)
+          output = File.join(workdir, 'rspec_output.json')
+          opts = {
+            '--format' => 'json',
+            '--out' => output
+          }
           cmd = opts.map { |k, v| (k + ' ' + v).strip }.join(' ')
-          rspec(env[RSPEC_CAP], cmd, chdir: env[CommonVars::WORKDIR], stdout: build.output, stderr: build.output)
-          results = read_results(opts['--out'])
+          agent_capabilities = Config::UCS.instance.agent_capabilities
+          rspec(agent_capabilities[RSPEC_CAP], cmd, chdir: workdir, stdout: build.output, stderr: build.output)
+          results = read_results(output)
           handle_results(results, build)
         end
 
-        def sanitize_opts(opts, env)
-          opts['--format'] = 'json'
-          opts['--out'] = File.join(env[CommonVars::BUILD_DATA_DIR], 'rspec_output.json')
-          opts
-        end
-
-        def execute_read_file(build, env); end
+        def execute_read_file(build, workdir); end
 
         def rspec(rspec_path, cmd, opts = {})
           ToolProcess.run("\"#{rspec_path}\" #{cmd}", opts).wait

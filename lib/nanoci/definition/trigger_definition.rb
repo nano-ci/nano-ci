@@ -6,17 +6,20 @@ module Nanoci
     class TriggerDefinition
       # Type of the trigger
       # @return [Symbol]
-      attr_reader :type
+      def type
+        @hash.fetch(:type)
+      end
 
       # Type-specific params of the trigger
       # @return [Hash]
-      attr_reader :params
+      def params
+        @hash
+      end
 
       # Initializes new instance of [TriggerDefinition]
       # @param hash [Hash]
       def initialize(hash)
-        @type = hash.fetch(:type)
-        @params = hash
+        @hash = hash
       end
     end
   end

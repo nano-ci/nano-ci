@@ -8,17 +8,20 @@ module Nanoci
     class JobDefinition
       # Returns the tag of the job
       # @return [Symbol]
-      attr_reader :tag
+      def tag
+        @hash.fetch(:tag).to_sym
+      end
 
       # Returns an array of job's tasks
       # @return [Array<TaskDefinition>]
-      attr_reader :tasks
+      def tasks
+        read_tasks(@hash.fetch(:tasks, []))
+      end
 
       # Initializes new instance of JobDefinition
       # @param hash [Hash]
       def initialize(hash)
-        @tag = hash.fetch(:tag).to_sym
-        @tasks = read_tasks(hash.fetch(:tasks, []))
+        @hash = hash
       end
 
       private

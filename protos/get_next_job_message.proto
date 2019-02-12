@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package nanoci.remote;
+
+message GetNextJobRequest {
+	string tag = 1;
+}
+
+message GetNextJobResponse {
+	bool has_job = 1;
+	string build_tag = 2;
+	string project_tag = 3;
+	string stage_tag = 4;
+	string job_tag = 5;
+	string project_definition = 6;
+	map<string, string> variables = 7;
+	map<string, string> commits = 8;
+}

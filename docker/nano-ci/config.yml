@@ -1,0 +1,11 @@
+plugins-path: '/nano-ci/lib/nanoci/plugins'
+repo-cache: '/nano-ci-agent/workdir/repo-cache'
+build-data-dir: '/nano-ci-agent/workdir/builds'
+agent:
+  capabilities:
+    - 'tools.git': '/usr/bin/git'
+    - 'tools.ssh': '/usr/bin/ssh'
+    - 'tools.rspec': '/usr/local/bin/rspec'
+agent-service-host-address: '0.0.0.0:33765'
+mongo-connection-string: mongodb://mongo:27017/nanoci
+pending-job-timeout: 60

@@ -2,9 +2,10 @@
 
 require 'logging'
 
-require 'nanoci/triggers/all'
+require 'nanoci/config/ucs'
 require 'nanoci/definition/repo_definition'
 require 'nanoci/mixins/provides'
+require 'nanoci/triggers/all'
 
 module Nanoci
   ##
@@ -97,28 +98,28 @@ module Nanoci
       @triggers = @definition.triggers.map { |td| Trigger.resolve(td.type).new(self, td) }
     end
 
-    def repo_cache(env)
-      repo_path = File.join(env[CommonVars::REPO_CACHE], tag.to_s)
-      FileUtils.mkdir_p(repo_path) unless Dir.exist? repo_path
+    def repo_cache
+      repo_path = File.join(Config::UCS.instance.repo_cache, tag.to_s)
+      FileUtils.mkdir_p(repo_path)
       repo_path
     end
 
     ##
     # Detect changes in source
     # Returns true is there are new changes; false otherwise
-    def changes?(_env)
+    def changes?
       true
     end
 
-    def tip_of_tree(_branch, _env)
+    def tip_of_tree(_workdir, _branch)
       ''
     end
 
-    def clone(env, opts = {}); end
+    def clone(workdir, opts = {}); end
 
-    def exists?(env, opts = {}); end
+    def exists?(workdir, opts = {}); end
 
-    def checkout(branch, env, opts = {}); end
+    def checkout(workdir, branch, opts = {}); end
 
     def state
       {

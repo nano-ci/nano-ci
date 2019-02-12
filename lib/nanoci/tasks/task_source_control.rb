@@ -17,34 +17,34 @@ module Nanoci
 
       # Initializes new instance of [TaskSourceControl]
       # @param definition [TaskDefinition]
-      # @param project [Project]
-      def initialize(definition, project)
+      def initialize(definition)
         definition = Nanoci::Definition::TaskSourceControlDefinition.new(definition.params)
-        super(definition, project)
+        super
         @repo_tag = definition.repo
-        @repo = project.repos[repo_tag]
-        raise "Missing repo definition #{repo_tag}" if repo.nil?
         @action = definition.action
         @branch = definition.branch
       end
 
-      def required_agent_capabilities
-        super + repo.required_agent_capabilities
+      def required_agent_capabilities(build)
+        repo = build.project.repos[repo_tag]
+        super(build) + repo.required_agent_capabilities
       end
 
-      def execute_imp(build, env)
+      def execute_imp(build, workdir)
         repo = build.project.repos[repo_tag]
         raise "Missing repo definition #{repo_tag}" if repo.nil?
         case action
         when 'checkout'
-          execute_checkout(repo, env, build.output)
+          execute_checkout(repo, workdir, build.output)
         end
       end
 
-      def execute_checkout(repo, env, output)
-        repo.update(env)
+      private
+
+      def execute_checkout(repo, workdir, output)
+        repo.update(workdir)
         changeset = branch || repo.current_commit
-        repo.checkout(changeset, env, stdout: output, stderr: output)
+        repo.checkout(workdir, changeset, stdout: output, stderr: output)
       end
     end
   end

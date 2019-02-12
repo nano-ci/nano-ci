@@ -5,15 +5,16 @@ require 'nanoci/definition/task_definition'
 module Nanoci
   class Definition
     class TaskSourceControlDefinition < TaskDefinition
-      attr_reader :repo
-      attr_reader :branch
-      attr_reader :action
+      def repo
+        @hash.fetch(:repo).to_sym
+      end
 
-      def initialize(hash)
-        super(hash)
-        @repo = hash.fetch(:repo).to_sym
-        @branch = hash.fetch(:branch, nil)
-        @action = hash.fetch(:action)
+      def branch
+        @hash.fetch(:branch, nil)
+      end
+
+      def action
+        @hash.fetch(:action)
       end
     end
   end

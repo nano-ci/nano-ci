@@ -9,9 +9,9 @@ module Nanoci
     attr_accessor :definition
     attr_accessor :jobs
 
-    def initialize(definition)
+    def initialize(build, definition)
       @definition = definition
-      @jobs = @definition.jobs.map { |j| BuildJob.new(j) }
+      @jobs = @definition.jobs.map { |j| BuildJob.new(build, j) }
     end
 
     def state
@@ -26,7 +26,7 @@ module Nanoci
       {
         tag: tag,
         jobs: Hash[jobs.map { |j| [j.tag, j.memento] }],
-        stage: Build::State.to_sym(state)
+        stage: Build::State.key(state)
       }
     end
   end

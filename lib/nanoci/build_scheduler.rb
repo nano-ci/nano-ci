@@ -4,25 +4,29 @@ require 'logging'
 
 require 'nanoci'
 require 'nanoci/build'
+require 'nanoci/config/ucs'
 require 'nanoci/state_manager'
 
 module Nanoci
-  ##
   # Build scheduler maintains queue of jobs
   # and schedules job execution on build agents
   class BuildScheduler
     attr_accessor :builds
 
-    def initialize(agents_manager, state_manager, env)
+    # Initializes new instnance of [BuildScheduler]
+    # @param agents_manager [Nanoci:AgentsManager]
+    # @param state_manager [Nanoci::StateManager]
+    def initialize(agents_manager, state_manager)
       @log = Logging.logger[self]
+      # @type [AgentManager]
       @agents_manager = agents_manager
+      # @type [Nanoci::StateManager]
       @state_manager = state_manager
       @builds = []
-      @env = env
     end
 
     def start_new_build(project, trigger)
-      build = Nanoci::Build.run(project, trigger, {}, @env)
+      build = Nanoci::Build.run(project, trigger, Config::UCS.instance.env)
       @state_manager.put_state(StateManager::Types::PROJECT, project.state)
       @log.info "a new build #{build.tag} triggered by #{trigger}"
       build
@@ -63,11 +67,27 @@ module Nanoci
     end
 
     def run(interval)
-      @log.info "running BuildScheduler"
+      @log.info 'running BuildScheduler'
 
       @timer = Concurrent::TimerTask.new(execution_interval: interval) do
-        schedule_builds
-        finalize_builds
+        begin
+          schedule_builds
+        rescue StandardError => e
+          @log.fatal 'failed to schedule builds'
+          @log.fatal e
+        end
+        begin
+          finalize_builds
+        rescue StandardError => e
+          @log.fatal 'failed to finalize builds'
+          @log.fatal e
+        end
+        begin
+          cancel_timedout_pending_jobs
+          rescue StandardError => e
+            @log.fatal 'failed to cancel timed out pending jobs'
+            @log.fatal e
+          end
       end
       @timer.execute
     end
@@ -86,24 +106,24 @@ module Nanoci
 
     def schedule_builds
       @log.debug 'scheduling the builds...'
-      queued_builds.each do |b|
-        schedule_build(b)
-      end
-      @log.debug 'processed all builds in the queue'
-    end
-
-    def schedule_build(build)
-      queued_jobs(build).each_entry do |j|
+      queued_jobs.each_entry do |j|
         begin
-          schedule_job(build, j)
+          schedule_job(j)
         rescue StandardError => e
           @log.error("failed to schedule job #{j.tag}")
           @log.error(e)
         end
       end
+      @log.debug 'processed all builds in the queue'
     end
 
-    def schedule_job(build, job)
+    def cancel_timedout_pending_jobs
+      timeout = Config::UCS.instance.pending_job_timeout
+      @agents_manager.timedout_agents(timeout).each(&:cancel_job)
+    end
+
+    def schedule_job(job)
+      build = job.build
       @log.debug \
         "looking for a capable agent to run the job #{build.tag}-#{job.tag}"
       @log.debug "#{job.tag} requires capabilities: #{job.required_agent_capabilities}"
@@ -111,6 +131,8 @@ module Nanoci
       if agent.nil?
         @log.info "no agents available to run the job #{build.tag}-#{job.tag}"
       else
+        job.state = Build::State::PENDING
+        @state_manager.put_state(StateManager::Types::BUILD, build.memento)
         agent.run_job(build, job)
         @state_manager.put_state(StateManager::Types::BUILD, build.memento)
       end
@@ -124,8 +146,12 @@ module Nanoci
       @builds.find_all { |b| b.state == Build::State::QUEUED }
     end
 
-    def queued_jobs(build)
-      build.current_stage.jobs.find_all { |j| j.state == Build::State::QUEUED }
+    # Returns an [Enumerator] to enumerator queued jobs
+    # @return [Enumerator]
+    def queued_jobs
+      queued_builds.flat_map(&:stages)
+                   .flat_map(&:jobs)
+                   .select { |j| j.state == Build::State::QUEUED }
     end
   end
 end

@@ -2,35 +2,40 @@
 
 require 'logging'
 
-require 'nanoci/common_vars'
+require 'nanoci/agent_status'
 
 module Nanoci
-  # Agent is a instance of nano-ci service that executes commands from
+  # Agent is an instance of nano-ci service that executes commands from
   # a main nano-ci service to run build jobs
   class Agent
-    attr_accessor :name
-    attr_accessor :current_job
+    attr_reader :tag
+
+    # Agent capabilities
+    # @return [Hash<Symbol, String>]
+    attr_reader :capabilities
+
+    # Build the agent currently working on
+    # @return [Nanoci::Build]
+    attr_reader :build
+
+    attr_reader :status
+    attr_reader :status_timestamp
+    attr_reader :current_job
     attr_accessor :workdir
 
-    def initialize(config, capabilities, env)
+    def initialize(tag, capabilities)
       @log = Logging.logger[self]
-      @name = config.name
+      @tag = tag
 
       raise 'capabilities should be a Hash' unless capabilities.is_a? Hash
-      @capabilities = config.capabilities.merge(capabilities)
-      @workdir = config.workdir
-      FileUtils.mkdir_p(@workdir) unless Dir.exist? @workdir
-      @env = env
+      @capabilities = capabilities
       @current_job = nil
+      self.status = AgentStatus::IDLE
     end
 
-    def run_job(_build, job)
-      @log.info "running job #{job.tag} on #{name}"
-      self.current_job = job
-    end
-
-    def capabilities
-      @capabilities
+    def status=(value)
+      @status = value
+      @status_timestamp = Time.now.utc
     end
 
     def capability(name)
@@ -47,23 +52,10 @@ module Nanoci
       Set.new(@capabilities.keys.to_set).superset? required_capabilities
     end
 
-    def execute_tasks(tasks, job_tag, build)
-      tasks.each { |task| execute_task(build, job_tag, task) }
-    end
-
-    def execute_task(build, job_tag, task)
-      @log.debug "executing task #{task.type} of #{job_tag}"
-      env = @env.merge(@capabilities)
-
-      build_work_dir = File.join(@workdir, build.tag)
-      env[CommonVars::WORKDIR] = build_work_dir
-
-      task.execute(build, env)
-      @log.debug "task #{task.type} of #{job_tag} is done"
-    rescue StandardError => e
-      @log.error "failed to execute task #{task} from job #{job_tag} of build #{build.tag}"
-      @log.error(e)
-      raise e
+    def run_job(build, job)
+      @log.info "running job #{job.tag} on #{tag}"
+      @current_job = job
+      @build = build
     end
   end
 end

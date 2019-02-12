@@ -37,16 +37,15 @@ module Nanoci
       @type = definition.type
     end
 
-    def run(build_scheduler, project, env)
+    def run(build_scheduler, project)
       @build_scheduler = build_scheduler
       @project = project
-      @env = env
 
       @log.info("running trigger #{repo.tag}.#{type}")
     end
 
-    def repo_has_changes?(repo, env)
-      repo.changes?(env)
+    def repo_has_changes?(repo)
+      repo.changes?
     rescue StandardError => e
       @log.error "failed to check repo #{repo.tag} for new changes"
       @log.error e
@@ -55,7 +54,7 @@ module Nanoci
 
     def trigger_build
       @log.info "checking repo #{@repo.tag} for new changes"
-      if repo_has_changes?(@repo, @env)
+      if repo_has_changes?(@repo)
         @log.info "detected new changes in repo #{@repo.tag}" \
           ', triggering a new build'
         @build_scheduler.trigger_build(@project, self)

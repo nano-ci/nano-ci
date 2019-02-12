@@ -3,8 +3,8 @@ services:
   nano-ci:
     build:
       context: ./nano-ci
-      target: nano-ci-self
-    image: nano-ci-self
+      target: nano-ci-master
+    image: nano-ci-master
 
   mongo:
     image: mongo

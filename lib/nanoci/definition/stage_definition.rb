@@ -7,18 +7,23 @@ module Nanoci
     class StageDefinition
       # Returns stage tag
       # @return [Symbol]
-      attr_reader :tag
+      def tag
+        @hash.fetch(:tag).to_sym
+      end
 
       # Returns array of jobs in the stage
       # @return [Array<JobDefinition>]
-      attr_reader :jobs
+      def jobs
+        read_jobs(@hash.fetch(:jobs, []))
+      end
 
       # Initializes new instance of the [StageDefinition]
       # @param hash [Hash]
       def initialize(hash)
-        @tag = hash.fetch(:tag).to_sym
-        @jobs = read_jobs(hash.fetch(:jobs, []))
+        @hash = hash
       end
+
+      private
 
       # Reads array of jobs from src
       # @param job_hash_array [Array<Hash>]

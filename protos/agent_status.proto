@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package nanoci.remote;
+
+enum AgentStatus {
+	UNKNOWN = 0;
+	IDLE = 1;
+	PENDING = 2;
+	BUSY = 3;
+}

@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require 'nanoci/common_vars'
 require 'nanoci/mixins/provides'
 
 module Nanoci
   # Base class for nano-ci build task
   class Task
+    include Logging.globally
     extend Mixins::Provides
 
     class << self
@@ -33,35 +33,28 @@ module Nanoci
       definition.type
     end
 
-    # Working directory for the task. Relative to project working directory
+    # Working directory for the task. Relative to build working directory
     # @return [String]
     def workdir
       definition.workdir
     end
 
-    # Project the task is part of
-    # @return [Project]
-    attr_reader :project
-
     # Initializes new instance of [Task]
-    # @param definition [TaskDefinition]
-    def initialize(definition, project)
+    def initialize(definition)
       @definition = definition
-      @project = project
     end
 
-    def required_agent_capabilities
+    def required_agent_capabilities(_build)
       Set[]
     end
 
-    def execute(build, env)
-      env = env.clone
-      task_workdir = File.join(env[CommonVars::WORKDIR], build.tag, workdir)
+    def execute(build, workdir)
+      task_workdir = File.join(workdir, definition.workdir)
+      logger.info "executing task #{type} in #{task_workdir} with env\n #{Hash[ENV].to_s}"
       FileUtils.mkdir_p(task_workdir) unless Dir.exist? task_workdir
-      env[CommonVars::WORKDIR] = task_workdir
-      execute_imp(build, env)
+      execute_imp(build, workdir)
     end
 
-    def execute_imp(build, env); end
+    def execute_imp(build, workdir); end
   end
 end

@@ -5,35 +5,26 @@
     "version": "0.2.0",
     "configurations": [
 		{
-			"name": "Run current fule",
+			"name": "nano-ci-master",
 			"type": "Ruby",
-			"request": "launch",
+			"request": "attach",
+			"preLaunchTask": "rake: docker:nano-ci-master:debug",
+			"postDebugTask": "rake: docker:nano-ci-master:debug-clean",
 			"cwd": "${workspaceRoot}",
-			"program": "${file}",
-
+			"remoteHost": "local.docker.nanoci.cloud",
+			"remotePort": "23456",
+			"remoteWorkspaceRoot": "/nano-ci/"
 		},
 		{
-			"name": "Run nano-ci - sample",
+			"name": "nano-ci-agent",
 			"type": "Ruby",
-			"request": "launch",
+			"request": "attach",
+			"preLaunchTask": "rake: docker:nano-ci-agent:debug",
+			"postDebugTask": "rake: docker:nano-ci-agent:debug-clean",
 			"cwd": "${workspaceRoot}",
-			"pathToBundler": "C:/tools/Ruby25-x64/bin/bundler.bat",
-			"useBundler": true,
-			"pathToRDebugIDE": "C:/Ruby25-x64/bin/rdebug-ide.bat",
-			"program": "${workspaceRoot}/bin/nano-ci",
-			"args": [
-				"--project", "samples/sample.nanoci", "--config", "samples/config.yml"
-			]
-		},
-		{
-			"name": "Run nano-ci - nanoci",
-			"type": "Ruby",
-			"request": "launch",
-			"cwd": "${workspaceRoot}",
-			"program": "${workspaceRoot}/bin/nano-ci",
-			"args": [
-				"--project", "samples/nano-ci.nanoci", "--config", "samples/config.yml"
-			]
+			"remoteHost": "local.docker.nanoci.cloud",
+			"remotePort": "23457",
+			"remoteWorkspaceRoot": "/nano-ci/"
 		},
         {
 			"name": "RSpec - all",
@@ -52,16 +43,6 @@
 			"cwd": "${workspaceRoot}",
 			"program": "C:/tools/Ruby25-x64/bin/rspec",
 			"args": ["${file}"]
-		},
-		{
-			"name": "Attach to debugger",
-			"type": "Ruby",
-			"request": "attach",
-			"preLaunchTask": "rake: docker:nano-ci-self:debug",
-			"cwd": "${workspaceRoot}",
-			"remoteHost": "local.docker.nanoci.cloud",
-			"remotePort": "23456",
-			"remoteWorkspaceRoot": "/nano-ci/"
 		}
     ]
 }

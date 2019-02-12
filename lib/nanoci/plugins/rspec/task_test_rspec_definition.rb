@@ -8,23 +8,25 @@ module Nanoci
       # definition for [TaskTestRSpec]
       class TaskTestRSpecDefinition < Nanoci::Definition::TaskDefinition
         # @return [Symbol]
-        attr_reader :action
+        def action
+          @hash.fetch(:action, :run_tool).to_sym
+        end
 
         # @return [Hash]
-        attr_reader :options
+        def options
+          @hash.fetch(:options, {})
+        end
 
         # @return [String]
-        attr_reader :result_file
+        def result_file
+          @hash.fetch(:result_file, nil)
+        end
 
         # initializes new instance of [TaskTestRSpecDefinition]
         def initialize(hash)
           super
-          @action = hash.fetch(:action, :run_tool).to_sym
-          @options = hash.fetch(:options, {})
-          @result_file = hash.fetch(:result_file, nil)
-
           raise 'result_file must be specified if action is "read_file"' if \
-              @action == :read_file && @result_file.nil?
+              action == :read_file && result_file.nil?
         end
       end
     end

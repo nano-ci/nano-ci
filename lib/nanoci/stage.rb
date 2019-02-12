@@ -14,15 +14,15 @@ module Nanoci
     # @param definition [StageDefinition]
     # @param project [Project]
     # @return [Stage]
-    def initialize(definition, project)
+    def initialize(definition)
       @tag = definition.tag
-      @jobs = read_jobs(definition.jobs, project)
+      @jobs = read_jobs(definition.jobs)
     end
 
     private
 
-    def read_jobs(job_definitions, project)
-      job_definitions.map { |d| Job.new(d, project) }
+    def read_jobs(job_definitions)
+      job_definitions.map { |d| Job.new(d) }
     end
   end
 end

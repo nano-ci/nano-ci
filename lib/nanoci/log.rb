@@ -12,6 +12,10 @@ Logging.appenders.stdout(
 )
 
 root = Logging.logger.root
+# root.level = :info
 root.add_appenders(
   Logging.appenders.stdout
 )
+
+build_job_logger = Logging.logger['Nanoci::BuildJob']
+build_job_logger.level = :debug

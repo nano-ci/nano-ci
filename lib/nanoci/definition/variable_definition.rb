@@ -6,18 +6,20 @@ module Nanoci
     class VariableDefinition
       # Returns the tag of the variable
       # @return [Symbol]
-      attr_reader :tag
+      def tag
+        @src[0]
+      end
 
       # Returns the value of the variable
       # @return [String]
-      attr_reader :value
+      def value
+        @src[1] || ''
+      end
 
       # Initializes a new instance of VariableDefiition
       # @param hash [Hash]
       def initialize(hash)
-        src = hash.to_a[0]
-        @tag = src[0]
-        @value = src[1] || ''
+        @src = hash.to_a[0]
       end
     end
   end

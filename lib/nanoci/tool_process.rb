@@ -58,7 +58,11 @@ module Nanoci
     def run
       log.debug("running #{@cmd} at #{@chdir}")
       log.debug("env:\n#{@env}")
-      p_in, p_out, p_err, @wait_thr = Open3.popen3(@env, @cmd, chdir: @chdir)
+      options = {
+        chdir: @chdir,
+        unsetenv_others: true
+      }
+      p_in, p_out, p_err, @wait_thr = Open3.popen3(@env, @cmd, options)
       connect([
                 { from: @stdin, to: p_in },
                 { from: p_out, to: @stdout },
@@ -137,6 +141,7 @@ module Nanoci
     # @param env [Hash<Symbol, String>]
     # @param vars [Hash<Symbol, String>]
     def expand_env(env, vars)
+      env = Bundler::original_env.merge(env)
       env.transform_values { |v| Variable.expand_string(v, vars) }
     end
   end

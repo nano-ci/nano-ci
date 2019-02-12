@@ -26,8 +26,8 @@ module Nanoci
         @interval = definition.interval
       end
 
-      def run(build_scheduler, project, env)
-        super(build_scheduler, project, env)
+      def run(build_scheduler, project)
+        super(build_scheduler, project)
 
         @timer = Concurrent::TimerTask.new(execution_interval: @interval) do
           trigger_build
