@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package nanoci.remote;
+
+enum JobState {
+	JS_UNKNOWN = 0;
+	JS_QUEUED = 1;
+	JS_PENDING = 2;
+	JS_RUNNING = 3;
+	JS_ABORTED = 4;
+	JS_FAILED = 5;
+	JS_COMPLETED = 6;
+}

@@ -14,6 +14,7 @@ require 'nanoci/project'
 require 'nanoci/remote/agent_manager_services_pb'
 require 'nanoci/remote/get_next_job_message_pb'
 require 'nanoci/remote/report_agent_status_message_pb'
+require 'nanoci/remote/report_job_state_message_pb.rb'
 
 module Nanoci
   module Remote
@@ -67,6 +68,19 @@ module Nanoci
           capabilities: capabilities.map(&:to_s)
         )
         @client.report_agent_status(request)
+      end
+
+      # Reports job state
+      # @param agent_tag [Symbol] agent tag
+      # @param job_tag [Symbol] job tag
+      # @param state [Nanoci::Build::State] job state
+      def report_job_state(agent_tag, job_tag, state)
+        request = ReportJobStateRequest.new(
+          agent_tag: agent_tag.to_s,
+          job_tag: job_tag.to_s,
+          state: state.to_s
+        )
+        @client.report_job_state(request)
       end
     end
   end

@@ -6,6 +6,7 @@ require 'nanoci/agent_status'
 require 'nanoci/config/ucs'
 require 'nanoci/event_queue'
 require 'nanoci/events/get_next_job_event'
+require 'nanoci/events/report_job_state_event'
 require 'nanoci/events/report_status_event'
 require 'nanoci/local_agent'
 require 'nanoci/remote/agent_manager_service_client'
@@ -20,6 +21,7 @@ module Nanoci
       # @type [Nanoci::Remote:;AgentManagerServiceClient]
       @service_client = Remote::AgentManagerServiceClient.new
 
+      # @type [Nanoci::LocalAgent]
       @agent = LocalAgent.new
 
       # @type [EventQueue]
@@ -29,6 +31,9 @@ module Nanoci
       # @type [Concurrent::TimerTask]
       @report_status_timer = Concurrent::TimerTask.new(execution_interval: interval, run_now: true) do
         schedule_report_status
+        unless @agent.current_job.nil?
+          schedule_job_state_report(@agent.job_execution_result)
+        end
       end
     end
 
@@ -54,7 +59,8 @@ module Nanoci
     def handlers
       @handlers ||= {
         Events::ReportStatusEvent => method(:handle_report_status),
-        Events::GetNextJobEvent => method(:handle_get_next_job)
+        Events::GetNextJobEvent => method(:handle_get_next_job),
+        Events::ReportJobStateEvent => method(:handle_report_job_state)
       }
     end
 
@@ -95,6 +101,16 @@ module Nanoci
       enqueue_task(event)
     end
 
+    # Schedules reporting of job state
+    # @param project_tag [Symbol]
+    # @param job_tag [Symbol]
+    # @param agent_tag [Symbol]
+    # @param state [Nanoci::Build::State]
+    def schedule_job_state_report(project_tag, job_tag, agent_tag, state)
+      event = Events::ReportJobStateEvent.new(project_tag, job_tag, agent_tag, state)
+      enqueue_task(event)
+    end
+
     def handle_report_status(_event)
       logger.debug('reporting agent status...')
       tag = @agent.tag
@@ -109,8 +125,20 @@ module Nanoci
     def handle_get_next_job(_event)
       logger.debug('requesting next job for the agent...')
       build_job = @service_client.get_next_job(@agent.tag)
-      @agent.run_job(build_job.build, build_job) unless build_job.nil?
+      run_job(build_job) unless build_job.nil?
       logger.debug('successfully requested next job for the agent')
+    end
+
+    def run_job(build_job)
+      @agent.run_job(build_job.build, build_job).then do |result|
+        schedule_job_state_report(result)
+      end
+    end
+
+    def handle_report_job_state(event)
+      logger.debug("reporting job #{event.job_tag} state...")
+      @service_client.report_job_state(event.result)
+      logger.debug("successfully reported job #{event.job_tag} state")
     end
   end
 end

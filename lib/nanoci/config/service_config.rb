@@ -51,7 +51,7 @@ module Nanoci
       # agent-service-host-address config name
       AGENT_SERVICE_HOST_ADDRESS = :'agent-service-host-address'
 
-      PENDING_JOB_TIMEOUT = :'pening-job-timeout'
+      PENDING_JOB_TIMEOUT = :'pending-job-timeout'
     end
   end
 end

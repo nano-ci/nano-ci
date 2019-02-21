@@ -20,7 +20,11 @@ module Nanoci
 
     attr_reader :status
     attr_reader :status_timestamp
+
+    # Gets a job agent is working on
+    # @returns [Nanoci::BuildJob]
     attr_reader :current_job
+
     attr_accessor :workdir
 
     def initialize(tag, capabilities)
@@ -52,10 +56,15 @@ module Nanoci
       Set.new(@capabilities.keys.to_set).superset? required_capabilities
     end
 
+    # Runs a job on the agent
+    # @param build [Nanoci::Build]
+    # @param job [Nanoci::BuildJob]
+    # @return [Concurrent::Promises::Future] An event triggered when job is done
     def run_job(build, job)
       @log.info "running job #{job.tag} on #{tag}"
       @current_job = job
       @build = build
+      job.completed_future
     end
   end
 end

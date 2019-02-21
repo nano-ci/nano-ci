@@ -23,6 +23,14 @@ module Nanoci
       define :ABORTED, 4
       define :FAILED, 5
       define :COMPLETED, 6
+
+      class << self
+        # Gets a range that includes all final states
+        # @return [Range]
+        def done
+          (Build::State::ABORTED..Build::State::COMPLETED)
+        end
+      end
     end
 
     class << self

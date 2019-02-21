@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+import "job_state.proto";
+
+package nanoci.remote;
+
+message ReportJobStateRequest {
+	string project_tag = 1;
+	string job_tag = 2;
+	string agent_tag = 3;
+	JobState state = 4;
+}
+
+message ReportJobStateResponse {
+
+}
