@@ -3,10 +3,22 @@
 module Nanoci
   # Base class for event loop
   class Event
-    private
+    # Gets event type
+    # @return [Symbol]
+    attr_reader :type
+
+    # Gets event data
+    # @return [Object] event specific data
+    attr_reader :data
 
     # Initializes new instance of [Event]
-    # @note [Event] is supposed to be sub-classed. Direct usage of [Event] is invalid
-    def initialize; end
+    def initialize(type, data = nil)
+      @type = type
+      @data = data
+    end
+
+    def to_s
+      "Event <#{type}>"
+    end
   end
 end

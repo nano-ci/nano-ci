@@ -2,6 +2,7 @@
 
 require 'nanoci/agent_engine'
 require 'nanoci/config/ucs'
+require 'nanoci/event_engine'
 require 'nanoci/log'
 require 'nanoci/mixins/logger'
 require 'nanoci/plugin_loader'
@@ -18,8 +19,10 @@ module Nanoci
         ucs = Config::UCS.initialize(argv)
         load_plugins(File.expand_path(ucs.plugins_path))
 
-        engine = AgentEngine.new
-        engine.run
+        event_engine = EventEngine.new
+
+        engine = AgentEngine.new(event_engine)
+        engine.run.wait!
       end
 
       def load_plugins(plugins_path)

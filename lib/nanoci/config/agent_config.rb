@@ -19,7 +19,7 @@ module Nanoci
 
       # @return [Hash<Symbol, String>]
       def agent_capabilities
-        caps = (get(AgentConfig::CAPABILITIES) || []).map do |x|
+        caps = get(AgentConfig::CAPABILITIES, []).map do |x|
           case x
           when String then [x, nil]
           when Hash then x.entries[0]
