@@ -7,7 +7,6 @@ require 'nanoci/agent'
 require 'nanoci/agent_status'
 require 'nanoci/build'
 require 'nanoci/config/ucs'
-require 'nanoci/job_execution_result'
 
 module Nanoci
   ##
