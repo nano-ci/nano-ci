@@ -17,7 +17,14 @@ module Nanoci
     end
 
     def register(handlers)
-      @handlers.merge(handlers)
+      @handlers.merge!(handlers)
+    end
+
+    # Posts a new event to execute
+    # @param event_type [Symbol] event type
+    # @data [Object] event data
+    def post(event_type, data = nil)
+      enqueue_task(Event.new(event_type, data))
     end
 
     # Enqueues a new task to execute
@@ -70,10 +77,20 @@ module Nanoci
     # Dispatches event to appropriate handler
     def dispatch(event)
       logger.info("dispatching event #{event}")
-      event_class = event.type
-      raise "unknown event class #{event_class}" unless handlers.key?(event_class)
-      handlers.fetch(event_class).call(event.data)
+      raise "unknown event class #{event.type}" unless handlers.key?(event.type)
+      handler = handlers.fetch(event.type)
+      call_handler(handler, event.data)
       logger.info("event #{event} dispatched")
+    end
+
+    # Calls event handler
+    def call_handler(handler, data)
+      case handler.arity
+      when 0
+        handler.call
+      when 1
+        handler.call(data)
+      end
     rescue StandardError => e
       logger.error "failed to dispatch #{event}"
       logger.error e
