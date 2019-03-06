@@ -17,7 +17,7 @@ module Nanoci
       @definition = definition
       @jobs = @definition.jobs.map { |j| BuildJob.new(build, j) }
       @completed_future = Concurrent::Promises
-                          .zip_futures_over(@jobs.map(&:completed_future))
+                          .zip_futures(*@jobs.map(&:completed_future))
     end
 
     def state

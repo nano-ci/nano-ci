@@ -8,6 +8,7 @@ require 'nanoci/build_scheduler'
 require 'nanoci/config'
 require 'nanoci/config/ucs'
 require 'nanoci/definition/project_definition'
+require 'nanoci/event_engine'
 require 'nanoci/log'
 require 'nanoci/mixins/logger'
 require 'nanoci/plugin_loader'
@@ -49,23 +50,18 @@ module Nanoci
         @agent_manager = AgentManager.new
         @agent_manager_service = Remote::AgentManagerServiceHost.new(@agent_manager)
         @state_manager = StateManager.new(ucs.mongo_connection_string)
+        @event_engine = EventEngine.new
+        @build_scheduler = BuildScheduler.new(agent_manager, state_manager, @event_engine)
       end
 
       # runs a nano-ci main service
       # @return [void]
       def run(project)
         @agent_manager_service.run
-        build_scheduler = run_build_scheduler(
-          Config::UCS.instance.job_scheduler_interval,
-          agent_manager,
-          state_manager
-        )
-
-        run_triggers(project, build_scheduler)
-
-        event = Concurrent::Event.new
-        event.reset
-        event.wait
+        run_triggers(project, @build_scheduler)
+        @build_scheduler
+          .run(Config::UCS.instance.job_scheduler_interval)
+          .wait!
       end
 
       def load_plugins(plugins_path)
@@ -93,16 +89,6 @@ module Nanoci
             trigger.run(build_scheduler, project)
           end
         end
-      end
-
-      # runs a build scheduler
-      # @param interval [Number]
-      # @param agent_manager [Nanoci::AgentManager]
-      # @param state_manager [Nanoci::StateManager]
-      def run_build_scheduler(interval, agent_manager, state_manager)
-        build_scheduler = BuildScheduler.new(agent_manager, state_manager)
-        build_scheduler.run(interval)
-        build_scheduler
       end
     end
   end
