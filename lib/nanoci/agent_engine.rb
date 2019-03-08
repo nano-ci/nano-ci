@@ -36,7 +36,8 @@ module Nanoci
       @report_status_timer = Concurrent::TimerTask.new(execution_interval: interval, run_now: true) do
         schedule_report_status
         unless @agent.current_job.nil?
-          schedule_job_state_report(@agent.job_execution_result)
+          build_job = @agent.current_job
+          schedule_job_state_report(build_job.build.project.tag, build_job.tag, @agent.tag, build_job.state)
         end
       end
     end
@@ -95,15 +96,17 @@ module Nanoci
       logger.debug('successfully requested next job for the agent')
     end
 
+    # Runs a job on the agent
+    # @param build_job [Nanoci::BuildJob]
     def run_job(build_job)
       @agent.run_job(build_job.build, build_job).then do |result|
-        schedule_job_state_report(result)
+        schedule_job_state_report(build_job.build.project.tag, build_job.tag, @agent.tag, build_job.state)
       end
     end
 
     def handle_report_job_state(event)
       logger.debug("reporting job #{event.job_tag} state...")
-      @service_client.report_job_state(event.result)
+      @service_client.report_job_state(event.agent_tag, event.job_tag, event.state)
       logger.debug("successfully reported job #{event.job_tag} state")
     end
   end

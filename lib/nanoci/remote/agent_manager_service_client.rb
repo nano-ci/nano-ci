@@ -78,7 +78,7 @@ module Nanoci
         request = ReportJobStateRequest.new(
           agent_tag: agent_tag.to_s,
           job_tag: job_tag.to_s,
-          state: state.to_s
+          state: Build::State.key(state)
         )
         @client.report_job_state(request)
       end
