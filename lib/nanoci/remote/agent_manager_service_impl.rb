@@ -84,7 +84,8 @@ module Nanoci
           return ReportJobStateResponse.new
         end
 
-        job.state = Nanoci::Build::State.value(request.state)
+        new_state = Nanoci::Build::State.value(request.state)
+        job.state = new_state if new_state != job.state
 
         ReportJobStateResponse.new
       end
