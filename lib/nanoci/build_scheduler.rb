@@ -98,7 +98,7 @@ module Nanoci
           build.project.build_number = build.number
           @state_manager.put_state(StateManager::Types::PROJECT, build.project.state)
           @builds.delete build
-          logger.info "finished build #{build.tag} in state #{Build::State.to_sym(build.state)}"
+          logger.info "finished build #{build.tag} in state #{Build::State.key(build.state)}"
         rescue StandardError => e
           logger.fatal "failed to schedule build #{build.tag}"
           logger.fatal e
