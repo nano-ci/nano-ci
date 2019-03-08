@@ -4,19 +4,21 @@
 require 'google/protobuf'
 
 Google::Protobuf::DescriptorPool.generated_pool.build do
-  add_enum "nanoci.remote.JobState" do
-    value :JS_UNKNOWN, 0
-    value :JS_QUEUED, 1
-    value :JS_PENDING, 2
-    value :JS_RUNNING, 3
-    value :JS_ABORTED, 4
-    value :JS_FAILED, 5
-    value :JS_COMPLETED, 6
+  add_enum "nanoci.remote.job_state.JobState" do
+    value :UNKNOWN, 0
+    value :QUEUED, 1
+    value :PENDING, 2
+    value :RUNNING, 3
+    value :ABORTED, 4
+    value :FAILED, 5
+    value :COMPLETED, 6
   end
 end
 
 module Nanoci
   module Remote
-    JobState = Google::Protobuf::DescriptorPool.generated_pool.lookup("nanoci.remote.JobState").enummodule
+    module JobState
+      JobState = Google::Protobuf::DescriptorPool.generated_pool.lookup("nanoci.remote.job_state.JobState").enummodule
+    end
   end
 end

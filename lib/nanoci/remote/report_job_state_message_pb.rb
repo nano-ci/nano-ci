@@ -9,7 +9,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     optional :project_tag, :string, 1
     optional :job_tag, :string, 2
     optional :agent_tag, :string, 3
-    optional :state, :enum, 4, "nanoci.remote.JobState"
+    optional :state, :enum, 4, "nanoci.remote.job_state.JobState"
   end
   add_message "nanoci.remote.ReportJobStateResponse" do
   end
