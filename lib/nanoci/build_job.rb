@@ -22,7 +22,7 @@ module Nanoci
     # @return [Nanoci::Build::State]
     attr_reader :state
 
-    # Geta time when job was put to execution queue
+    # Gets time when job was put to execution queue
     # @return [Time]
     attr_reader :queue_time
 
