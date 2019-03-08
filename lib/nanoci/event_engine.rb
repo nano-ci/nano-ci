@@ -79,17 +79,17 @@ module Nanoci
       logger.info("dispatching event #{event}")
       raise "unknown event class #{event.type}" unless handlers.key?(event.type)
       handler = handlers.fetch(event.type)
-      call_handler(handler, event.data)
+      call_handler(handler, event)
       logger.info("event #{event} dispatched")
     end
 
     # Calls event handler
-    def call_handler(handler, data)
+    def call_handler(handler, event)
       case handler.arity
       when 0
         handler.call
       when 1
-        handler.call(data)
+        handler.call(event.data)
       end
     rescue StandardError => e
       logger.error "failed to dispatch #{event}"
