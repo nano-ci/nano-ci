@@ -66,5 +66,12 @@ module Nanoci
       @build = build
       job.completed_future
     end
+
+    def cancel_job
+      @current_job = nil
+      @build = nil
+      self.status = AgentStatus::IDLE
+      @log.info "canceled job #{job.tag} running on #{tag}"
+    end
   end
 end

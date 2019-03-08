@@ -38,11 +38,16 @@ module Nanoci
       future
     end
 
+    def cancel_job
+      super
+      reset_pending_job_future
+    end
+
     # Sets a new status of the agent
     # @param value [Nanoci::AgentStatus]
     def status=(value)
       # Reset next job future if agent becomes idle
-      reset_pending_job_future if status == AgentStatus::BUSY && value == AgentStatus::IDLE
+      reset_pending_job_future if [AgentStatus::BUSY, AgentStatus::PENDING].include?(status) && value == AgentStatus::IDLE
       super
     end
 
