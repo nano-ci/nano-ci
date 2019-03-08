@@ -29,8 +29,7 @@ module Nanoci
       job_done_event = super(build, job)
 
       Concurrent::Promises
-        .future(build, jobs, &method(:run_job_impl))
-        .rescue(job, &method(:handle_job_error))
+        .future(build, job, &method(:run_job_impl))
         .then(&method(:finalize_job_execution))
 
       job_done_event
@@ -56,16 +55,18 @@ module Nanoci
     end
 
     def run_job_impl(build, job)
-      self.status = AgentStatus::BUSY
-      job.state = Build::State::RUNNING
-      execute_tasks(job.definition.tasks, job.tag, build)
-      job.state = Build::State::COMPLETED
-    end
+      begin
+        self.status = AgentStatus::BUSY
+        job.state = Build::State::RUNNING
+        execute_tasks(job.definition.tasks, job.tag, build)
+        job.state = Build::State::COMPLETED
+      rescue StandardError => reason
+        logger.error "failed to execute job #{job.tag} of build #{build.tag}"
+        logger.error reason
+        job.state = Build::State::FAILED
+      end
 
-    def handle_job_error(reason, job)
-      logger.error "failed to execute job #{job.tag} of build #{build.tag}"
-      logger.error reason
-      job.state = Build::State::FAILED
+      finalize_job_execution
     end
 
     def finalize_job_execution
