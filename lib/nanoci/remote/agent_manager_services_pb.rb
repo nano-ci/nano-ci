@@ -17,6 +17,7 @@ module Nanoci
 
         rpc :GetNextJob, GetNextJobRequest, GetNextJobResponse
         rpc :ReportAgentStatus, ReportAgentStatusRequest, ReportAgentStatusResponse
+        rpc :ReportJobState, ReportJobStateRequest, ReportAgentStatusResponse
       end
 
       Stub = Service.rpc_stub_class

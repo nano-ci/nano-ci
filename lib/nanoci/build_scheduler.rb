@@ -5,40 +5,51 @@ require 'logging'
 require 'nanoci'
 require 'nanoci/build'
 require 'nanoci/config/ucs'
+require 'nanoci/event_engine'
+require 'nanoci/events/service_events'
 require 'nanoci/state_manager'
 
 module Nanoci
   # Build scheduler maintains queue of jobs
   # and schedules job execution on build agents
   class BuildScheduler
+    include Logging.globally
+
     attr_accessor :builds
 
     # Initializes new instnance of [BuildScheduler]
-    # @param agents_manager [Nanoci:AgentsManager]
+    # @param agents_manager [Nanoci::AgentsManager]
     # @param state_manager [Nanoci::StateManager]
-    def initialize(agents_manager, state_manager)
-      @log = Logging.logger[self]
+    # @param event_engine [Nanoci::EventEngine]
+    def initialize(agents_manager, state_manager, event_engine)
       # @type [AgentManager]
       @agents_manager = agents_manager
       # @type [Nanoci::StateManager]
       @state_manager = state_manager
       @builds = []
+      # @type [Nanoci::EventEngine]
+      @event_engine = event_engine
+      @event_engine.register(
+        Events::SCHEDULE_BUILDS => method(:schedule_builds),
+        Events::FINALIZE_BUILDS => method(:finalize_builds),
+        Events::CANCEL_PENDING_JOBS => method(:cancel_timedout_pending_jobs)
+      )
     end
 
     def start_new_build(project, trigger)
       build = Nanoci::Build.run(project, trigger, Config::UCS.instance.env)
       @state_manager.put_state(StateManager::Types::PROJECT, project.state)
-      @log.info "a new build #{build.tag} triggered by #{trigger}"
+      logger.info "a new build #{build.tag} triggered by #{trigger}"
       build
     rescue StandardError => e
-      @log.error "failed to run a new build for project #{project.tag}"
-      @log.error e
+      logger.error "failed to run a new build for project #{project.tag}"
+      logger.error e
       nil
     end
 
     def trigger_build(project, trigger)
       if duplicate_build?(project.tag)
-        @log.warn "cannot start another build for the project #{project.tag}"
+        logger.warn "cannot start another build for the project #{project.tag}"
       else
         trigger_new_build(project, trigger)
       end
@@ -51,7 +62,7 @@ module Nanoci
       return if build.nil?
 
       if build.current_stage.nil?
-        @log.warn "build #{build.tag} has no runnable jobs"
+        logger.warn "build #{build.tag} has no runnable jobs"
       else
         run_build(build)
       end
@@ -67,69 +78,63 @@ module Nanoci
     end
 
     def run(interval)
-      @log.info 'running BuildScheduler'
+      logger.info 'running BuildScheduler'
 
       @timer = Concurrent::TimerTask.new(execution_interval: interval) do
-        begin
-          schedule_builds
-        rescue StandardError => e
-          @log.fatal 'failed to schedule builds'
-          @log.fatal e
-        end
-        begin
-          finalize_builds
-        rescue StandardError => e
-          @log.fatal 'failed to finalize builds'
-          @log.fatal e
-        end
-        begin
-          cancel_timedout_pending_jobs
-          rescue StandardError => e
-            @log.fatal 'failed to cancel timed out pending jobs'
-            @log.fatal e
-          end
+        @event_engine.post(Events::SCHEDULE_BUILDS)
+        @event_engine.post(Events::FINALIZE_BUILDS)
+        @event_engine.post(Events::CANCEL_PENDING_JOBS)
       end
       @timer.execute
+
+      @event_engine.run
     end
 
     def finalize_builds
       finished_builds.each do |build|
-        build.complete
-        @state_manager.put_state(StateManager::Types::BUILD, build.memento)
-        project = build.project
-        project.build_number = build.number
-        @state_manager.put_state(StateManager::Types::PROJECT, project.state)
-        @builds.delete build
-        @log.info "finished build #{build.tag} in state #{Build::State.to_sym(build.state)}"
+        begin
+          build.complete
+          @state_manager.put_state(StateManager::Types::BUILD, build.memento)
+          build.project.build_number = build.number
+          @state_manager.put_state(StateManager::Types::PROJECT, build.project.state)
+          @builds.delete build
+          logger.info "finished build #{build.tag} in state #{Build::State.key(build.state)}"
+        rescue StandardError => e
+          logger.fatal "failed to schedule build #{build.tag}"
+          logger.fatal e
+        end
       end
     end
 
     def schedule_builds
-      @log.debug 'scheduling the builds...'
+      logger.debug 'scheduling the builds...'
       queued_jobs.each_entry do |j|
         begin
           schedule_job(j)
         rescue StandardError => e
-          @log.error("failed to schedule job #{j.tag}")
-          @log.error(e)
+          logger.error("failed to schedule job #{j.tag}")
+          logger.error(e)
         end
       end
-      @log.debug 'processed all builds in the queue'
+      logger.debug 'processed all builds in the queue'
     end
 
     def cancel_timedout_pending_jobs
       timeout = Config::UCS.instance.pending_job_timeout
       @agents_manager.timedout_agents(timeout).each(&:cancel_job)
+    rescue StandardError => e
+      logger.fatal 'failed to cancel timed out pending jobs'
+      logger.fatal e
     end
 
     def schedule_job(job)
       build = job.build
-      @log.debug \
+      logger.debug \
         "looking for a capable agent to run the job #{build.tag}-#{job.tag}"
-      @log.debug "#{job.tag} requires capabilities: #{job.required_agent_capabilities}"
+      logger.debug "#{job.tag} requires capabilities: #{job.required_agent_capabilities}"
       agent = @agents_manager.find_agent(job.required_agent_capabilities)
       if agent.nil?
-        @log.info "no agents available to run the job #{build.tag}-#{job.tag}"
+        logger.info "no agents available to run the job #{build.tag}-#{job.tag}"
       else
         job.state = Build::State::PENDING
         @state_manager.put_state(StateManager::Types::BUILD, build.memento)

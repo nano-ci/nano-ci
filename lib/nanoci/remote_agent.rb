@@ -21,26 +21,33 @@ module Nanoci
       @capabilities = value
     end
 
-    # Returns a future that resolves into [Nanoci::Job]
+    # Returns a future for a pending job scheduled to execute on the agent
     # @return [Concurrent::Promises::Future]
     def pending_job
       @pending_job_future
     end
 
     # Runs a job on remote agent
-    # @param job [Nanoci::Job]
+    # @param job [Nanoci::BuildJob]
+    # @return [Concurrent::Promises::Promise::Future] A Future that contains a job
     def run_job(build, job)
-      super
+      future = super
 
       @pending_job_future.fulfill job
       self.status = AgentStatus::PENDING
+      future
+    end
+
+    def cancel_job
+      super
+      reset_pending_job_future
     end
 
     # Sets a new status of the agent
     # @param value [Nanoci::AgentStatus]
     def status=(value)
       # Reset next job future if agent becomes idle
-      reset_pending_job_future if status == AgentStatus::BUSY && value == AgentStatus::IDLE
+      reset_pending_job_future if [AgentStatus::BUSY, AgentStatus::PENDING].include?(status) && value == AgentStatus::IDLE
       super
     end
 

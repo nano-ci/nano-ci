@@ -5,6 +5,7 @@ require 'google/protobuf'
 
 require 'get_next_job_message_pb'
 require 'report_agent_status_message_pb'
+require 'report_job_state_message_pb'
 Google::Protobuf::DescriptorPool.generated_pool.build do
 end
 

@@ -11,7 +11,7 @@ module Nanoci
   module Remote
     # Implementation of RPC service AgentManager
     class AgentManagerServiceImpl < AgentManager::Service
-      include Mixins::Logger
+      include Logging.globally
 
       # Gets an [AgentManager]
       # @return [Nanoci::AgentManager]
@@ -63,6 +63,31 @@ module Nanoci
           )
         end
         response
+      end
+
+      # Reports job execution state from agent
+      # @param request [Nanoci::Remote::ReportJobStateRequest]
+      # @param _call [Object]
+      # @return [Nanoci::Remote::ReportJobStateResponse]
+      def report_job_state(request, _call)
+        agent_tag = request.agent_tag.to_sym
+        agent = agent_manager.get_agent(agent_tag)
+        if agent.nil?
+          logger.warning("received job status update from unknown agent #{agent_tag}, ignoring")
+          return ReportJobStateResponse.new
+        end
+
+        job = agent.current_job
+
+        if job.tag != request.job_tag.to_sym
+          logger.warning("received invaid job status update from agent #{agent_tag} - agent is not working on job #{job_tag}")
+          return ReportJobStateResponse.new
+        end
+
+        new_state = Nanoci::Build::State.value(request.state)
+        job.state = new_state if new_state != job.state
+
+        ReportJobStateResponse.new
       end
 
       private

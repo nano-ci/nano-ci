@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package nanoci.remote.job_state;
+
+enum JobState {
+	UNKNOWN = 0;
+	QUEUED = 1;
+	PENDING = 2;
+	RUNNING = 3;
+	ABORTED = 4;
+	FAILED = 5;
+	COMPLETED = 6;
+}

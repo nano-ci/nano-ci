@@ -9,9 +9,15 @@ module Nanoci
     attr_accessor :definition
     attr_accessor :jobs
 
+    # Gets a future resolved when all jobs in the stage are completed
+    # @return [Concurrent::Promises::Future]
+    attr_reader :completed_future
+
     def initialize(build, definition)
       @definition = definition
       @jobs = @definition.jobs.map { |j| BuildJob.new(build, j) }
+      @completed_future = Concurrent::Promises
+                          .zip_futures(*@jobs.map(&:completed_future))
     end
 
     def state

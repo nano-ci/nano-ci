@@ -37,7 +37,7 @@ module Nanoci
 
     def build_number=(value)
       var = variables['buildNumber']
-      var = Variable.new(tag: 'buildNumber', value: 1) if var.nil?
+      var = Variable.new(Definition::VariableDefinition.new(tag: 'buildNumber', value: 1)) if var.nil?
       var.value = value
       variables['buildNumber'] = var
     end
@@ -50,6 +50,7 @@ module Nanoci
       @repos = read_repos(definition.repos)
       @stages = read_stages(definition.stages)
       @variables = read_variables(definition.variables)
+      @reporters = []
       # @reporters = read_reporters(definition.reporters)
     end
 
