@@ -6,19 +6,22 @@ repos:
     src: git@bitbucket.org:thevk/nano-ci.git
     auth:
       ssh: c:/nano-ci/nanoci.ppk
-    triggers:
-      - type: poll
-        interval: 5
-        schedule: "0 0 1 ? * 1#2"
-stages:
-  - tag: build
-    jobs:
-      - tag: checkout
-        tasks:
-          - type: source-control
-            action: checkout
-            repo: main-repo
-          - type: test-rspec
+pipeline:
+  triggers:
+    - tag: trigger-pipeline
+      type: schedule
+      schedule: "0 0 1 ? * 1#2"
+  stages:
+    - tag: build
+      jobs:
+        - tag: checkout
+          tasks:
+            - type: source-control
+              action: checkout
+              repo: main-repo
+            - type: test-rspec
+  links:
+    - "trigger-pipeline -> build"
 reporters:
   - type: email
     what: all
