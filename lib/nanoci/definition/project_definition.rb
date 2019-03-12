@@ -2,8 +2,8 @@
 
 require 'yaml'
 
+require 'nanoci/definition/pipeline_definition'
 require 'nanoci/definition/repo_definition'
-require 'nanoci/definition/stage_definition'
 require 'nanoci/definition/variable_definition'
 
 module Nanoci
@@ -26,6 +26,12 @@ module Nanoci
       # @return [Array<RepoDefinition>]
       def repos
         read_repos(@hash.fetch(:repos, []))
+      end
+
+      # Returns the project pipeline
+      # @return [Nanoci::Definition::PipelineDefinition]
+      def pipeline
+        PipelineDefinition.new(@hash.fetch(:pipeline, {}))
       end
 
       # Returns the variables of the project
