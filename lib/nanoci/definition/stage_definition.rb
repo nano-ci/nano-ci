@@ -5,6 +5,12 @@ require 'nanoci/definition/job_definition'
 module Nanoci
   class Definition
     class StageDefinition
+      # Initializes new instance of the [StageDefinition]
+      # @param hash [Hash]
+      def initialize(hash)
+        @hash = hash
+      end
+
       # Returns stage tag
       # @return [Symbol]
       def tag
@@ -17,10 +23,10 @@ module Nanoci
         read_jobs(@hash.fetch(:jobs, []))
       end
 
-      # Initializes new instance of the [StageDefinition]
-      # @param hash [Hash]
-      def initialize(hash)
-        @hash = hash
+      # Returns array of inputs for the stage
+      # @return [Array<Symbol>]
+      def inputs
+        @hash.fetch(:inputs, []).map(&:to_sym)
       end
 
       private
