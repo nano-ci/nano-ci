@@ -37,12 +37,6 @@ module Nanoci
         @hash.fetch(:branch, nil)
       end
 
-      # Returns collection of triggers for the repo
-      # @return [Array<TriggerDefinition>] collection of triggers for the repo
-      def triggers
-        read_triggers(@hash.fetch(:triggers, []))
-      end
-
       # Returns authorization params for the repo
       # @return [Hash]
       def auth
@@ -59,20 +53,6 @@ module Nanoci
       # @param hash [Hash]
       def initialize(hash)
         @hash = hash
-      end
-
-      # Reads trigger definitions from src
-      # @param hash_array [Array<Hash>]
-      # @return [Array<TriggerDefitnion>]
-      def read_triggers(hash_array)
-        hash_array.map { |x| read_trigger(x) }
-      end
-
-      # Reads trigger definition from src
-      # @param hash [Hash]
-      # @return [TriggerDefinition]
-      def read_trigger(hash)
-        TriggerDefinition.new(hash)
       end
     end
   end

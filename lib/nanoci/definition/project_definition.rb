@@ -28,12 +28,6 @@ module Nanoci
         read_repos(@hash.fetch(:repos, []))
       end
 
-      # Returns the stages of the project
-      # @return [Array<StageDefinition>]
-      def stages
-        read_stages(@hash.fetch(:stages, []))
-      end
-
       # Returns the variables of the project
       # @return [Array<VariableDefinition>]
       def variables
@@ -51,13 +45,6 @@ module Nanoci
       # @return [Array<RepoDefinition>]
       def read_repos(repo_hash_array)
         repo_hash_array.map { |s| RepoDefinition.new(s) }
-      end
-
-      # Reads stage definitions from array of hashes
-      # @param stage_hash_array [Array<Hash>]
-      # @return [Array<StageDefinition>]
-      def read_stages(stage_hash_array)
-        stage_hash_array.map { |s| StageDefinition.new(s) }
       end
 
       # Reads variable definitions from array of hashes

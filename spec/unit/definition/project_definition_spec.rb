@@ -23,12 +23,6 @@ RSpec.describe Nanoci::Definition::ProjectDefinition do
     expect(project_definition.repos.size).to eq 1
   end
 
-  it 'reads stages from src' do
-    src = { tag: :project_tag, stages: [{ tag: :stage_tag }] }
-    project_definition = Nanoci::Definition::ProjectDefinition.new(src)
-    expect(project_definition.stages.size).to eq 1
-  end
-
   it 'reads variables from src' do
     src = { tag: :project_tag, variables: [{ tag: :variable_tag}] }
     project_definition = Nanoci::Definition::ProjectDefinition.new(src)
