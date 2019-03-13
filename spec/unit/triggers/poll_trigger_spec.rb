@@ -65,4 +65,8 @@ RSpec.describe Nanoci::Triggers::PollTrigger do
 
     trigger.run(build_scheduler, project, {})
   end
+
+  it 'registers itself in resources map as trigger:poll' do
+    expect(Nanoci.resources.get('trigger:poll')).to eq Nanoci::Triggers::PollTrigger
+  end
 end

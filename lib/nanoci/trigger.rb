@@ -10,19 +10,8 @@ module Nanoci
   class Trigger
     extend Mixins::Provides
 
-    class << self
-      # Registers a provider of a resource
-      # @param tag [String] tag to identify the provider
-      def provides(tag)
-        super("trigger:#{tag}")
-      end
-
-      # Returns the provider of a resource
-      # @param tag [String] tag to identify the provider
-      # @return [Class<Trigger>] class implementing the resource
-      def resolve(tag)
-        super("trigger:#{tag}")
-      end
+    def self.item_type
+      'trigger'
     end
 
     attr_reader :type
