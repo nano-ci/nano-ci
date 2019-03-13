@@ -13,6 +13,8 @@ pipeline:
       schedule: "0 0 1 ? * 1#2"
   stages:
     - tag: build
+      inputs:
+        - main-repo-head
       jobs:
         - tag: checkout
           tasks:
