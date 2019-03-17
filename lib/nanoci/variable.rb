@@ -29,23 +29,36 @@ module Nanoci
     attr_accessor :tag
     attr_accessor :value
 
-
-    # Initializes new instance of Variable
-    # @param definition [VariableDefinition]
-    def initialize(definition)
-      @tag = definition.tag
-      @value = definition.value
+    # @overload initialize(definition)
+    #   Inializes new instance of Variable using VariableDefinition
+    #   @param definition [VariableDefinition] Variable definition
+    # @overload initialize(key, value)
+    #   Initializes new instance of Variable using key and value
+    #   @param key [Symbol] Variable tag
+    #   @param value [Object] Variable value
+    def initialize(definition, value = nil)
+      case definition
+      when Definition::VariableDefinition
+        @tag = definition.tag
+        @value = definition.value
+      when Symbol
+        @tag = definition
+        @value = value
+      else
+        raise 'unsupported arguments'
+      end
     end
 
     # Expands variable value, i.e. substitutes var references with var values
     # @param variables [Hash<Symbol, Variable|String>]
     # @return [String] Expanded value of the variable
     def expand(variables)
-      result = value
-      if result.is_a? String
-        result = Variable.expand_string(result, variables)
+      case value
+      when String
+        Variable.expand_string(result, variables)
+      else
+        value
       end
-      result
     end
 
     def memento
@@ -63,6 +76,19 @@ module Nanoci
 
     def to_s
       value
+    end
+
+    def inspect
+      "<Variable #{tag}: #{value}>"
+    end
+
+    def ==(other)
+      case other
+      when Variable
+        @tag == other.tag && @value == other.value
+      else
+        @value == other
+      end
     end
   end
 end
