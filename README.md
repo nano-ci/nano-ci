@@ -1,4 +1,4 @@
-# Nanoci v0.1.0
+# nano-ci v0.1.0
 
 nano-ci is a minimalistic CI/CD system developed with Ruby. The main goal is to
 build a CI/CD system for modern large-scale systems consisting of tens and
