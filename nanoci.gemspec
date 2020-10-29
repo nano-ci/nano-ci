@@ -25,7 +25,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'bundler', '~> 2.0'
   spec.add_runtime_dependency 'concurrent-ruby', '~> 1.0'
   spec.add_runtime_dependency 'concurrent-ruby-edge', '~> 0.4'
-  spec.add_runtime_dependency 'grpc', '~> 1.16.0'
+  spec.add_runtime_dependency 'grpc', '~> 1.32.0'
   spec.add_runtime_dependency 'logging', '~> 2.2'
   spec.add_runtime_dependency 'mail', '~> 2.7'
   spec.add_runtime_dependency 'mongo', '~> 2.5'
