@@ -1,0 +1,44 @@
+project :'nano-ci', 'main nano-ci project' do
+  plugin :'repo.git', '0.1.0'
+  plugin :'tools.ruby', '0.1.0'
+
+  repo :abc do
+    type :git,
+    uri 'https://github.com/my-company/app-abc',
+    auth {
+      key_file: '/home/private/key_id_rsa',
+      key_passphrase: '${ENV.key_passphrase}'
+    }
+  end
+
+  pipeline 'web service pipeline' do
+    trigger :poll do
+      repo: :abc,
+      schedule: 5
+    end
+
+    stage :build, inputs: [:'repo.abc'] do
+      job :build_job, work_dir: './repo/abc' do |inputs|
+        VCS.checkout(:abc, "#{inputs.repo.abc}")
+        Ruby.rake :build
+        Ruby.rake :test
+        Pipeline.output :'abc.gem.version' Ruby.gem.version
+      end
+    end
+
+    stage :'test.integration', inputs: [:'abc.gem.version'] do
+      job :api_tests do |inputs|
+        Ruby.gem.install 'abc', inputs.abc.gem.version
+        Ruby.rake :api_tests
+      end
+    end
+
+    stage :'deploy.prod', inputs: [:'abc.gem.version'] do
+      job :deploy do |inputs|
+        Shell.run "deploy.sh"
+      end
+    end
+
+    pipe :'trigger.pool.abc' => :build => :'test.integration' => :'deploy.prod'
+  end
+end
