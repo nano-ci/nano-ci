@@ -14,18 +14,16 @@ module Nanoci
 
       class << self
         def from_string(str)
-          pr = ScriptDSL.new
-          pr.instance_eval(str)
-          pr
+          script = ScriptDSL.new
+          script.instance_eval(str)
+          script
         end
       end
 
       def project(tag, name, &block)
         raise "project #{tag} is missing definition block" if block.nil?
 
-        pr = ProjectDSL.new
-        pr.tag = tag
-        pr.name = name
+        pr = ProjectDSL.new(tag, name)
         projects[tag] = pr
         pr.instance_eval(&block)
       end

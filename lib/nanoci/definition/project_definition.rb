@@ -40,6 +40,10 @@ module Nanoci
         read_variables(@hash.fetch(:variables, []))
       end
 
+      def plugins
+        @hash.fetch(:plugins, {})
+      end
+
       # Initializes new instance of ProjectDefinition
       # @param hash [Hash{Symbol => String, Hash}]
       def initialize(hash)
