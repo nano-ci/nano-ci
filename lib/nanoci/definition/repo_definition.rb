@@ -6,7 +6,6 @@ module Nanoci
   class Definition
     # Repo definition
     class RepoDefinition
-
       # Returns the tag of the repo
       # @return [Symbol] the tag of the repo
       def tag

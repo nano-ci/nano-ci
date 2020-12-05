@@ -3,12 +3,12 @@ project :'nano-ci', 'main nano-ci project' do
   plugin :'tools.ruby', '0.1.0'
 
   repo :abc do
-    type = :git
-    uri = 'https://github.com/my-company/app-abc'
-    auth = {
+    type :git
+    uri 'https://github.com/my-company/app-abc'
+    auth(
       key_file: '/home/private/key_id_rsa',
       key_passphrase: '${ENV.key_passphrase}'
-    }
+    )
   end
 
   pipeline 'web service pipeline' do

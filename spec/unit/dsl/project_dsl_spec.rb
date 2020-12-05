@@ -20,4 +20,15 @@ RSpec.describe Nanoci::DSL::ProjectDSL do
     project_def = dsl.build
     expect(project_def.plugins).to include(ruby_plugin: '1.0.0')
   end
+
+  it 'reads repo from DSL' do
+    dsl = Nanoci::DSL::ProjectDSL.new(:project_tag, 'project name')
+    dsl.instance_eval do
+      repo :git_repo do
+      end
+    end
+    project_def = dsl.build
+    expect(project_def.repos.length).to eq 1
+    expect(project_def.repos[0].tag).to eq :git_repo
+  end
 end
