@@ -32,7 +32,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'ruby-enum', '~> 0.7'
 
   spec.add_development_dependency 'grpc-tools', '1.16.0'
-  spec.add_development_dependency 'rake', '~> 12.0'
+  spec.add_development_dependency 'rake', '~> 13.0'
   spec.add_development_dependency 'rspec', '~> 3.0'
   spec.add_development_dependency 'rspec-mocks', '~> 3.7'
   spec.add_development_dependency 'simplecov', '~> 0.15'
