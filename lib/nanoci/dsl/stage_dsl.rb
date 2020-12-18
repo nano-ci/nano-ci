@@ -4,14 +4,15 @@ module Nanoci
   module DSL
     # StageDSL class contains methods to support nano-ci stage DSL.
     class StageDSL
-      def initialize(tag, params = {})
+      def initialize(tag, inputs: [])
         @tag = tag
-        @inputs = params.fetch(:inputs, [])
+        @inputs = inputs
         @jobs = []
       end
 
       def job(tag, params = {}, &block)
         raise "job #{tag} is missing definition block" if block.nil?
+
         job = JobDSL.new(tag, params, block)
         @jobs.push(job)
       end
