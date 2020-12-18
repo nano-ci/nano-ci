@@ -8,8 +8,8 @@ RSpec.describe Nanoci::DSL::ProjectDSL do
   it 'builds ProjectDefinition from DSL' do
     dsl = Nanoci::DSL::ProjectDSL.new(:project_tag, 'project name')
     project_def = dsl.build
-    expect(project_def.tag).to eq :project_tag
-    expect(project_def.name).to eq 'project name'
+    expect(project_def[:tag]).to eq :project_tag
+    expect(project_def[:name]).to eq 'project name'
   end
 
   it 'reads plugin from DSL' do
@@ -18,7 +18,7 @@ RSpec.describe Nanoci::DSL::ProjectDSL do
       plugin :ruby_plugin, '1.0.0'
     end
     project_def = dsl.build
-    expect(project_def.plugins).to include(ruby_plugin: '1.0.0')
+    expect(project_def[:plugins]).to include(ruby_plugin: '1.0.0')
   end
 
   it 'reads repo from DSL' do
@@ -28,8 +28,8 @@ RSpec.describe Nanoci::DSL::ProjectDSL do
       end
     end
     project_def = dsl.build
-    expect(project_def.repos.length).to eq 1
-    expect(project_def.repos[0].tag).to eq :git_repo
+    expect(project_def[:repos].length).to eq 1
+    expect(project_def[:repos][0][:tag]).to eq :git_repo
   end
 
   it 'reads pipeline from DSL' do
@@ -38,7 +38,8 @@ RSpec.describe Nanoci::DSL::ProjectDSL do
       pipeline 'project pipeline' do
       end
     end
-    expect(dsl.build.pipeline).not_to be nil
+    project_def = dsl.build
+    expect(project_def[:pipeline]).not_to be nil
   end
 
   it 'enables operator >> for Symbols' do
@@ -48,7 +49,7 @@ RSpec.describe Nanoci::DSL::ProjectDSL do
         pipe :abc >> :def
       end
     end
-
-    expect(dsl.build.pipeline.hash).to include(pipe: :"abc>>def")
+    project_def = dsl.build
+    expect(project_def[:pipeline]).to include(pipe: :"abc>>def")
   end
 end

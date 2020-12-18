@@ -12,26 +12,19 @@ RSpec.describe Nanoci::DSL::ScriptDSL do
     )
     pipe_dsl = Nanoci::DSL::ScriptDSL.from_string(str)
     expect(pipe_dsl).not_to be nil
-    expect(pipe_dsl.projects).to include :prtag
+    expect(pipe_dsl.projects.length).to eq 1
+    pr_def = pipe_dsl.projects[0].build
+    expect(pr_def[:tag]).to eq :prtag
   end
 
-  it 'sets project tag to value from string' do
+  it 'sets project name to value from string' do
     str = %(
       project :prtag, 'test project' do
       end
     )
     pipe_dsl = Nanoci::DSL::ScriptDSL.from_string(str)
 
-    expect(pipe_dsl.projects[:prtag].tag).to eq :prtag
-  end
-
-  it 'sets project tag to value from string' do
-    str = %(
-      project :prtag, 'test project' do
-      end
-    )
-    pipe_dsl = Nanoci::DSL::ScriptDSL.from_string(str)
-
-    expect(pipe_dsl.projects[:prtag].name).to eq 'test project'
+    pr_def = pipe_dsl.projects[0].build
+    expect(pr_def[:name]).to eq 'test project'
   end
 end

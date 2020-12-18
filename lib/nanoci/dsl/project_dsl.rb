@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'nanoci/definition/project_definition'
 require 'nanoci/dsl/pipeline_dsl'
 require 'nanoci/dsl/repo_dsl'
 
@@ -72,14 +71,13 @@ module Nanoci
 
       # Builds and returns [Nanoci::Definition::ProjectDefinition] from DSL
       def build
-        hash = {
+        {
           name: name,
           tag: tag,
           plugins: plugins,
           repos: repos.collect(&:build),
           pipeline: @pipeline&.build
         }
-        Nanoci::Definition::ProjectDefinition.new(hash)
       end
     end
   end
