@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'nanoci/definition/project_definition'
+require 'nanoci/dsl/pipeline_dsl'
 require 'nanoci/dsl/repo_dsl'
 
 module Nanoci
@@ -51,13 +52,32 @@ module Nanoci
         @repos.push(repo)
       end
 
+      # Declares a project's pipeline
+      # @param name [String] Pipeline name
+      def pipeline(name, &block)
+        raise "pipeline #{name} is missing definition block" if block.nil?
+
+        @pipeline = PipelineDSL.new(name)
+
+        Symbol.class_eval do
+          def >>(other)
+            (to_s << '>>' << other.to_s).to_sym
+          end
+        end
+
+        @pipeline.instance_eval(&block)
+
+        Symbol.remove_method(:>>)
+      end
+
       # Builds and returns [Nanoci::Definition::ProjectDefinition] from DSL
       def build
         hash = {
           name: name,
           tag: tag,
           plugins: plugins,
-          repos: repos.collect(&:build)
+          repos: repos.collect(&:build),
+          pipeline: @pipeline&.build
         }
         Nanoci::Definition::ProjectDefinition.new(hash)
       end

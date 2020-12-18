@@ -22,7 +22,7 @@ project :'nano-ci', 'main nano-ci project' do
         VCS.checkout(:abc, "#{inputs.repo.abc}")
         Ruby.rake :build
         Ruby.rake :test
-        Pipeline.output :'abc.gem.version' Ruby.gem.version
+        Pipeline.output :'abc.gem.version', Ruby.gem.version
       end
     end
 
@@ -39,6 +39,6 @@ project :'nano-ci', 'main nano-ci project' do
       end
     end
 
-    pipe :'trigger.pool.abc' => :build => :'test.integration' => :'deploy.prod'
+    pipe :'trigger.pool.abc' >> :build >> :'test.integration' >> :'deploy.prod'
   end
 end

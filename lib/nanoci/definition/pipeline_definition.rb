@@ -7,6 +7,8 @@ module Nanoci
   class Definition
     # Pipeline definition
     class PipelineDefinition
+      attr_reader :hash
+
       def initialize(hash)
         # @type [Hash]
         @hash = hash

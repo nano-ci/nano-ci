@@ -31,4 +31,24 @@ RSpec.describe Nanoci::DSL::ProjectDSL do
     expect(project_def.repos.length).to eq 1
     expect(project_def.repos[0].tag).to eq :git_repo
   end
+
+  it 'reads pipeline from DSL' do
+    dsl = Nanoci::DSL::ProjectDSL.new(:project_tag, 'project name')
+    dsl.instance_eval do
+      pipeline 'project pipeline' do
+      end
+    end
+    expect(dsl.build.pipeline).not_to be nil
+  end
+
+  it 'enables operator >> for Symbols' do
+    dsl = Nanoci::DSL::ProjectDSL.new(:project_tag, 'project name')
+    dsl.instance_eval do
+      pipeline 'project pipeline' do
+        pipe :abc >> :def
+      end
+    end
+
+    expect(dsl.build.pipeline.hash).to include(pipe: :"abc>>def")
+  end
 end
