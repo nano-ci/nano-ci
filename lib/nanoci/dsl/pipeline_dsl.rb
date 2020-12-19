@@ -11,6 +11,7 @@ module Nanoci
         @name = name
         @triggers = []
         @stages = []
+        @pipes = []
       end
 
       def trigger(tag, &block)
@@ -30,7 +31,7 @@ module Nanoci
       end
 
       def pipe(pipe)
-        @pipe = pipe
+        @pipes.push(pipe)
       end
 
       def build
@@ -38,7 +39,7 @@ module Nanoci
           name: @name,
           triggers: @triggers.collect(&:build),
           stages: @stages.collect(&:build),
-          pipe: @pipe
+          pipes: @pipes
         }
       end
     end
