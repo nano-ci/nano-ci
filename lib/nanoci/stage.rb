@@ -7,22 +7,25 @@ module Nanoci
   # Each job is executed concurrently on a free agent
   # All jobs must complete successfully before build proceeds to the next stage
   class Stage
+    # @return [Symbol]
     attr_accessor :tag
+
+    # @return [Array<Nanoci::Job>]
     attr_accessor :jobs
 
     # Initializes new instance of [Stage]
-    # @param definition [StageDefinition]
+    # @param src [Hash]
     # @param project [Project]
     # @return [Stage]
-    def initialize(definition)
-      @tag = definition.tag
-      @jobs = read_jobs(definition.jobs)
+    def initialize(src)
+      @tag = src[:tag]
+      @jobs = read_jobs(src[:jobs])
     end
 
     private
 
-    def read_jobs(job_definitions)
-      job_definitions.map { |d| Job.new(d) }
+    def read_jobs(src)
+      src.collect { |d| Job.new(d) }
     end
   end
 end
