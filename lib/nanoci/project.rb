@@ -4,61 +4,44 @@ require 'logging'
 
 require 'nanoci'
 require 'nanoci/definition/variable_definition'
+require 'nanoci/pipeline'
 require 'nanoci/repo'
-require 'nanoci/stage'
 require 'nanoci/variable'
 
 module Nanoci
-  ##
   # Represents a project in nano-ci
   class Project
-    attr_reader :stages
 
     # @return [Hash{Symbol => Repo}]
     attr_reader :repos
-    attr_reader :variables
+
+    # @return [Nanoci::Pipeline]
+    attr_reader :pipeline
     attr_reader :reporters
 
-    # Project definition
-    # @return [Nanoci::Definition::ProjectDefinition]
-    attr_reader :definition
-
     def name
-      definition.name
+      @source[:name]
     end
 
     def tag
-      definition.tag
-    end
-
-    def build_number
-      variables['buildNumber']&.value || 1
-    end
-
-    def build_number=(value)
-      var = variables['buildNumber']
-      var = Variable.new(Definition::VariableDefinition.new(tag: 'buildNumber', value: 1)) if var.nil?
-      var.value = value
-      variables['buildNumber'] = var
+      @source[:tag]
     end
 
     # Initializes new instance of [Project]
-    # @param definition [ProjectDefinition]
-    def initialize(definition)
+    # @param source [Hash] Hash with data from DSL
+    def initialize(source)
       @log = Logging.logger[self]
-      @definition = definition
-      @repos = read_repos(definition.repos)
-      @stages = read_stages(definition.stages)
-      @variables = read_variables(definition.variables)
+      @source = source
+      @repos = read_repos(@source.fetch(:repos, []))
+      @pipeline = read_pipeline(@source.fetch(:pipeline, {}))
       @reporters = []
-      # @reporters = read_reporters(definition.reporters)
     end
 
     def state
       {
         tag: tag,
-        repos: repos.map { |k, v| [k, v.state] }.to_h,
-        variables: variables.map { |k, v| [k, v.memento]}.to_h
+        repos: repos.transform_values(&:state),
+        variables: variables.transform_values(&:memento)
       }
     end
 
@@ -93,27 +76,18 @@ module Nanoci
       end
     end
 
-    ##
     # Reads repos from array of repo definitions
-    # @param repo_definition [Array<RepoDefinition>]
+    # @param src [Array<Hash>]
     # @return [Array<Repo>]
-    def read_repos(repo_definitions)
-      repo_definitions.map { |r| [r.tag, Repo.resolve(r.type).new(r)] }.to_h
+    def read_repos(src)
+      src.to_h { |s| [r[:tag], Repo.resolve(s[:type].new(s))] }
     end
 
-    ##
-    # Reads repos from array of repo definitions
-    # @param repo_definitions [Array<RepoDefinition>]
-    # @return [Array<Repo>]
-    def read_stages(stage_definitions)
-      stage_definitions.map { |d| Stage.new(d) }
-    end
-
-    # Reads repos from array of repo definitions
-    # @param repo_definition [Array<RepoDefinition>]
-    # @return [Array<Repo>]
-    def read_variables(variable_definition)
-      variable_definition.map { |d| [d.tag, Variable.new(d)] }.to_h
+    # Reads pipeline from src
+    # @param src [Hash]
+    # @return [Nanoci::Pipeline]
+    def read_pipeline(src)
+      Pipeline.new(src)
     end
   end
 end
