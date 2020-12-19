@@ -69,7 +69,8 @@ module Nanoci
         Symbol.remove_method(:>>)
       end
 
-      # Builds and returns [Nanoci::Definition::ProjectDefinition] from DSL
+      # Builds and returns [Hash] from DSL
+      # @return [Hash]
       def build
         {
           name: name,

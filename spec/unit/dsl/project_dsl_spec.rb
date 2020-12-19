@@ -5,7 +5,7 @@ require 'spec_helper'
 require 'nanoci/dsl/project_dsl'
 
 RSpec.describe Nanoci::DSL::ProjectDSL do
-  it 'builds ProjectDefinition from DSL' do
+  it 'builds Hash from DSL' do
     dsl = Nanoci::DSL::ProjectDSL.new(:project_tag, 'project name')
     project_def = dsl.build
     expect(project_def[:tag]).to eq :project_tag
