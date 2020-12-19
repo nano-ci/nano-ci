@@ -3,7 +3,6 @@
 require 'logging'
 
 require 'nanoci/config/ucs'
-require 'nanoci/definition/repo_definition'
 require 'nanoci/mixins/provides'
 require 'nanoci/triggers/all'
 
@@ -28,74 +27,47 @@ module Nanoci
       end
     end
 
-    ##
-    # Repo definition
-    # @return [RepoDefinition]
-    attr_reader :definition
-
-    ##
     # Tag is an id used to identify repo of a project
     # Repo tag must be unique
     # @return [Symbol]
     def tag
-      @definition.tag
+      @src[:tag]
     end
 
-    ##
     # Type of the repo, e.g. 'git', 'svn', etc.
     # @return [String]
     def type
-      @definition.type
+      @src[:type]
     end
 
-    ##
-    # Boolean flag that indicates if this is the main repo of a project
-    # @return [Boolean]
-    def main
-      @definition.main
-    end
-
-    ##
     # URI that points to repo storage (on http server, file path, etc.)
     # @return [String]
-    def src
-      @definition.src
+    def uri
+      @src[:uri]
     end
 
-    ##
     # Name of the branch, tag, commit hash, etc - anything points to a commit
     def branch
-      @definition.branch
+      @src.fetch(:branch, nil)
     end
 
-    ##
     # Object specifies authentication against repo
     def auth
-      @definition.auth
+      @src.fetch(:auth, nil)
     end
 
-    attr_accessor :current_commit
-
-    # Array of triggers
-    # @return [Array<Trigger>]
-    attr_reader :triggers
-
-    ##
     # Collection of capabilities requred to run
     # a job against the repo on an agent
     attr_reader :required_agent_capabilities
 
-    ##
     # Initializes new instance of Repo
-    # @param definition [Nanoci::Definition::RepoDefinition]
-    def initialize(definition)
+    # @param src [Hash]
+    def initialize(src)
       @log = Logging.logger[self]
 
-      @definition = definition
+      @src = src
       @required_agent_capabilities = []
       @current_commit = ''
-
-      @triggers = @definition.triggers.map { |td| Trigger.resolve(td.type).new(self, td) }
     end
 
     def repo_cache
