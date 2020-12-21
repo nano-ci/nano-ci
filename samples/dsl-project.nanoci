@@ -12,12 +12,12 @@ project :'nano-ci', 'main nano-ci project' do
   end
 
   pipeline 'web service pipeline' do
-    trigger :poll do
-      repo :abc
-      schedule 5
+    trigger :pipeline_trigger do
+      type :interval
+      interval 5
     end
 
-    stage :build, inputs: [:'repo.abc'] do
+    stage :build, inputs: [:'trigger.pipeline_trigger.trigger_time', :'repo.abc'] do
       job :build_job, work_dir: './repo/abc' do |inputs|
         VCS.checkout(:abc, "#{inputs.repo.abc}")
         Ruby.rake :build

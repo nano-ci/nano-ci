@@ -28,11 +28,23 @@ module Nanoci
       @type = hash[:type]
     end
 
-    def run(build_scheduler, project)
-      @build_scheduler = build_scheduler
+    # Starts the trigger
+    # @param pipeline_engine [#push_input]
+    # @param project [Nanoci::Project]
+    def run(pipeline_engine, project)
+      @pipeline_engine = pipeline_engine
       @project = project
 
       @log.info("running trigger #{tag}")
+    end
+
+    protected
+
+    # Formats output tag by adding trigger prefix
+    # @param output_tag [Symbol]
+    # @return [Symbol]
+    def format_output(output_tag)
+      "trigger.#{tag}.#{output_tag}".to_sym
     end
   end
 end

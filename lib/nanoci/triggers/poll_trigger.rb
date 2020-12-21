@@ -9,7 +9,7 @@ require 'nanoci/trigger'
 
 module Nanoci
   # Built-in nano-ci triggers
-  class Triggers
+  module Triggers
     # Poll trigger class
     # Poll trigger is the trigger that checks a repo on a scheduled basis
     class PollTrigger < Trigger
