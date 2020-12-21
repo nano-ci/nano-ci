@@ -6,10 +6,20 @@ require 'nanoci/trigger'
 module Nanoci
   # Pipeline is the  class that organizes data flow between project stages.
   class Pipeline
+    # Gets the pipeline tag.
+    # @return [Symbol]
+    attr_reader :tag
+
+    # Gets the pipeline name.
+    # @return [String]
+    attr_reader :name
+
     # Initializes new instance of Pipeline
     # @param src [Hash]
     def initialize(src)
       @src = src
+      @tag = @src[:tag]
+      @name = @src[:name]
       @triggers = read_triggers(@src.fetch(:triggers, []))
       @stages = read_stages(@src.fetch[:stages, []])
       @pipes = read_pipes(@src.fetch[:pipes, []])

@@ -5,8 +5,20 @@ require 'spec_helper'
 require 'nanoci/dsl/pipeline_dsl'
 
 RSpec.describe Nanoci::DSL::PipelineDSL do
+  it 'reads pipeline tag from DSL' do
+    dsl = Nanoci::DSL::PipelineDSL.new(:pipe, 'test pipeline')
+    pd = dsl.build
+    expect(pd).to include(tag: :pipe)
+  end
+
+  it 'reads pipeline tag from DSL' do
+    dsl = Nanoci::DSL::PipelineDSL.new(:pipe, 'test pipeline')
+    pd = dsl.build
+    expect(pd).to include(name: 'test pipeline')
+  end
+
   it 'reads trigger from DSL' do
-    dsl = Nanoci::DSL::PipelineDSL.new('test pipeline')
+    dsl = Nanoci::DSL::PipelineDSL.new(:pipe, 'test pipeline')
     dsl.instance_eval do
       trigger :poll do
       end
@@ -17,7 +29,7 @@ RSpec.describe Nanoci::DSL::PipelineDSL do
   end
 
   it 'reads stage from DSL' do
-    dsl = Nanoci::DSL::PipelineDSL.new('test pipeline')
+    dsl = Nanoci::DSL::PipelineDSL.new(:pipe, 'test pipeline')
     dsl.instance_eval do
       stage :test, inputs: [:'repo.abc'] do
       end
