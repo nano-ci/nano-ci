@@ -8,19 +8,24 @@ module Nanoci
         @tag = tag
       end
 
+      def type(type)
+        @type = type
+      end
+
       def repo(repo_tag)
         @repo = repo_tag
       end
 
-      def schedule(schedule)
-        @schedule = schedule
+      def interval(interval_sec)
+        @interval = interval_sec
       end
 
       def build
         {
           tag: @tag,
+          type: @type,
           repo: @repo,
-          schedule: @schedule
+          interval: @interval
         }
       end
     end
