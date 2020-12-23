@@ -14,6 +14,15 @@ module Nanoci
     # @return [String]
     attr_reader :name
 
+    # @return [Array<Nanoci::Trigger>]
+    attr_reader :triggers
+
+    # @return [Array<Nanoci::Stage>]
+    attr_reader :stages
+
+    # @return [Hash{Symbol => Array<Symbol>}]
+    attr_reader :pipes
+
     # Initializes new instance of Pipeline
     # @param src [Hash]
     def initialize(src)
