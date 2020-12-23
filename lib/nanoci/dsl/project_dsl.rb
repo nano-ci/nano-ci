@@ -52,11 +52,12 @@ module Nanoci
       end
 
       # Declares a project's pipeline
+      # @param tag [Symbol] Pipeline tag
       # @param name [String] Pipeline name
-      def pipeline(name, &block)
+      def pipeline(tag, name, &block)
         raise "pipeline #{name} is missing definition block" if block.nil?
 
-        @pipeline = PipelineDSL.new(name)
+        @pipeline = PipelineDSL.new(tag, name)
 
         Symbol.class_eval do
           def >>(other)

@@ -35,7 +35,7 @@ RSpec.describe Nanoci::DSL::ProjectDSL do
   it 'reads pipeline from DSL' do
     dsl = Nanoci::DSL::ProjectDSL.new(:project_tag, 'project name')
     dsl.instance_eval do
-      pipeline 'project pipeline' do
+      pipeline :pipe, 'project pipeline' do
       end
     end
     project_def = dsl.build
@@ -45,7 +45,7 @@ RSpec.describe Nanoci::DSL::ProjectDSL do
   it 'enables operator >> for Symbols' do
     dsl = Nanoci::DSL::ProjectDSL.new(:project_tag, 'project name')
     dsl.instance_eval do
-      pipeline 'project pipeline' do
+      pipeline :pipe, 'project pipeline' do
         pipe :abc >> :def
       end
     end

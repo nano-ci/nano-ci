@@ -29,12 +29,9 @@ module Nanoci
     end
 
     # Starts the trigger
-    # @param pipeline_engine [#push_input]
-    # @param project [Nanoci::Project]
-    def run(pipeline_engine, project)
+    # @param pipeline_engine [Nanoci::Pipeline]
+    def run(pipeline_engine)
       @pipeline_engine = pipeline_engine
-      @project = project
-
       @log.info("running trigger #{tag}")
     end
 

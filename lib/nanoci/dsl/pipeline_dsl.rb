@@ -7,7 +7,8 @@ module Nanoci
   module DSL
     # PipelineDSL class contains methods to support nano-ci pipeline DSL.
     class PipelineDSL
-      def initialize(name)
+      def initialize(tag, name)
+        @tag = tag
         @name = name
         @triggers = []
         @stages = []
@@ -36,6 +37,7 @@ module Nanoci
 
       def build
         {
+          tag: @tag,
           name: @name,
           triggers: @triggers.collect(&:build),
           stages: @stages.collect(&:build),
