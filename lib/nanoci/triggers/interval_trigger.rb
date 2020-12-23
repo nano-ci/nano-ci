@@ -20,13 +20,12 @@ module Nanoci
       end
 
       # Starts the trigger
-      # @param pipeline_engine [#push_outputs]
-      # @param project [Nanoci::Project]
-      def run(pipeline_engine, project)
+      # @param pipeline_engine [Nanoci::PipelineEngine]
+      def run(pipeline_engine)
         @timer = Concurrent::TimerTask.new(execution_interval: @interval) do
           outputs = {}
           outputs[format_output(:trigger_time)] = Time.now.utc.iso8601
-          pipeline_engine.push_outputs(outputs)
+          pipeline_engine.pulse(tag, outputs)
         end
         @timer.execute
       end
