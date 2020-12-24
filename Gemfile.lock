@@ -1,3 +1,11 @@
+GIT
+  remote: https://github.com/the-vk/code-scanning-rubocop
+  revision: c6e9aac6f2666112b1adb935b015025f50fa719f
+  branch: feature-rubocop-1.x
+  specs:
+    code-scanning-rubocop (0.4.0)
+      rubocop (~> 1.0)
+
 PATH
   remote: .
   specs:
@@ -16,8 +24,6 @@ GEM
   specs:
     ast (2.4.1)
     bson (4.11.1)
-    code-scanning-rubocop (0.4.0)
-      rubocop (> 0.82.0)
     concurrent-ruby (1.1.7)
     concurrent-ruby-edge (0.6.0)
       concurrent-ruby (~> 1.1.6)
@@ -94,7 +100,7 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
-  code-scanning-rubocop (~> 0.4)
+  code-scanning-rubocop!
   grpc-tools (= 1.16.0)
   nanoci!
   rake (~> 13.0)
