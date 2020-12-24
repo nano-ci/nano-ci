@@ -1,9 +1,9 @@
 GIT
   remote: https://github.com/the-vk/code-scanning-rubocop
-  revision: c6e9aac6f2666112b1adb935b015025f50fa719f
+  revision: 6526e4a844ea97181d7f6945c1525029a509eb6e
   branch: feature-rubocop-1.x
   specs:
-    code-scanning-rubocop (0.4.0)
+    code-scanning-rubocop (0.5.0)
       rubocop (~> 1.0)
 
 PATH
@@ -28,7 +28,7 @@ GEM
     concurrent-ruby-edge (0.6.0)
       concurrent-ruby (~> 1.1.6)
     diff-lcs (1.4.4)
-    docile (1.3.2)
+    docile (1.3.4)
     google-protobuf (3.14.0)
     google-protobuf (3.14.0-x64-mingw32)
     googleapis-common-protos-types (1.0.5)
@@ -56,9 +56,9 @@ GEM
     parser (2.7.2.0)
       ast (~> 2.4.1)
     rainbow (3.0.0)
-    rake (13.0.1)
-    regexp_parser (2.0.0)
-    rexml (3.2.3)
+    rake (13.0.3)
+    regexp_parser (2.0.1)
+    rexml (3.2.4)
     rspec (3.10.0)
       rspec-core (~> 3.10.0)
       rspec-expectations (~> 3.10.0)
