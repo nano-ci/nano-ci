@@ -64,7 +64,7 @@ module Nanoci
     # Determines if there are changes in stage triggering inputs
     # @param next_inputs [Hash{Symbol => String}]
     def should_trigger?(next_inputs)
-      triggering_inputs.any do |ti|
+      triggering_inputs.any? do |ti|
         next_inputs.key?(ti) && next_inputs[ti] != stage.inputs.fetch(ti, nil)
       end
     end
@@ -75,6 +75,7 @@ module Nanoci
     def run(next_inputs, pipeline_engine)
       @prev_inputs = @inputs
       @inputs = @inputs.merge(next_inputs)
+      stage = Stage::State::RUNNING
       @jobs.each do |j|
         pipeline_engine.run_job(self, j, @inputs, @prev_inputs)
       end

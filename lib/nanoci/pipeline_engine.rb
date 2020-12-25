@@ -83,9 +83,7 @@ module Nanoci
     # @param stage_tag [Symbol]
     # @param outputs [Hash{Symbol => String}]
     def pulse(stage_tag, outputs)
-      @pipes[stage_tag].each do |stag|
-        next_stage = @stages[stag]
-        next_stage.state = Stage::State::RUNNING
+      (@pipes[stage_tag].map { |s| @stages[s] }).each do |next_stage|
         next_stage.run(outputs) if next_stage.should_trigger? outputs
       end
     end
