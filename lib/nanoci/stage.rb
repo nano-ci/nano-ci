@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'logging'
+
 require 'nanoci/job'
 require 'nanoci/stage_state'
 
@@ -38,13 +40,9 @@ module Nanoci
       transition = [@state, next_state]
       @state = next_state
 
-      case transition
-      in [State::IDLE, State::RUNNING]
-        @pending_inputs = {}
-      in [State::RUNNING, State::IDLE]
-        @outputs = @pending_inputs
-        @pending_inputs = {}
-      end
+      @log.info "stage <#{tag}> state changed from #{transition[0]} to #{transition[1]}"
+
+      handle_state_transition transition
     end
 
     # Initializes new instance of [Stage]
@@ -52,12 +50,14 @@ module Nanoci
     # @param project [Project]
     # @return [Stage]
     def initialize(src)
+      @log = Logging.logger[self]
       @tag = src[:tag]
       @triggering_inputs = src[:inputs]
       @inputs = {}
       @jobs = read_jobs(src[:jobs])
       @inputs = {}
       @prev_inputs = {}
+      @pending_outputs = {}
       @state = State::IDLE
     end
 
@@ -65,7 +65,7 @@ module Nanoci
     # @param next_inputs [Hash{Symbol => String}]
     def should_trigger?(next_inputs)
       triggering_inputs.any? do |ti|
-        next_inputs.key?(ti) && next_inputs[ti] != stage.inputs.fetch(ti, nil)
+        next_inputs.key?(ti) && next_inputs[ti] != inputs.fetch(ti, nil)
       end
     end
 
@@ -75,7 +75,7 @@ module Nanoci
     def run(next_inputs, pipeline_engine)
       @prev_inputs = @inputs
       @inputs = @inputs.merge(next_inputs)
-      stage = Stage::State::RUNNING
+      self.state = Stage::State::RUNNING
       @jobs.each do |j|
         pipeline_engine.run_job(self, j, @inputs, @prev_inputs)
       end
@@ -89,6 +89,16 @@ module Nanoci
 
     def read_jobs(src)
       src.collect { |d| Job.new(d) }
+    end
+
+    def handle_state_transition(transition)
+      case transition
+        in [State::IDLE, State::RUNNING]
+          @pending_outputs = {}
+        in [State::RUNNING, State::IDLE]
+          @outputs = @pending_outputs
+          @pending_outputs = {}
+        end
     end
   end
 end

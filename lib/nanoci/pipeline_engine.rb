@@ -27,19 +27,26 @@ module Nanoci
 
     # Starts the engine
     def run
+      @log.info 'pipeline engine is running'
       Concurrent::Promises.future do
         cancellation, @stop_signal = Concurrent::Cancellation.new
         until cancellation.canceled?
           t = @task_queue.pop
-          case t.type
-          when Events::EXECUTE_JOB
-            execute_job(t.stage, t.job, t.inputs, t.prev_inputs)
-          when Events::JOB_FINISHED
-            finalize_job(t.stage, t.job, t.outputs)
-          when Events::STAGE_FINISHED
-            finalize_stage(t.stage)
+          begin
+            case t.type
+            when Events::EXECUTE_JOB
+              execute_job(t.stage, t.job, t.inputs, t.prev_inputs)
+            when Events::JOB_FINISHED
+              finalize_job(t.stage, t.job, t.outputs)
+            when Events::STAGE_FINISHED
+              finalize_stage(t.stage)
+            end
+          rescue StandardError => e
+            @log.error "failed to process event <#{t.type}>"
+            @log.error e
           end
         end
+        @log.info 'pipeline engine is stopped'
       end
     end
 
@@ -52,6 +59,8 @@ module Nanoci
     def run_pipeline(pipeline)
       raise "duplicate pipeline #{pipeline.tag}" if pipelines.key? pipeline.tag
 
+      @log.info "adding pipeline <#{pipeline.tag}> to pipeline engine"
+
       # TODO: process validation results
       validate_pipeline(pipeline)
 
@@ -61,6 +70,8 @@ module Nanoci
       pipelines[pipeline.tag] = pipeline
 
       start_pipeline(pipeline)
+
+      @log.info "pipeline <#{pipeline.tag}> is running"
     end
 
     # Schedules execution of the job
@@ -69,6 +80,7 @@ module Nanoci
     # @param inputs [Hash{Symbol => String}]
     # @param prev_inputs [Hash{Symbol => String}]
     def run_job(stage, job, inputs, prev_inputs)
+      @log.info "putting job <#{stage.tag}.#{job.tag}> to execution queue"
       e = OpenStruct.new(
         type: Events::EXECUTE_JOB,
         stage: stage,
@@ -77,14 +89,16 @@ module Nanoci
         prev_inputs: prev_inputs
       )
       @task_queue.push(e)
+      @log.info "job <#{stage.tag}.#{job.tag}> is queued"
     end
 
     # Pulses stage completino signals to pipelines with stage's outputs
     # @param stage_tag [Symbol]
     # @param outputs [Hash{Symbol => String}]
     def pulse(stage_tag, outputs)
+      @log.info "pulse signal of completion <#{stage_tag}>"
       (@pipes[stage_tag].map { |s| @stages[s] }).each do |next_stage|
-        next_stage.run(outputs) if next_stage.should_trigger? outputs
+        next_stage.run(outputs, self) if next_stage.should_trigger? outputs
       rescue StandardError => e
         @log.error "failed to run next stage <#{next_stage.tag}> after signal of completion <#{stage_tag}>"
         @log.error e
@@ -159,6 +173,7 @@ module Nanoci
     # @param prev_inputs [Hash{Symbol => String}]
     def execute_job(stage, job, inputs, prev_inputs)
       # TODO: implement this method in scope of issue #5
+      @log.info "executing job <#{stage.tag}.#{job.tag}>"
       job_outputs = {}
       e = OpenStruct.new(
         type: Events::JOB_FINISHED,
@@ -167,6 +182,7 @@ module Nanoci
         outputs: job_outputs
       )
       @task_queue.push(e)
+      @log.info "job <#{stage.tag}.#{job.tag}> execution is completed"
     end
 
     # Processes results of job execution
@@ -174,20 +190,24 @@ module Nanoci
     # @param job [Nanoci::Job]
     # @param outputs [Hash{Symbol => String}]
     def finalize_job(stage, job, outputs)
+      @log.info "finalizing job <#{stage.tag}.#{job.tag}> execution"
       job.state = Job::State::IDLE
       stage.pending_outputs.merge! outputs
       e = OpenStruct.new(
         type: Events::STAGE_FINISHED,
         stage: stage
       )
-      @task_queue.push(e) unless stage.jobs_idle?
+      @log.info "job <#{stage.tag}.#{job.tag}> is completed"
+      @task_queue.push(e) if stage.jobs_idle?
     end
 
     # Processes results of stage execution
     # @param stage [Nanoci::Stage]
     def finalize_stage(stage)
+      @log.info "finalizing stage <#{stage.tag}> execution"
       stage.state = Stage::State::IDLE
       pulse(stage.tag, stage.outputs)
+      @log.info "stage <#{stage.tag}> is completed"
     end
   end
 end
