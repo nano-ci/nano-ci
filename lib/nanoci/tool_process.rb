@@ -5,7 +5,6 @@ require 'stringio'
 
 require 'nanoci/mixins/logger'
 require 'nanoci/tool_error'
-require 'nanoci/variable'
 
 module Nanoci
   ##

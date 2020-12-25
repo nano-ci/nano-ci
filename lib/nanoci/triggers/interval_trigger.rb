@@ -8,13 +8,15 @@ module Nanoci
   module Triggers
     # IntervalTriggers pulses a new output on defined interval.
     class IntervalTrigger < Trigger
+      provides :interval
+
       # Returns trigger interval in seconds
       # @return [Number]
       attr_reader :interval
 
       # Initializes new instance of IntervalTrigger
       # @param src [Hash]
-      def initialze(src)
+      def initialize(src)
         super(src)
         @interval = src[:interval]
       end
@@ -25,7 +27,7 @@ module Nanoci
         @timer = Concurrent::TimerTask.new(execution_interval: @interval) do
           outputs = {}
           outputs[format_output(:trigger_time)] = Time.now.utc.iso8601
-          pipeline_engine.pulse(tag, outputs)
+          pipeline_engine.pulse(format_tag(tag), outputs)
         end
         @timer.execute
       end

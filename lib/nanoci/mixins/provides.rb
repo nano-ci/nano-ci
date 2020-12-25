@@ -12,7 +12,7 @@ module Nanoci
       # Registers a provider of a resource
       # @param tag [String] tag to identify the provider
       def provides(tag)
-        tag = item_type + ':' + tag unless item_type.nil?
+        tag = "#{item_type}:#{tag}" unless item_type.nil?
         Nanoci.resources.set(tag, self)
       end
 
@@ -20,7 +20,7 @@ module Nanoci
       # @param tag [String] tag to identify the provider
       # @return [Class] class implementing the resource
       def resolve(tag)
-        tag = item_type + ':' + tag unless item_type.nil?
+        tag = "#{item_type}:#{tag}" unless item_type.nil?
         Nanoci.resources.get(tag)
       end
     end

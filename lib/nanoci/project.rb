@@ -3,10 +3,8 @@
 require 'logging'
 
 require 'nanoci'
-require 'nanoci/definition/variable_definition'
 require 'nanoci/pipeline'
 require 'nanoci/repo'
-require 'nanoci/variable'
 
 module Nanoci
   # Represents a project in nano-ci
@@ -80,7 +78,7 @@ module Nanoci
     # @param src [Array<Hash>]
     # @return [Array<Repo>]
     def read_repos(src)
-      src.to_h { |s| [r[:tag], Repo.resolve(s[:type].new(s))] }
+      src.to_h { |s| [s[:tag], Repo.resolve(s[:type]).new(s)] }
     end
 
     # Reads pipeline from src

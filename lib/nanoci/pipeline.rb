@@ -2,6 +2,7 @@
 
 require 'nanoci/stage'
 require 'nanoci/trigger'
+require 'nanoci/triggers/all'
 
 module Nanoci
   # Pipeline is the  class that organizes data flow between project stages.
@@ -30,8 +31,8 @@ module Nanoci
       @tag = @src[:tag]
       @name = @src[:name]
       @triggers = read_triggers(@src.fetch(:triggers, []))
-      @stages = read_stages(@src.fetch[:stages, []])
-      @pipes = read_pipes(@src.fetch[:pipes, []])
+      @stages = read_stages(@src.fetch(:stages, []))
+      @pipes = read_pipes(@src.fetch(:pipes, []))
     end
 
     private
@@ -40,7 +41,9 @@ module Nanoci
     # @param src [Array<Hash>]
     # @return [Array<Nanoci::Trigger>]
     def read_triggers(src)
-      src.collect { |s| Trigger.resolve(s[:type]).new(s) }
+      src.collect do |s|
+        Trigger.resolve(s[:type]).new(s)
+      end
     end
 
     # Reads stages from src hash
@@ -61,7 +64,7 @@ module Nanoci
       end
     end
 
-    def read_pipe(hash, str)
+    def read_pipe(str, hash)
       pipe_array = str.to_s.split('>>').collect(&:strip)
       pipe_array[0..-2].zip(pipe_array[1..]).each do |m|
         list = hash[m[0].to_sym]

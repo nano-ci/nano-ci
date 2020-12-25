@@ -17,6 +17,12 @@ module Nanoci
     # @return [Symbol]
     attr_reader :tag
 
+    # Gets the fully formatted tag for pipeline pipes
+    # @return [Symbol]
+    def full_tag
+      format_tag(tag)
+    end
+
     # @return [Symbol]
     attr_reader :type
 
@@ -37,11 +43,15 @@ module Nanoci
 
     protected
 
+    def format_tag(tag)
+      "trigger.#{tag}".to_sym
+    end
+
     # Formats output tag by adding trigger prefix
     # @param output_tag [Symbol]
     # @return [Symbol]
     def format_output(output_tag)
-      "trigger.#{tag}.#{output_tag}".to_sym
+      "#{format_tag(tag)}.#{output_tag}".to_sym
     end
   end
 end

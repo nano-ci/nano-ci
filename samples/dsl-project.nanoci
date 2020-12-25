@@ -11,7 +11,7 @@ project :'nano-ci', 'main nano-ci project' do
     )
   end
 
-  pipeline 'web service pipeline' do
+  pipeline :pipeline, 'web service pipeline' do
     trigger :pipeline_trigger do
       type :interval
       interval 5
@@ -39,6 +39,6 @@ project :'nano-ci', 'main nano-ci project' do
       end
     end
 
-    pipe :'trigger.pool.abc' >> :build >> :'test.integration' >> :'deploy.prod'
+    pipe :'trigger.pipeline_trigger' >> :build >> :'test.integration' >> :'deploy.prod'
   end
 end

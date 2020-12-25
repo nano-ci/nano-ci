@@ -2,6 +2,7 @@
 
 require 'concurrent'
 require 'concurrent-edge'
+require 'logging'
 require 'ostruct'
 
 require 'nanoci/events/service_events'
@@ -14,6 +15,7 @@ module Nanoci
 
     # Initializes new instance of [PipelineEngine]
     def initialize
+      @log = Logging.logger[self]
       # @type [Hash]
       @pipelines = {}
       # @type [Hash]
@@ -26,7 +28,7 @@ module Nanoci
     # Starts the engine
     def run
       Concurrent::Promises.future do
-        cancellation, @stop_signal = Concurrent.Cancellation.new
+        cancellation, @stop_signal = Concurrent::Cancellation.new
         until cancellation.canceled?
           t = @task_queue.pop
           case t.type
@@ -49,6 +51,9 @@ module Nanoci
     # @param pipeline [Nanoci::Pipeline]
     def run_pipeline(pipeline)
       raise "duplicate pipeline #{pipeline.tag}" if pipelines.key? pipeline.tag
+
+      # TODO: process validation results
+      validate_pipeline(pipeline)
 
       add_stages(pipeline)
       add_pipes(pipeline)
@@ -86,6 +91,36 @@ module Nanoci
     end
 
     private
+
+    # Validates the pipeline
+    # @param pipeline [Nanoci::Pipeline]
+    # @return Boolean
+    def validate_pipeline(pipeline)
+      valid = true
+      pipeline.triggers.each do |t|
+        unless pipeline.pipes.key?(t.full_tag)
+          @log.warn("trigger #{t.tag} output is not connected to any of stage inputs")
+          valid = false
+        end
+      end
+      pipeline.pipes.each_pair do |k, v|
+        has_trigger = pipeline.triggers.any? { |t| t.full_tag == k }
+        has_stage = pipeline.stages.any? { |s| s.tag == k }
+        unless has_trigger || has_stage
+          @log.warn("invalid pipe - stage #{k} does not exist")
+          valid = false
+        end
+        v.each do |i|
+          has_trigger = pipeline.triggers.any? { |t| t.full_tag == i }
+          has_stage = pipeline.stages.any? { |s| s.tag == i }
+          unless has_trigger || has_stage
+            @log.warn("invalid pipe - stage #{i} does not exist")
+            valid = false
+          end
+        end
+      end
+      valid
+    end
 
     # Starts the pipeline
     # @param pipeline [Nanoci::Pipeline]

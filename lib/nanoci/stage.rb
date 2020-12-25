@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'nanoci/job'
+require 'nanoci/stage_state'
 
 module Nanoci
   # A stage represents a collection of jobs.

@@ -1,17 +1,14 @@
 # frozen_string_literal: true
 
-require 'yaml'
-
 require 'nanoci'
 require 'nanoci/agent_manager'
-require 'nanoci/build_scheduler'
 require 'nanoci/config'
 require 'nanoci/config/ucs'
-require 'nanoci/definition/project_definition'
-require 'nanoci/event_engine'
+require 'nanoci/dsl/script_dsl'
 require 'nanoci/log'
 require 'nanoci/mixins/logger'
 require 'nanoci/plugin_loader'
+require 'nanoci/pipeline_engine'
 require 'nanoci/project'
 require 'nanoci/remote/agent_manager_service_host'
 require 'nanoci/state_manager'
@@ -46,22 +43,16 @@ module Nanoci
       def setup_components
         ucs = Config::UCS.instance
         load_plugins(File.expand_path(ucs.plugins_path))
-        log.debug 'running agents...'
-        @agent_manager = AgentManager.new
-        @agent_manager_service = Remote::AgentManagerServiceHost.new(@agent_manager)
-        @state_manager = StateManager.new(ucs.mongo_connection_string)
-        @event_engine = EventEngine.new
-        @build_scheduler = BuildScheduler.new(agent_manager, state_manager, @event_engine)
+        # @state_manager = StateManager.new(ucs.mongo_connection_string)
+        @pipeline_engine = PipelineEngine.new
       end
 
       # runs a nano-ci main service
+      # @param project [Nanoci::Project]
       # @return [void]
       def run(project)
-        @agent_manager_service.run
-        run_triggers(project, @build_scheduler)
-        @build_scheduler
-          .run(Config::UCS.instance.job_scheduler_interval)
-          .wait!
+        @pipeline_engine.run_pipeline(project.pipeline)
+        @pipeline_engine.run.wait!
       end
 
       def load_plugins(plugins_path)
@@ -69,26 +60,17 @@ module Nanoci
         PluginLoader.load(plugins_path)
       end
 
+      # Reads project from the file
+      # @param project_path [String]
+      # @return [Nanoci::Project]
       def load_project(project_path)
         log.info "reading project definition from #{project_path}..."
-        project_definition_src = YAML.load_file(project_path).symbolize_keys
-        project_definition = Definition::ProjectDefinition.new(project_definition_src)
-        project = Project.new(project_definition)
-        project_state = state_manager.get_state(StateManager::Types::PROJECT, project.tag)
-        project.state = project_state unless project_state.nil?
-        log.info "read project #{project.tag}"
-        project
-      end
-
-      # runs triggers
-      # @param project [Nanoci::Project]
-      # @param build_scheduler [Nanoci::BuildScheduler]
-      def run_triggers(project, build_scheduler)
-        project.repos.each do |_key, repo|
-          repo.triggers.each do |trigger|
-            trigger.run(build_scheduler, project)
-          end
-        end
+        script_text = File.read(project_path)
+        log.debug "input script text:\n#{script_text}"
+        script_dsl = DSL::ScriptDSL.from_string(script_text)
+        project_dsl = script_dsl.projects[0]
+        log.info "read project #{project_dsl.tag}"
+        Project.new(project_dsl.build)
       end
     end
   end
