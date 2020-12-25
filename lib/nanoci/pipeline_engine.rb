@@ -85,7 +85,13 @@ module Nanoci
     def pulse(stage_tag, outputs)
       (@pipes[stage_tag].map { |s| @stages[s] }).each do |next_stage|
         next_stage.run(outputs) if next_stage.should_trigger? outputs
+      rescue StandardError => e
+        @log.error "failed to run next stage <#{next_stage.tag}> after signal of completion <#{stage_tag}>"
+        @log.error e
       end
+    rescue StandardError => e
+      @log.error "failed to pulse stage <#{stage_tag}> completion signal"
+      @log.error e
     end
 
     private
