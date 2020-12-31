@@ -4,7 +4,6 @@ require 'logging'
 
 require 'nanoci/config/ucs'
 require 'nanoci/mixins/provides'
-require 'nanoci/triggers/all'
 
 module Nanoci
   ##

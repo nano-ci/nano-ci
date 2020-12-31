@@ -6,7 +6,7 @@ module Nanoci
     module SystemConfig
       # @return path to plugins directory
       def plugins_path
-        get(SystemConfig::PLUGINS_PATH)
+        get(SystemConfig::PLUGINS_PATH, 'lib/nanoci/plugins')
       end
 
       # plugins-path config name

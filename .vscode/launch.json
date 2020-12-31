@@ -5,33 +5,20 @@
     "version": "0.2.0",
     "configurations": [
 		{
-			"name": "nano-ci-master",
+			"name": "Debug",
 			"type": "Ruby",
-			"request": "attach",
-			"preLaunchTask": "rake: docker:nano-ci-master:debug",
-			"postDebugTask": "rake: docker:nano-ci-master:debug-clean",
-			"cwd": "${workspaceRoot}",
-			"remoteHost": "local.docker.nanoci.cloud",
-			"remotePort": "23456",
-			"remoteWorkspaceRoot": "/nano-ci/"
-		},
-		{
-			"name": "nano-ci-agent",
-			"type": "Ruby",
-			"request": "attach",
-			"preLaunchTask": "rake: docker:nano-ci-agent:debug",
-			"postDebugTask": "rake: docker:nano-ci-agent:debug-clean",
-			"cwd": "${workspaceRoot}",
-			"remoteHost": "local.docker.nanoci.cloud",
-			"remotePort": "23457",
-			"remoteWorkspaceRoot": "/nano-ci/"
+			"request": "launch",
+			"program": "${workspaceRoot}/bin/nano-ci",
+			"args": [
+				"--project=samples/dsl-project.nanoci"
+			]
 		},
         {
 			"name": "RSpec - all",
 			"type": "Ruby",
 			"request": "launch",
 			"cwd": "${workspaceRoot}",
-			"program": "C:/tools/Ruby25-x64/bin/rspec",
+			"program": "/home/thevk/.rbenv/versions/2.7.2/bin/rspec",
 			"args": [
 				"--format", "documentation"
 			]
@@ -41,7 +28,7 @@
 			"type": "Ruby",
 			"request": "launch",
 			"cwd": "${workspaceRoot}",
-			"program": "C:/tools/Ruby25-x64/bin/rspec",
+			"program": "/home/thevk/.rbenv/versions/2.7.2/bin/rspec",
 			"args": ["${file}"]
 		}
     ]

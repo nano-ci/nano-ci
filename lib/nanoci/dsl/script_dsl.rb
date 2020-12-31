@@ -10,6 +10,8 @@ module Nanoci
         @projects = []
       end
 
+      # Gets array of projects read from the script
+      # @return [Array<Nanoci::DSL::ProjectDSL>]
       attr_reader :projects
 
       class << self

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'nanoci/dsl/job_dsl'
+
 module Nanoci
   module DSL
     # StageDSL class contains methods to support nano-ci stage DSL.

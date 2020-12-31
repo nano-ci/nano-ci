@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'nanoci/job_state'
+
 module Nanoci
   # A job is a collection of tasks to run actions and produce artifacts
   class Job
