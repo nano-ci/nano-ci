@@ -27,25 +27,10 @@ module Nanoci
 
     # Starts the engine
     def run
-      @log.info 'pipeline engine is running'
       Concurrent::Promises.future do
+        @log.info 'pipeline engine is running'
         cancellation, @stop_signal = Concurrent::Cancellation.new
-        until cancellation.canceled?
-          t = @task_queue.pop
-          begin
-            case t.type
-            when Events::EXECUTE_JOB
-              execute_job(t.stage, t.job, t.inputs, t.prev_inputs)
-            when Events::JOB_FINISHED
-              finalize_job(t.stage, t.job, t.outputs)
-            when Events::STAGE_FINISHED
-              finalize_stage(t.stage)
-            end
-          rescue StandardError => e
-            @log.error "failed to process event <#{t.type}>"
-            @log.error e
-          end
-        end
+        dispatch_event(@task_queue.pop) until cancellation.canceled?
         @log.info 'pipeline engine is stopped'
       end
     end
@@ -109,6 +94,26 @@ module Nanoci
     end
 
     private
+
+    def event_handlers
+      @event_handlers ||= {
+        Events::EXECUTE_JOB => ->(t) { execute_job(t.stage, t.job, t.inputs, t.prev_inputs) },
+        Events::JOB_FINISHED => ->(t) { finalize_job(t.stage, t.job, t.outputs) },
+        Events::STAGE_FINISHED => ->(t) { finalize_stage(t.stage) }
+      }.freeze
+    end
+
+    # Dispatch event from event queue
+    # @param t [#type]
+    def dispatch_event(event)
+      raise "unknown event type #{event.type}" unless event_handlers.key? event.type
+
+      handler = event_handlers[event.type]
+      handler.call(event)
+    rescue StandardError => e
+      @log.error "failed to process event <#{event.type}>"
+      @log.error e
+    end
 
     # Validates the pipeline
     # @param pipeline [Nanoci::Pipeline]
