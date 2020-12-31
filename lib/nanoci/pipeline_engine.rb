@@ -205,9 +205,8 @@ module Nanoci
     # @param stage [Nanoci::Stage]
     def finalize_stage(stage)
       @log.info "finalizing stage <#{stage.tag}> execution"
-      stage.state = Stage::State::IDLE
+      stage.finalize
       pulse(stage.tag, stage.outputs)
-      @log.info "stage <#{stage.tag}> is completed"
     end
   end
 end

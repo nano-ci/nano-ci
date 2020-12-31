@@ -26,14 +26,14 @@ project :'nano-ci', 'main nano-ci project' do
       end
     end
 
-    stage :'test.integration', inputs: [:'abc.gem.version'] do
+    stage :'test.integration', inputs: [:'abc.gem.version', :'trigger.pipeline_trigger.trigger_time'] do
       job :api_tests do |inputs|
         Ruby.gem.install 'abc', inputs.abc.gem.version
         Ruby.rake :api_tests
       end
     end
 
-    stage :'deploy.prod', inputs: [:'abc.gem.version'] do
+    stage :'deploy.prod', inputs: [:'abc.gem.version', :'trigger.pipeline_trigger.trigger_time'] do
       job :deploy do |inputs|
         Shell.run "deploy.sh"
       end

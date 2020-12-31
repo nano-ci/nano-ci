@@ -34,17 +34,6 @@ module Nanoci
 
     attr_reader :state
 
-    def state=(next_state)
-      raise "invalid state #{next_state}" unless State::VALUES.include? next_state
-
-      transition = [@state, next_state]
-      @state = next_state
-
-      @log.info "stage <#{tag}> state changed from #{transition[0]} to #{transition[1]}"
-
-      handle_state_transition transition
-    end
-
     # Initializes new instance of [Stage]
     # @param src [Hash]
     # @param project [Project]
@@ -58,6 +47,7 @@ module Nanoci
       @inputs = {}
       @prev_inputs = {}
       @pending_outputs = {}
+      @outputs = {}
       @state = State::IDLE
     end
 
@@ -73,6 +63,7 @@ module Nanoci
     # @param next_inputs [Hash{Symbol => String}]
     # @param pipeline_engine [Nanoci::PipelineEngine]
     def run(next_inputs, pipeline_engine)
+      @log.info "starting stage <#{tag}> with inputs #{next_inputs}"
       @prev_inputs = @inputs
       @inputs = @inputs.merge(next_inputs)
       self.state = Stage::State::RUNNING
@@ -81,11 +72,27 @@ module Nanoci
       end
     end
 
+    def finalize
+      self.state = Stage::State::IDLE
+      @log.info "stage <#{tag}> is completed with outputs #{outputs}"
+    end
+
     def jobs_idle?
       jobs.none? { |j| j.state == Job::State::RUNNING }
     end
 
     private
+
+    def state=(next_state)
+      raise "invalid state #{next_state}" unless State::VALUES.include? next_state
+
+      transition = [@state, next_state]
+      @state = next_state
+
+      @log.info "stage <#{tag}> state changed from #{transition[0]} to #{transition[1]}"
+
+      handle_state_transition transition
+    end
 
     def read_jobs(src)
       src.collect { |d| Job.new(d) }
@@ -97,6 +104,7 @@ module Nanoci
           @pending_outputs = {}
         in [State::RUNNING, State::IDLE]
           @outputs = @pending_outputs
+          @outputs.merge!(@inputs)
           @pending_outputs = {}
         end
     end
