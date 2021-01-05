@@ -14,6 +14,7 @@ Gem::Specification.new do |spec|
   spec.description   = 'nano-ci is a minimalistic CI/CD service'
   spec.homepage      = 'http://nanoci.net'
   spec.license       = 'MIT'
+  spec.required_ruby_version = '~> 2.7'
 
   spec.files         = Dir.glob('{bin,lib}/**/*') + %w[LICENSE.txt README.md]
   spec.bindir        = 'bin'
