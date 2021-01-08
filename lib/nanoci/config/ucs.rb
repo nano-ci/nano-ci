@@ -19,13 +19,14 @@ module Nanoci
         # @return [UCS] an instance of UCS
         def instance
           raise 'UCS is not initialized' if @instance.nil?
+
           @instance
         end
 
         # Initializes an UCS
         # @return [UCS]
         def initialize(argv = ARGV, config_path = nil)
-          @instance ||= UCS.new(argv || [], config_path)
+          @instance = UCS.new(argv || [], config_path)
         end
 
         # Destroys an UCS instance
@@ -40,6 +41,7 @@ module Nanoci
           argv.map do |item|
             raise "invalid option #{item} - does not start with --" unless item.start_with? '--'
             raise "invalid option #{item} - does not have = to split key and value" unless item.match(/.+=.+/)
+
             item.slice(2, item.length - 2).split('=')
           end.to_h.symbolize_keys
         end
@@ -66,6 +68,7 @@ module Nanoci
         return @config.fetch(key) if !@config.nil? && @config.key?(key)
         return @override.fetch(key) if @override.key?(key)
         raise "missing config key '#{key}'" if default.nil?
+
         default
       end
 
@@ -100,6 +103,7 @@ module Nanoci
       # @return [String]
       def expand_env(name)
         return name unless name.is_a? String
+
         match = /\$\{([^}]*)\}/.match(name)
         if match.nil? || ENV[match[1]].nil?
           name
