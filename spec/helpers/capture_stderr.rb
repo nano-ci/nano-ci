@@ -1,6 +1,10 @@
-require "stringio"
+# frozen_string_literal: true
+
+require 'stringio'
+
 def capture_stderr
-  real_stderr, $stderr = $stderr, StringIO.new
+  real_stderr = $stderr
+  $stderr = StringIO.new
   yield
   $stderr.string
 ensure
