@@ -7,18 +7,11 @@ require 'nanoci/mixins/logger'
 require 'nanoci/tool_error'
 
 module Nanoci
-  ##
   # Class to run external tool and capture stdout and stderr
   class ToolProcess
     include Nanoci::Mixins::Logger
 
-    attr_reader :stdin
-    attr_reader :stdout
-    attr_reader :stderr
-    attr_reader :cmd
-    attr_reader :env
-
-    attr_reader :pid
+    attr_reader :pid, :stdin, :stdout, :stderr, :cmd, :env
 
     # Runs a new process
     # @param cmd [String] command to execute
@@ -73,6 +66,7 @@ module Nanoci
       @wait_thr.join
       @connect_threads.each(&:join)
       return self if status_code.zero?
+
       case status_code
       when 127
         raise ToolError.new(@cmd, status_code, "command not found: #{@cmd}")
@@ -140,7 +134,7 @@ module Nanoci
     # @param env [Hash<Symbol, String>]
     # @param vars [Hash<Symbol, String>]
     def expand_env(env, vars)
-      env = Bundler::original_env.merge(env)
+      env = Bundler.original_env.merge(env)
       env.transform_values { |v| Variable.expand_string(v, vars) }
     end
   end
