@@ -54,7 +54,7 @@ module Nanoci
     # Determines if there are changes in stage triggering inputs
     # @param next_inputs [Hash{Symbol => String}]
     def should_trigger?(next_inputs)
-      triggering_inputs.any? do |ti|
+      triggering_inputs.empty? || triggering_inputs.any? do |ti|
         next_inputs.key?(ti) && next_inputs[ti] != inputs.fetch(ti, nil)
       end
     end
