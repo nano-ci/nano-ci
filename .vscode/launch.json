@@ -10,7 +10,7 @@
 			"request": "launch",
 			"program": "${workspaceRoot}/bin/nano-ci",
 			"args": [
-				"--project=samples/dsl-project.nanoci"
+				"--project=samples/debug.nanoci"
 			]
 		},
         {

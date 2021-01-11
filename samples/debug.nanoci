@@ -1,0 +1,14 @@
+project :'nano-ci', 'main nano-ci project' do
+  pipeline :pipeline, 'web service pipeline' do
+    trigger :pipeline_trigger do
+      type :interval
+      interval 5
+    end
+
+    stage :debug do
+      job :build_job do |inputs|
+        shell.run 'date'
+      end
+    end
+  end
+end
