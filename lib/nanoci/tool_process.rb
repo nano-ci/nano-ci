@@ -44,7 +44,6 @@ module Nanoci
       @chdir = opts.fetch(:chdir, '.')
       @env = expand_env(opts.fetch(:env, {}), opts.fetch(:vars, {}))
       @cmd = cmd
-      @throw_non_zero_exit_code = opts.fetch(:throw_non_zero_exit_code, true)
     end
 
     def run
