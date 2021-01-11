@@ -7,8 +7,15 @@ project :'nano-ci', 'main nano-ci project' do
 
     stage :debug do
       job :build_job do |inputs|
-        shell.run 'date'
+        result = shell.run 'date'
+        {
+          code: result.exit_code,
+          stdout: result.stdout,
+          stderr: result.stderr
+        }
       end
     end
+
+    pipe :'trigger.pipeline_trigger' >> :debug
   end
 end
