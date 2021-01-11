@@ -21,8 +21,7 @@ module Nanoci
     # @option opts [IO] :stderr stream to receive the error output of the new process
     # @option opts [String] :chdir the working directory of the new process
     # @option opts [Hash<Symbol, String>] :env environment variables for the new process
-    # @option opts [Hash<Symbol, String>] :vars variables to use for expanding
-    def self.run(cmd, opts)
+    def self.run(cmd, opts = {})
       process = ToolProcess.new(cmd, opts)
       process.run
       process
@@ -36,13 +35,12 @@ module Nanoci
     # @option opts [IO] :stderr stream to receive the error output of the new process
     # @option opts [String] :chdir the working directory of the new process
     # @option opts [Hash<Symbol, String>] :env environment variables for the new process
-    # @option opts [Hash<Symbol, String>] :vars variables to use for expanding
     def initialize(cmd, opts = {})
       @stdin = opts[:stdin] || StringIO.new
       @stdout = opts[:stdout] || StringIO.new
       @stderr = opts[:stderr] || StringIO.new
       @chdir = opts.fetch(:chdir, '.')
-      @env = expand_env(opts.fetch(:env, {}), opts.fetch(:vars, {}))
+      @env = opts.fetch(:env, {})
       @cmd = cmd
     end
 
@@ -127,14 +125,6 @@ module Nanoci
       retry
     rescue EOFError
       false
-    end
-
-    # Expands env variables using hash of variables
-    # @param env [Hash<Symbol, String>]
-    # @param vars [Hash<Symbol, String>]
-    def expand_env(env, vars)
-      env = Bundler.original_env.merge(env)
-      env.transform_values { |v| Variable.expand_string(v, vars) }
     end
   end
 end

@@ -14,7 +14,7 @@ module Nanoci
 
     # Executes passed command line
     def execute_shell(line)
-      tool = ToolProcess.run("sh -c \"#{line}\"")
+      tool = ToolProcess.run("sh -c \"#{line}\"").wait
       Commands::CommandOutput.new(tool.status_code, tool.output, tool.error)
     end
 
