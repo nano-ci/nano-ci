@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 module Nanoci
-  ##
   # A resource map holds mappings of resource type to ruby class
   class ResourceMap
     # Initializes new instance of ResourceMap
@@ -30,6 +29,7 @@ module Nanoci
     def set(key, klass)
       key = key.to_sym
       raise "duplicate key #{key}" if @map_stack.last.key? key
+
       @map_stack.last[key] = klass
     end
 
@@ -40,6 +40,7 @@ module Nanoci
       key = key.to_sym
       item = @map_stack.reverse.map { |x| x[key] }.reject(&:nil?).first
       raise "missing resource #{key}" if item.nil?
+
       item
     end
   end
