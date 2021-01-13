@@ -190,7 +190,7 @@ module Nanoci
     end
 
     def execute_job_body(stage, job, inputs, prev_inputs)
-      command_host = CommandHost.new
+      command_host = CommandHost.new(stage, job)
       job_body = job.body
       job_outputs = command_host.run(inputs, prev_inputs, &job_body)
       e = OpenStruct.new(

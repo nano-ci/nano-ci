@@ -6,8 +6,8 @@ project :'nano-ci', 'main nano-ci project' do
     end
 
     stage :debug do
-      job :build_job do |inputs|
-        result = shell.run 'date'
+      job :build_job, work_dir: 'test' do |inputs|
+        result = shell.run 'echo `date` >> output.txt'
         {
           code: result.exit_code,
           stdout: result.stdout,

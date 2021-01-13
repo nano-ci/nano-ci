@@ -21,8 +21,8 @@ module Nanoci
     # @option opts [IO] :stderr stream to receive the error output of the new process
     # @option opts [String] :chdir the working directory of the new process
     # @option opts [Hash<Symbol, String>] :env environment variables for the new process
-    def self.run(cmd, opts = {})
-      process = ToolProcess.new(cmd, opts)
+    def self.run(cmd, **kwargs)
+      process = ToolProcess.new(cmd, kwargs)
       process.run
       process
     end
@@ -35,12 +35,12 @@ module Nanoci
     # @option opts [IO] :stderr stream to receive the error output of the new process
     # @option opts [String] :chdir the working directory of the new process
     # @option opts [Hash<Symbol, String>] :env environment variables for the new process
-    def initialize(cmd, opts = {})
-      @stdin = opts[:stdin] || StringIO.new
-      @stdout = opts[:stdout] || StringIO.new
-      @stderr = opts[:stderr] || StringIO.new
-      @chdir = opts.fetch(:chdir, '.')
-      @env = opts.fetch(:env, {})
+    def initialize(cmd, stdin: nil, stdout: nil, stderr: nil, chdir: '.', env: {})
+      @stdin = stdin || StringIO.new
+      @stdout = stdout || StringIO.new
+      @stderr = stderr || StringIO.new
+      @chdir = chdir || '.'
+      @env = env || {}
       @cmd = cmd
     end
 
