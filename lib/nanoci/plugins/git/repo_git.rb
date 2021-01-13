@@ -83,6 +83,7 @@ module Nanoci
           agent_capabilities = Config::UCS.instance.agent_capabilities
           git_path = agent_capabilities[GIT_CAP]
           raise "Missing #{GIT_CAP} capability" if git_path.nil?
+
           unless auth[:ssh].nil?
             ssh_opts = ["-i #{auth[:ssh]}"]
             if auth.fetch(:validate_server_key, false)
