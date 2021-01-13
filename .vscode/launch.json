@@ -10,7 +10,8 @@
 			"request": "launch",
 			"program": "${workspaceRoot}/bin/nano-ci",
 			"args": [
-				"--project=samples/debug.nanoci"
+				"--project=samples/debug.nanoci",
+				"--config=samples/config-debug.yml"
 			]
 		},
         {
