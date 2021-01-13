@@ -8,6 +8,9 @@ module Nanoci
     # @return [Symbol]
     attr_reader :tag
 
+    # @return [String] Relative path to directory where the job should execute
+    attr_reader :work_dir
+
     # @return [Proc]
     attr_reader :body
 
@@ -23,6 +26,7 @@ module Nanoci
     # @param src [Hash]
     def initialize(src)
       @tag = src[:tag]
+      @work_dir = src.fetch(:work_dir, '.')
       @body = src[:block]
       @state = State::IDLE
     end
