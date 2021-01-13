@@ -179,24 +179,27 @@ module Nanoci
     # @param prev_inputs [Hash{Symbol => String}]
     def execute_job(stage, job, inputs, prev_inputs)
       @log.info "executing job <#{stage.tag}.#{job.tag}>"
-
-      command_host = CommandHost.new
       begin
-        job_body = job.body
-        job_outputs = command_host.run(inputs, &job_body)
-        e = OpenStruct.new(
-          type: Events::JOB_FINISHED,
-          stage: stage,
-          job: job,
-          outputs: job_outputs
-        )
-        @task_queue.push(e)
+        execute_job_body(stage, job, inputs, prev_inputs)
       rescue StandardError => e
         @log.error "failed to execute job <#{stage.tag}.#{job.tag}>"
         @log.error e
       end
 
       @log.info "job <#{stage.tag}.#{job.tag}> execution is completed"
+    end
+
+    def execute_job_body(stage, job, inputs, prev_inputs)
+      command_host = CommandHost.new
+      job_body = job.body
+      job_outputs = command_host.run(inputs, prev_inputs, &job_body)
+      e = OpenStruct.new(
+        type: Events::JOB_FINISHED,
+        stage: stage,
+        job: job,
+        outputs: job_outputs
+      )
+      @task_queue.push(e)
     end
 
     # Processes results of job execution
