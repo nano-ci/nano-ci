@@ -11,6 +11,7 @@ module Nanoci
     # @param stage [Nanoci::Stage]
     # @param job [Nanoci::Job]
     def initialize(stage, job)
+      @root_work_dir = Config::UCS.instance.build_data_dir
       @stage = stage
       @job = job
     end
@@ -52,7 +53,7 @@ module Nanoci
     # @param stage [Nanoci::Stage]
     # @param job [Nanoci::Job]
     def work_dir(stage, job)
-      File.join(stage.tag.to_s, job.tag.to_s, job.work_dir)
+      File.join(@root_work_dir, stage.tag.to_s, job.tag.to_s, job.work_dir)
     end
   end
 end

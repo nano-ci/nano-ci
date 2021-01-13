@@ -7,7 +7,7 @@ project :'nano-ci', 'main nano-ci project' do
 
     stage :debug do
       job :build_job, work_dir: 'test' do |inputs|
-        result = shell.run 'echo `date` >> output.txt'
+        result = shell.run "echo '#{inputs[:'trigger.pipeline_trigger.trigger_time']}' >> output.txt"
         {
           code: result.exit_code,
           stdout: result.stdout,
