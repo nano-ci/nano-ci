@@ -85,7 +85,7 @@ module Nanoci
         @argv = UCS.parse_argv(argv).freeze
         @env = Hash[ENV].symbolize_keys.freeze
 
-        config_path ||= system_config_path
+        config_path ||= @argv.fetch(:config, nil) || system_config_path
 
         @config = YAML.load_file(config_path).flatten_hash_value.freeze if File.exist?(config_path)
 
