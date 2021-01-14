@@ -19,19 +19,13 @@ module Nanoci
     # Runs Job's block with given inputs
     # @param inputs [Hash]
     # @param prev_inputs [Hash]
-    # @yield [inputs, prev_inputs] Executes job body
-    # @yieldparam inputs [Hash]
-    # @yieldparam prev_inputs [Hash]
-    def run(inputs, prev_inputs, &block)
+    def run(inputs, prev_inputs)
+      block = @job.body
       case block.arity
-      when 0
-        instance_exec(&block)
-      when 1
-        instance_exec(inputs, &block)
-      when 2
-        instance_exec(inputs, prev_inputs, &block)
-      else
-        raise ArgumentError, "job body block has invalid number of arguments (got #{block.arity}, expected 0..2)"
+      when 0 then instance_exec(&block)
+      when 1 then instance_exec(inputs, &block)
+      when 2 then instance_exec(inputs, prev_inputs, &block)
+      else raise ArgumentError, "job body block has invalid number of arguments (got #{block.arity}, expected 0..2)"
       end
     end
 
