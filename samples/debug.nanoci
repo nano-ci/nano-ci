@@ -1,0 +1,21 @@
+project :'nano-ci', 'main nano-ci project' do
+  pipeline :pipeline, 'web service pipeline' do
+    trigger :pipeline_trigger do
+      type :interval
+      interval 5
+    end
+
+    stage :debug do
+      job :build_job, work_dir: 'test' do |inputs|
+        result = shell.run "echo '#{inputs[:'trigger.pipeline_trigger.trigger_time']}' >> output.txt"
+        {
+          code: result.exit_code,
+          stdout: result.stdout,
+          stderr: result.stderr
+        }
+      end
+    end
+
+    pipe :'trigger.pipeline_trigger' >> :debug
+  end
+end

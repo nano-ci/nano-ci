@@ -5,6 +5,7 @@ require 'concurrent-edge'
 require 'logging'
 require 'ostruct'
 
+require 'nanoci/command_host'
 require 'nanoci/events/service_events'
 
 module Nanoci
@@ -177,9 +178,21 @@ module Nanoci
     # @param inputs [Hash{Symbol => String}]
     # @param prev_inputs [Hash{Symbol => String}]
     def execute_job(stage, job, inputs, prev_inputs)
-      # TODO: implement this method in scope of issue #5
       @log.info "executing job <#{stage.tag}.#{job.tag}>"
-      job_outputs = {}
+      begin
+        execute_job_body(stage, job, inputs, prev_inputs)
+      rescue StandardError => e
+        @log.error "failed to execute job <#{stage.tag}.#{job.tag}>"
+        @log.error e
+      end
+
+      @log.info "job <#{stage.tag}.#{job.tag}> execution is completed"
+    end
+
+    def execute_job_body(stage, job, inputs, prev_inputs)
+      command_host = CommandHost.new(stage, job)
+      job_body = job.body
+      job_outputs = command_host.run(inputs, prev_inputs, &job_body)
       e = OpenStruct.new(
         type: Events::JOB_FINISHED,
         stage: stage,
@@ -187,7 +200,6 @@ module Nanoci
         outputs: job_outputs
       )
       @task_queue.push(e)
-      @log.info "job <#{stage.tag}.#{job.tag}> execution is completed"
     end
 
     # Processes results of job execution
