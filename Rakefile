@@ -27,7 +27,7 @@ PROTOBUF_FILES = Rake::FileList[
   'protos/*.proto'
 ]
 
-CLEAN.include("docker/nano-ci/nano-ci/*")
+CLEAN.include('docker/nano-ci/nano-ci/*')
 
 RSpec::Core::RakeTask.new(:spec)
 
