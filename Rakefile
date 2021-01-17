@@ -49,7 +49,7 @@ PROTOBUF_FILES.each do |src|
     sh "#{GRPC} -I ./protos --ruby_out=#{REMOTE_GRPC_PATH} --grpc_out=#{REMOTE_GRPC_PATH} #{src}"
   end
 
-  task :'grpc' => dst
+  task grpc: dst
 end
 
 namespace :docker do
