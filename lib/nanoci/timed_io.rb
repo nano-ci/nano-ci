@@ -26,8 +26,8 @@ module Nanoci
       @stream.write_nonblock(insert_time(string))
     end
 
-    def respond_to?(symbol, include_priv = false)
-      @stream.respond_to?(symbol, include_priv)
+    def respond_to?(symbol, include_all)
+      @stream.respond_to?(symbol, include_all)
     end
 
     private
@@ -41,7 +41,7 @@ module Nanoci
 
     def insert_time(string)
       time = "#{Time.now.strftime(TIME_FORMAT)} "
-      string = string.gsub(/\n.+/, "\n" + time)
+      string = string.gsub(/\n.+/, "\n#{time}")
       @stream.pos.zero? || peek("\n") ? time + string : string
     end
 
@@ -54,7 +54,7 @@ module Nanoci
     end
 
     def respond_to_missing?(symbol, include_all)
-      super
+      @stream.respond_to_missing?(symbol, include_all)
     end
   end
 end
