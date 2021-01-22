@@ -16,7 +16,7 @@ RSpec.describe Nanoci::Stage do
     definition = Nanoci::Definition::StageDefinition.new(tag: 'build-stage')
     stage = Nanoci::Stage.new(definition, nil)
     expect(stage.jobs).to be_an(Array)
-    expect(stage.jobs.length). to eq 0
+    expect(stage.jobs.length).to eq 0
   end
 
   it 'reads jobs from definition' do
