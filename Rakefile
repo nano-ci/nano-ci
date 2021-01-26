@@ -77,7 +77,7 @@ namespace :docker do
     end
   end
 
-  task :'run' => [:'nano-ci-master'] do
+  task run: [:'nano-ci-master'] do
     Dir.chdir 'docker' do
       sh 'docker-compose up'
     end
