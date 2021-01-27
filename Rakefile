@@ -89,7 +89,7 @@ namespace :docker do
       cp task.prerequisites.first, task.name
     end
 
-    task :'nano-ci' => "docker/nano-ci/nano-ci/#{src}"
+    task 'nano-ci': "docker/nano-ci/nano-ci/#{src}"
   end
 
   task :'nano-ci' => [:grpc] do
