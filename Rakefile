@@ -99,7 +99,7 @@ namespace :docker do
   end
 
   namespace :'nano-ci' do
-    task :run => :'docker:nano-ci' do
+    task run: [:'docker:nano-ci'] do
       sh 'docker run nano-ci'
     end
   end
