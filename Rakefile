@@ -92,7 +92,7 @@ namespace :docker do
     task 'nano-ci': "docker/nano-ci/nano-ci/#{src}"
   end
 
-  task :'nano-ci' => [:grpc] do
+  task 'nano-ci': [:grpc] do
     Dir.chdir 'docker/nano-ci' do
       sh 'docker build --target nano-ci-base -t nano-ci .'
     end
