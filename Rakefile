@@ -109,7 +109,7 @@ namespace :docker do
     cp task.prerequisites.first, task.name
   end
 
-  task :'nano-ci-master' => [:'docker:nano-ci', 'docker/nano-ci/master.nanoci'] do
+  task 'nano-ci-master': [:'docker:nano-ci', 'docker/nano-ci/master.nanoci'] do
     Dir.chdir 'docker/nano-ci' do
       sh 'docker build --target nano-ci-master -t nano-ci-master .'
     end
