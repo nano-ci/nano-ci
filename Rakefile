@@ -115,7 +115,7 @@ namespace :docker do
     end
   end
 
-  task :'nano-ci-agent' => [:'docker:nano-ci'] do
+  task 'nano-ci-agent': [:'docker:nano-ci'] do
     Dir.chdir 'docker/nano-ci-agent' do
       sh 'docker build --target nano-ci-agent -t nano-ci-agent .'
     end
