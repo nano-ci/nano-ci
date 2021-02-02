@@ -121,10 +121,8 @@ namespace :docker do
     end
   end
 
-
-
   namespace :'nano-ci-master' do
-    task :run => [:'docker:nano-ci-master'] do
+    task run: [:'docker:nano-ci-master'] do
       sh "docker run --detach --network #{NANO_CI_NET} --net-alias nanoci --name #{NANO_CI_MASTER_CONTAINER} nano-ci-master"
     end
 
