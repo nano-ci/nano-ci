@@ -148,7 +148,7 @@ namespace :docker do
       sh "docker run --detach --network #{NANO_CI_NET} --name #{NANO_CI_AGENT_CONTAINER} nano-ci-agent"
     end
 
-    task :debug => [:'docker:nano-ci-agent'] do
+    task debug: [:'docker:nano-ci-agent'] do
       sh "docker run --detach --network #{NANO_CI_DEBUG_NET} --name #{NANO_CI_AGENT_DEBUG_CONTAINER} --entrypoint \"rdebug-ide\" --expose 23457 -p 23457:23457 nano-ci-agent --host 0.0.0.0 --port 23457 -- /nano-ci/bin/nano-ci-agent"
     end
 
