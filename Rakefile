@@ -160,7 +160,7 @@ namespace :docker do
       sh "docker logs --follow #{NANO_CI_AGENT_DEBUG_CONTAINER}"
     end
 
-    task :'debug-clean' => [:'debug-logs'] do
+    task 'debug-clean': [:'debug-logs'] do
       sh "docker container rm #{NANO_CI_AGENT_DEBUG_CONTAINER}"
     end
   end
