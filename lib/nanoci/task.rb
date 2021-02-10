@@ -50,7 +50,7 @@ module Nanoci
 
     def execute(build, workdir)
       task_workdir = File.join(workdir, definition.workdir)
-      logger.info "executing task #{type} in #{task_workdir} with env\n #{Hash[ENV].to_s}"
+      logger.info "executing task #{type} in #{task_workdir} with env\n #{Hash[ENV]}"
       FileUtils.mkdir_p(task_workdir) unless Dir.exist? task_workdir
       execute_imp(build, workdir)
     end
