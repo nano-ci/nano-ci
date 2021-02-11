@@ -8,6 +8,8 @@ module Nanoci
         @tag = tag
       end
 
+      # rubocop:disable  Style/TrivialAccessors
+
       def type(type)
         @type = type
       end
@@ -19,6 +21,8 @@ module Nanoci
       def interval(interval_sec)
         @interval = interval_sec
       end
+
+      # rubocop:enable  Style/TrivialAccessors
 
       def build
         {
