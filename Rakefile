@@ -144,7 +144,7 @@ namespace :docker do
   end
 
   namespace :'nano-ci-agent' do
-    task :run => [:'docker:nano-ci-agent'] do
+    task run: [:'docker:nano-ci-agent'] do
       sh "docker run --detach --network #{NANO_CI_NET} --name #{NANO_CI_AGENT_CONTAINER} nano-ci-agent"
     end
 
