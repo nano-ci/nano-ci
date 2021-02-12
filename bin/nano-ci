@@ -11,4 +11,4 @@ require 'nanoci/application/service'
 # require "pry"
 # Pry.start
 
-Nanoci::Application::Service.new().main(ARGV)
+Nanoci::Application::Service.new.main(ARGV)
