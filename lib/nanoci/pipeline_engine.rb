@@ -98,7 +98,7 @@ module Nanoci
 
     def event_handlers
       @event_handlers ||= {
-        Events::EXECUTE_JOB => ->(t) { execute_job(t.stage, t.job, t.inputs, t.prev_inputs) },
+        Events::EXECUTE_JOB => ->(t) { execute_job(t.stage.pipeline.project, t.stage, t.job, t.inputs, t.prev_inputs) },
         Events::JOB_FINISHED => ->(t) { finalize_job(t.stage, t.job, t.outputs) },
         Events::STAGE_FINISHED => ->(t) { finalize_stage(t.stage) }
       }.freeze
@@ -173,14 +173,15 @@ module Nanoci
     end
 
     # Executes job
+    # @param project [Nanoci::Project]
     # @param stage [Nanoci::Stage]
     # @param job [Nanoci::Job]
     # @param inputs [Hash{Symbol => String}]
     # @param prev_inputs [Hash{Symbol => String}]
-    def execute_job(stage, job, inputs, prev_inputs)
+    def execute_job(project, stage, job, inputs, prev_inputs)
       @log.info "executing job <#{stage.tag}.#{job.tag}>"
       begin
-        execute_job_body(stage, job, inputs, prev_inputs)
+        execute_job_body(project, stage, job, inputs, prev_inputs)
       rescue StandardError => e
         @log.error "failed to execute job <#{stage.tag}.#{job.tag}>"
         @log.error e
@@ -189,10 +190,9 @@ module Nanoci
       @log.info "job <#{stage.tag}.#{job.tag}> execution is completed"
     end
 
-    def execute_job_body(stage, job, inputs, prev_inputs)
-      command_host = CommandHost.new(stage, job)
-      job_body = job.body
-      job_outputs = command_host.run(inputs, prev_inputs, &job_body)
+    def execute_job_body(project, stage, job, inputs, prev_inputs)
+      command_host = CommandHost.new(project, stage, job)
+      job_outputs = command_host.run(inputs, prev_inputs)
       e = OpenStruct.new(
         type: Events::JOB_FINISHED,
         stage: stage,
