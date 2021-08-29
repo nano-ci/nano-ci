@@ -7,8 +7,8 @@ require 'nanoci/config/ucs'
 require 'nanoci/dsl/script_dsl'
 require 'nanoci/log'
 require 'nanoci/mixins/logger'
-require 'nanoci/plugin_loader'
 require 'nanoci/pipeline_engine'
+require 'nanoci/plugin_host'
 require 'nanoci/project'
 require 'nanoci/remote/agent_manager_service_host'
 require 'nanoci/state_manager'
@@ -42,7 +42,7 @@ module Nanoci
 
       def setup_components
         ucs = Config::UCS.instance
-        load_plugins(File.expand_path(ucs.plugins_path))
+        @plugin_host = load_plugins(File.expand_path(ucs.plugins_path))
         # @state_manager = StateManager.new(ucs.mongo_connection_string)
         @pipeline_engine = PipelineEngine.new
       end
@@ -57,7 +57,8 @@ module Nanoci
 
       def load_plugins(plugins_path)
         log.debug "loading plugins from #{plugins_path}..."
-        PluginLoader.load(plugins_path)
+        # TODO: pass plugins_path to PluginHost
+        PluginHost.new
       end
 
       # Reads project from the file
