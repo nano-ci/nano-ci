@@ -9,7 +9,6 @@ require 'nanoci/repo'
 module Nanoci
   # Represents a project in nano-ci
   class Project
-
     # @return [Hash{Symbol => Repo}]
     attr_reader :repos
 
@@ -46,6 +45,7 @@ module Nanoci
     def state=(value)
       raise "tag #{tag} does not match state tag #{value[:tag]}" \
         unless tag == value[:tag]
+
       restore_repos(value[:repos]) unless value[:repos].nil?
       restore_variables(value[:variables]) unless value[:variables].nil?
     end
@@ -85,7 +85,7 @@ module Nanoci
     # @param src [Hash]
     # @return [Nanoci::Pipeline]
     def read_pipeline(src)
-      Pipeline.new(src)
+      Pipeline.new(src, self)
     end
   end
 end

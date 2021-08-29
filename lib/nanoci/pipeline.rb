@@ -15,6 +15,10 @@ module Nanoci
     # @return [String]
     attr_reader :name
 
+    # Gets the pipeline's project.
+    # @return [Nanoci::Project]
+    attr_reader :project
+
     # @return [Array<Nanoci::Trigger>]
     attr_reader :triggers
 
@@ -26,10 +30,12 @@ module Nanoci
 
     # Initializes new instance of Pipeline
     # @param src [Hash]
-    def initialize(src)
+    # @param project [Nanoci::Project]
+    def initialize(src, project)
       @src = src
       @tag = @src[:tag]
       @name = @src[:name]
+      @project = project
       @triggers = read_triggers(@src.fetch(:triggers, []))
       @stages = read_stages(@src.fetch(:stages, []))
       @pipes = read_pipes(@src.fetch(:pipes, []))
@@ -50,7 +56,7 @@ module Nanoci
     # @param src [Array<Hash>]
     # @return [Array<Nanoci::Stage>]
     def read_stages(src)
-      src.collect { |s| Stage.new(s) }
+      src.collect { |s| Stage.new(s, self) }
     end
 
     # Reads pipes from src

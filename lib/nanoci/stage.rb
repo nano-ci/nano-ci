@@ -13,6 +13,10 @@ module Nanoci
     # @return [Symbol]
     attr_reader :tag
 
+    # Gets stage's pipeline.
+    # @return [Nanoci::Pipeline]
+    attr_reader :pipeline
+
     # @return [Array<Symbol>]
     attr_reader :triggering_inputs
 
@@ -36,11 +40,12 @@ module Nanoci
 
     # Initializes new instance of [Stage]
     # @param src [Hash]
-    # @param project [Project]
+    # @param pipeline [Nanoci::Pipeline]
     # @return [Stage]
-    def initialize(src)
+    def initialize(src, pipeline)
       @log = Logging.logger[self]
       @tag = src[:tag]
+      @pipeline = pipeline
       @triggering_inputs = src[:inputs]
       @inputs = {}
       @jobs = read_jobs(src[:jobs])
