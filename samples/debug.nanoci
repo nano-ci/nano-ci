@@ -1,4 +1,6 @@
 project :'nano-ci', 'main nano-ci project' do
+  plugin :'command.git', '0.1.0'
+
   pipeline :pipeline, 'web service pipeline' do
     trigger :pipeline_trigger do
       type :interval
