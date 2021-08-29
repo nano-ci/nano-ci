@@ -44,7 +44,7 @@ module Nanoci
         ucs = Config::UCS.instance
         @plugin_host = load_plugins(File.expand_path(ucs.plugins_path))
         # @state_manager = StateManager.new(ucs.mongo_connection_string)
-        @pipeline_engine = PipelineEngine.new
+        @pipeline_engine = PipelineEngine.new(@plugin_host)
       end
 
       # runs a nano-ci main service

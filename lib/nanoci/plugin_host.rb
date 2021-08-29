@@ -24,6 +24,13 @@ module Nanoci
       load_plugin(:'command.git', 'lib/nanoci/plugins/git')
     end
 
+    # Returns plugin with given tag
+    # @param tag [Symbol]
+    # @return [Nanoci::Plugins::CommandPlugin]
+    def get_plugin(tag)
+      @plugins.fetch(tag, nil)
+    end
+
     def load_plugin(tag, plugin_descriptor)
       raise "cannot find plugin #{plugin_descriptor}" unless Dir.exist? plugin_descriptor
 

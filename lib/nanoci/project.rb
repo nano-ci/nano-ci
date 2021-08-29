@@ -24,6 +24,11 @@ module Nanoci
       @source[:tag]
     end
 
+    # @return [Hash]
+    def plugins
+      @source[:plugins]
+    end
+
     # Initializes new instance of [Project]
     # @param source [Hash] Hash with data from DSL
     def initialize(source)

@@ -15,8 +15,10 @@ module Nanoci
     attr_reader :pipelines
 
     # Initializes new instance of [PipelineEngine]
-    def initialize
+    # @param plugin_host [Nanoci::PluginHost]
+    def initialize(plugin_host)
       @log = Logging.logger[self]
+      @plugin_host = plugin_host
       # @type [Hash]
       @pipelines = {}
       # @type [Hash]
@@ -190,8 +192,10 @@ module Nanoci
       @log.info "job <#{stage.tag}.#{job.tag}> execution is completed"
     end
 
+    # @param project [Nanoci::Project]
     def execute_job_body(project, stage, job, inputs, prev_inputs)
       command_host = CommandHost.new(project, stage, job)
+      enable_plugins(project, command_host)
       job_outputs = command_host.run(inputs, prev_inputs)
       e = OpenStruct.new(
         type: Events::JOB_FINISHED,
@@ -200,6 +204,16 @@ module Nanoci
         outputs: job_outputs
       )
       @task_queue.push(e)
+    end
+
+    # @param project [Nanoci::Project]
+    def enable_plugins(project, command_host)
+      project.plugins.each_key do |k|
+        plugin = @plugin_host.get_plugin(k)
+        raise "plugin <#{k}> is missing" if plugin.nil?
+
+        plugin.augment_command_host(command_host)
+      end
     end
 
     # Processes results of job execution
