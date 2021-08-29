@@ -8,10 +8,12 @@ module Nanoci
   # [CommandHost] is a class that executes Job's commands.
   class CommandHost
     # Initializes new instance of [CommandHost]
+    # @param project [Nanoci::Project]
     # @param stage [Nanoci::Stage]
     # @param job [Nanoci::Job]
-    def initialize(stage, job)
+    def initialize(project, stage, job)
       @root_work_dir = Config::UCS.instance.build_data_dir
+      @project = project
       @stage = stage
       @job = job
     end
