@@ -5,17 +5,15 @@ require 'pathname'
 module Nanoci
   # Class [PluginHost] discovers, loads, and initializes plugins.
   class PluginHost
+    @plugin_entrypoints = {}
+
     class << self
+      attr_reader :plugin_entrypoints
+
       def register_plugin(tag, klass)
         raise "duplicate plugin tag #{tag}" if plugin_entrypoints.key? tag
 
         plugin_entrypoints[tag] = klass
-      end
-
-      private
-
-      def plugin_entrypoints
-        @plugin_entrypoints ||= {}
       end
     end
 
@@ -35,11 +33,11 @@ module Nanoci
       plugin_file = File.expand_path(plugin_file)
       require_relative plugin_file
 
-      raise "unknown plugin tag #{tag}" unless PluginHost.plugin_entrypoints.key? tag
+      plugin_klass = PluginHost.plugin_entrypoints.fetch(tag, nil)
 
-      plugin_class = @@plugin_entrypoints.fetch(tag)
-      plugin_object = plugin_class.new
-      @plugins[tag] = plugin_object
+      raise "unknown plugin tag #{tag}" if plugin_klass.nil?
+
+      @plugins[tag] = plugin_klass.new
     end
   end
 end
