@@ -9,23 +9,6 @@ module Nanoci
   ##
   # Source control repository
   class Repo
-    extend Mixins::Provides
-
-    class << self
-      # Registers a provider of a resource
-      # @param tag [String] tag to identify the provider
-      def provides(tag)
-        super("repo:#{tag}")
-      end
-
-      # Returns the provider of a resource
-      # @param tag [String] tag to identify the provider
-      # @return [Class] class implementing the resource
-      def resolve(tag)
-        super("repo:#{tag}")
-      end
-    end
-
     # Tag is an id used to identify repo of a project
     # Repo tag must be unique
     # @return [Symbol]

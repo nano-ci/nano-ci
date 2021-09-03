@@ -83,7 +83,7 @@ module Nanoci
     # @param src [Array<Hash>]
     # @return [Array<Repo>]
     def read_repos(src)
-      src.to_h { |s| [s[:tag], Repo.resolve(s[:type]).new(s)] }
+      src.to_h { |s| [s[:tag], Repo.new(s)] }
     end
 
     # Reads pipeline from src
