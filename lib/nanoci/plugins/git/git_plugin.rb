@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'nanoci/plugins/command_plugin'
+require 'nanoci/plugins/git/git_command'
 
 module Nanoci
   module Plugins
@@ -10,7 +11,7 @@ module Nanoci
         # Gets an instance of git command configured for the specified repo.
         def git(repo_tag)
           raise "repo #{repo_tag} is not defined in the project #{project.tag}" \
-            unless project.repo.key? repo_tag
+            unless project.repos.key? repo_tag
 
           repo = project.repos[repo_tag]
           GitCommand.new(self, repo)
