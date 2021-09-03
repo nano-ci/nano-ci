@@ -7,6 +7,9 @@ require 'nanoci/tool_process'
 module Nanoci
   # [CommandHost] is a class that executes Job's commands.
   class CommandHost
+    # Project that's executing on this [Nanoci::CommandHost]
+    attr_reader :project
+
     # Initializes new instance of [CommandHost]
     # @param project [Nanoci::Project]
     # @param stage [Nanoci::Stage]
