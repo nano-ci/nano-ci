@@ -13,6 +13,7 @@ project :'nano-ci', 'main nano-ci project' do
 
     stage :debug do
       job :build_job, work_dir: 'test' do |inputs|
+        shell.run 'rm -Rf ./*'
         result = git.clone :sample
         {
           code: result.exit_code,
