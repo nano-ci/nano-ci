@@ -12,6 +12,16 @@ module Nanoci
           @command_host = command_host
           @repo = repo
         end
+
+        def clone(args = '')
+          run_git('clone', "#{@repo.uri} #{args}")
+        end
+
+        private
+
+        def run_git(command, args = '')
+          @command_host.execute_shell("git #{command} #{args}")
+        end
       end
     end
   end
