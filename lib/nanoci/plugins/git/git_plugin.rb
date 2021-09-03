@@ -9,12 +9,8 @@ module Nanoci
       # The module contains methods implementing git command DSL.
       module GitCommandModule
         # Gets an instance of git command configured for the specified repo.
-        def git(repo_tag)
-          raise "repo #{repo_tag} is not defined in the project #{project.tag}" \
-            unless project.repos.key? repo_tag
-
-          repo = project.repos[repo_tag]
-          GitCommand.new(self, repo)
+        def git
+          GitCommand.new(self, project)
         end
       end
 

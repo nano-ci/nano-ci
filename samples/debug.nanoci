@@ -13,7 +13,7 @@ project :'nano-ci', 'main nano-ci project' do
 
     stage :debug do
       job :build_job, work_dir: 'test' do |inputs|
-        result = git(:sample).clone
+        result = git.clone :sample
         {
           code: result.exit_code,
           stdout: result.stdout,
