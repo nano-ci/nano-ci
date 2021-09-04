@@ -12,17 +12,6 @@ module Nanoci
       # Gets plugin semantic version
       # @return [String]
       attr_reader :version
-
-      # Gets plugin module with extra commands
-      # @return [Module]
-      attr_reader :command_module
-
-      # Augments command host with plugin commands
-      # @param command_host [Nanoci::CommandHost]
-      # @return [void]
-      def augment_command_host(command_host)
-        command_host.extend(command_module)
-      end
     end
   end
 end
