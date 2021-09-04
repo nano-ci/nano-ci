@@ -1,4 +1,10 @@
 project :'nano-ci', 'main nano-ci project' do
+  plugin :'command.git', '0.1.0'
+
+  repo :sample do
+    uri 'https://github.com/nano-ci/sample.git'
+  end
+
   pipeline :pipeline, 'web service pipeline' do
     trigger :pipeline_trigger do
       type :interval
@@ -7,7 +13,8 @@ project :'nano-ci', 'main nano-ci project' do
 
     stage :debug do
       job :build_job, work_dir: 'test' do |inputs|
-        result = shell.run "echo '#{inputs[:'trigger.pipeline_trigger.trigger_time']}' >> output.txt"
+        shell.run 'rm -Rf ./*'
+        result = git.clone :sample
         {
           code: result.exit_code,
           stdout: result.stdout,

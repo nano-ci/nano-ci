@@ -15,8 +15,10 @@ module Nanoci
     attr_reader :pipelines
 
     # Initializes new instance of [PipelineEngine]
-    def initialize
+    # @param plugin_host [Nanoci::PluginHost]
+    def initialize(plugin_host)
       @log = Logging.logger[self]
+      @plugin_host = plugin_host
       # @type [Hash]
       @pipelines = {}
       # @type [Hash]
@@ -98,8 +100,8 @@ module Nanoci
 
     def event_handlers
       @event_handlers ||= {
-        Events::EXECUTE_JOB => ->(t) { execute_job(t.stage, t.job, t.inputs, t.prev_inputs) },
-        Events::JOB_FINISHED => ->(t) { finalize_job(t.stage, t.job, t.outputs) },
+        Events::EXECUTE_JOB => ->(t) { execute_job(t.stage.pipeline.project, t.stage, t.job, t.inputs, t.prev_inputs) },
+        Events::JOB_FINISHED => ->(t) { finalize_job(t.stage, t.job, t.outputs, t.success) },
         Events::STAGE_FINISHED => ->(t) { finalize_stage(t.stage) }
       }.freeze
     end
@@ -173,43 +175,66 @@ module Nanoci
     end
 
     # Executes job
+    # @param project [Nanoci::Project]
     # @param stage [Nanoci::Stage]
     # @param job [Nanoci::Job]
     # @param inputs [Hash{Symbol => String}]
     # @param prev_inputs [Hash{Symbol => String}]
-    def execute_job(stage, job, inputs, prev_inputs)
+    def execute_job(project, stage, job, inputs, prev_inputs)
       @log.info "executing job <#{stage.tag}.#{job.tag}>"
       begin
-        execute_job_body(stage, job, inputs, prev_inputs)
+        execute_job_body(project, stage, job, inputs, prev_inputs)
       rescue StandardError => e
         @log.error "failed to execute job <#{stage.tag}.#{job.tag}>"
         @log.error e
+        e = OpenStruct.new(
+          type: Events::JOB_FINISHED,
+          stage: stage,
+          job: job,
+          success: false
+        )
+        @task_queue.push(e)
       end
 
       @log.info "job <#{stage.tag}.#{job.tag}> execution is completed"
     end
 
-    def execute_job_body(stage, job, inputs, prev_inputs)
-      command_host = CommandHost.new(stage, job)
-      job_body = job.body
-      job_outputs = command_host.run(inputs, prev_inputs, &job_body)
+    # @param project [Nanoci::Project]
+    def execute_job_body(project, stage, job, inputs, prev_inputs)
+      command_host = CommandHost.new(project, stage, job)
+      enable_plugins(project, command_host)
+      job_outputs = command_host.run(inputs, prev_inputs)
       e = OpenStruct.new(
         type: Events::JOB_FINISHED,
         stage: stage,
         job: job,
+        success: true,
         outputs: job_outputs
       )
       @task_queue.push(e)
+    end
+
+    # @param project [Nanoci::Project]
+    # @param command_host [Nanoci::CommandHost]
+    def enable_plugins(project, command_host)
+      project.plugins.each_key do |k|
+        plugin = @plugin_host.get_plugin(k)
+        raise "plugin <#{k}> is missing" if plugin.nil?
+
+        command_host.enable_plugin(plugin)
+      end
     end
 
     # Processes results of job execution
     # @param stage [Nanoci::Stage]
     # @param job [Nanoci::Job]
     # @param outputs [Hash{Symbol => String}]
-    def finalize_job(stage, job, outputs)
+    # @param success [Boolean]
+    def finalize_job(stage, job, outputs, success)
       @log.info "finalizing job <#{stage.tag}.#{job.tag}> execution"
       job.state = Job::State::IDLE
-      stage.pending_outputs.merge! outputs
+      job.success = success
+      stage.pending_outputs.merge!(outputs) if success
       e = OpenStruct.new(
         type: Events::STAGE_FINISHED,
         stage: stage
@@ -223,7 +248,7 @@ module Nanoci
     def finalize_stage(stage)
       @log.info "finalizing stage <#{stage.tag}> execution"
       stage.finalize
-      pulse(stage.tag, stage.outputs)
+      pulse(stage.tag, stage.outputs) if stage.success?
     end
   end
 end

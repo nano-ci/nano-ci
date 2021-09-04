@@ -13,6 +13,10 @@ module Nanoci
     # @return [Symbol]
     attr_reader :tag
 
+    # Gets stage's pipeline.
+    # @return [Nanoci::Pipeline]
+    attr_reader :pipeline
+
     # @return [Array<Symbol>]
     attr_reader :triggering_inputs
 
@@ -36,11 +40,12 @@ module Nanoci
 
     # Initializes new instance of [Stage]
     # @param src [Hash]
-    # @param project [Project]
+    # @param pipeline [Nanoci::Pipeline]
     # @return [Stage]
-    def initialize(src)
+    def initialize(src, pipeline)
       @log = Logging.logger[self]
       @tag = src[:tag]
+      @pipeline = pipeline
       @triggering_inputs = src[:inputs]
       @inputs = {}
       @jobs = read_jobs(src[:jobs])
@@ -81,6 +86,10 @@ module Nanoci
       jobs.none? { |j| j.state == Job::State::RUNNING }
     end
 
+    def success?
+      jobs.all?(&:success)
+    end
+
     private
 
     def state=(next_state)
@@ -103,8 +112,10 @@ module Nanoci
         in [State::IDLE, State::RUNNING]
           @pending_outputs = {}
         in [State::RUNNING, State::IDLE]
-          @outputs = @pending_outputs
-          @outputs.merge!(@inputs)
+          if success?
+            @outputs = @pending_outputs
+            @outputs.merge!(@inputs)
+          end
           @pending_outputs = {}
         end
     end

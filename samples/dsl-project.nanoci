@@ -1,5 +1,5 @@
 project :'nano-ci', 'main nano-ci project' do
-  plugin :'repo.git', '0.1.0'
+  plugin :'command.git', '0.1.0'
   plugin :'tools.ruby', '0.1.0'
 
   repo :abc do

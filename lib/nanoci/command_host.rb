@@ -7,13 +7,23 @@ require 'nanoci/tool_process'
 module Nanoci
   # [CommandHost] is a class that executes Job's commands.
   class CommandHost
+    # Project that's executing on this [Nanoci::CommandHost]
+    attr_reader :project
+
     # Initializes new instance of [CommandHost]
+    # @param project [Nanoci::Project]
     # @param stage [Nanoci::Stage]
     # @param job [Nanoci::Job]
-    def initialize(stage, job)
+    def initialize(project, stage, job)
       @root_work_dir = Config::UCS.instance.build_data_dir
+      @project = project
       @stage = stage
       @job = job
+      @plugins = []
+    end
+
+    def enable_plugin(plugin)
+      @plugins.push(plugin)
     end
 
     # Runs Job's block with given inputs
@@ -35,6 +45,19 @@ module Nanoci
       FileUtils.mkpath job_work_dir unless Dir.exist? job_work_dir
       tool = ToolProcess.run("sh -c \"#{line}\"", chdir: job_work_dir).wait
       Commands::CommandOutput.new(tool.status_code, tool.output, tool.error)
+    end
+
+    def method_missing(method_name, *args, &block)
+      plugin = @plugins.select { |i| i.respond_to? method_name }.first
+      args.unshift(self, project)
+      plugin.send(method_name, *args, &block)
+    end
+
+    def respond_to_missing?(method_name)
+      @plugins.each do |i|
+        return true if i.respond_to_missing?(method_name)
+      end
+      super
     end
 
     private
