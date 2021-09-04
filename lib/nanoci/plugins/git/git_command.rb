@@ -70,10 +70,12 @@ module Nanoci
         def method_missing(method_name, *args, &_block)
           return unless GitCommand.commands.include?(method_name.to_sym)
 
+          command_name = method_name.to_s.sub('_', '-')
+
           if args.empty?
-            run_git(method_name.to_s.sub('_', '-'))
+            run_git(command_name)
           else
-            run_git(method_name.to_s, args[0])
+            run_git(command_name, args[0])
           end
         end
 
