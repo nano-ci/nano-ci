@@ -19,6 +19,11 @@ module Nanoci
       @project = project
       @stage = stage
       @job = job
+      @plugins = []
+    end
+
+    def enable_plugin(plugin)
+      @plugins.push(plugin)
     end
 
     # Runs Job's block with given inputs
@@ -40,6 +45,19 @@ module Nanoci
       FileUtils.mkpath job_work_dir unless Dir.exist? job_work_dir
       tool = ToolProcess.run("sh -c \"#{line}\"", chdir: job_work_dir).wait
       Commands::CommandOutput.new(tool.status_code, tool.output, tool.error)
+    end
+
+    def method_missing(method_name, *args, &block)
+      plugin = @plugins.select { |i| i.respond_to? method_name }.first
+      args.unshift(self, project)
+      plugin.send(method_name, *args, &block)
+    end
+
+    def respond_to_missing?(method_name)
+      @plugins.each do |i|
+        return true if i.respond_to_missing?(method_name)
+      end
+      super
     end
 
     private
