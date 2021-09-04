@@ -86,6 +86,10 @@ module Nanoci
       jobs.none? { |j| j.state == Job::State::RUNNING }
     end
 
+    def success?
+      jobs.all?(&:success)
+    end
+
     private
 
     def state=(next_state)
@@ -108,8 +112,10 @@ module Nanoci
         in [State::IDLE, State::RUNNING]
           @pending_outputs = {}
         in [State::RUNNING, State::IDLE]
-          @outputs = @pending_outputs
-          @outputs.merge!(@inputs)
+          if success?
+            @outputs = @pending_outputs
+            @outputs.merge!(@inputs)
+          end
           @pending_outputs = {}
         end
     end

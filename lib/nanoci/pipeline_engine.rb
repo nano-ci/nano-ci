@@ -101,7 +101,7 @@ module Nanoci
     def event_handlers
       @event_handlers ||= {
         Events::EXECUTE_JOB => ->(t) { execute_job(t.stage.pipeline.project, t.stage, t.job, t.inputs, t.prev_inputs) },
-        Events::JOB_FINISHED => ->(t) { finalize_job(t.stage, t.job, t.outputs) },
+        Events::JOB_FINISHED => ->(t) { finalize_job(t.stage, t.job, t.outputs, t.success) },
         Events::STAGE_FINISHED => ->(t) { finalize_stage(t.stage) }
       }.freeze
     end
@@ -187,6 +187,13 @@ module Nanoci
       rescue StandardError => e
         @log.error "failed to execute job <#{stage.tag}.#{job.tag}>"
         @log.error e
+        e = OpenStruct.new(
+          type: Events::JOB_FINISHED,
+          stage: stage,
+          job: job,
+          success: false
+        )
+        @task_queue.push(e)
       end
 
       @log.info "job <#{stage.tag}.#{job.tag}> execution is completed"
@@ -201,18 +208,20 @@ module Nanoci
         type: Events::JOB_FINISHED,
         stage: stage,
         job: job,
+        success: true,
         outputs: job_outputs
       )
       @task_queue.push(e)
     end
 
     # @param project [Nanoci::Project]
+    # @param command_host [Nanoci::CommandHost]
     def enable_plugins(project, command_host)
       project.plugins.each_key do |k|
         plugin = @plugin_host.get_plugin(k)
         raise "plugin <#{k}> is missing" if plugin.nil?
 
-        plugin.augment_command_host(command_host)
+        command_host.enable_plugin(plugin)
       end
     end
 
@@ -220,10 +229,12 @@ module Nanoci
     # @param stage [Nanoci::Stage]
     # @param job [Nanoci::Job]
     # @param outputs [Hash{Symbol => String}]
-    def finalize_job(stage, job, outputs)
+    # @param success [Boolean]
+    def finalize_job(stage, job, outputs, success)
       @log.info "finalizing job <#{stage.tag}.#{job.tag}> execution"
       job.state = Job::State::IDLE
-      stage.pending_outputs.merge! outputs
+      job.success = success
+      stage.pending_outputs.merge!(outputs) if success
       e = OpenStruct.new(
         type: Events::STAGE_FINISHED,
         stage: stage
@@ -237,7 +248,7 @@ module Nanoci
     def finalize_stage(stage)
       @log.info "finalizing stage <#{stage.tag}> execution"
       stage.finalize
-      pulse(stage.tag, stage.outputs)
+      pulse(stage.tag, stage.outputs) if stage.success?
     end
   end
 end

@@ -16,6 +16,8 @@ module Nanoci
 
     attr_reader :state
 
+    attr_accessor :success
+
     def state=(next_state)
       raise "invalid state #{next_state}" unless State::VALUES.include? next_state
 
