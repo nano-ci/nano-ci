@@ -23,7 +23,7 @@ module Nanoci
         @triggers.push(trigger_dsl)
       end
 
-      def stage(tag, params = {}, &block)
+      def stage(tag, **params, &block)
         raise "stage #{tag} is missing definition block" if block.nil?
 
         stage_dsl = StageDSL.new(tag, **params)
