@@ -14,7 +14,7 @@ Gem::Specification.new do |spec|
   spec.description   = 'nano-ci is a minimalistic CI/CD service'
   spec.homepage      = 'http://nanoci.net'
   spec.license       = 'MIT'
-  spec.required_ruby_version = '~> 2.7'
+  spec.required_ruby_version = '~> 3.0'
 
   spec.files         = Dir.glob('{bin,lib}/**/*') + %w[LICENSE.txt README.md]
   spec.bindir        = 'bin'
@@ -26,7 +26,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'bundler', '~> 2.0'
   spec.add_runtime_dependency 'concurrent-ruby', '~> 1.0'
   spec.add_runtime_dependency 'concurrent-ruby-edge', '~> 0.4'
-  spec.add_runtime_dependency 'grpc', '~> 1.32.0'
+  spec.add_runtime_dependency 'grpc', '~> 1.40.0'
   spec.add_runtime_dependency 'logging', '~> 2.2'
   spec.add_runtime_dependency 'mail', '~> 2.7'
   spec.add_runtime_dependency 'mongo', '~> 2.5'

@@ -22,7 +22,7 @@ module Nanoci
     # @option opts [String] :chdir the working directory of the new process
     # @option opts [Hash<Symbol, String>] :env environment variables for the new process
     def self.run(cmd, **kwargs)
-      process = ToolProcess.new(cmd, kwargs)
+      process = ToolProcess.new(cmd, **kwargs)
       process.run
       process
     end

@@ -4,9 +4,9 @@ module Nanoci
   module DSL
     # JobDSL class contains methods to support nano-ci DSL
     class JobDSL
-      def initialize(tag, params, block)
+      def initialize(tag, work_dir: '.', &block)
         @tag = tag
-        @work_dir = params.fetch(:work_dir, '.')
+        @work_dir = work_dir
         @block = block
       end
 

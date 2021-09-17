@@ -12,10 +12,10 @@ module Nanoci
         @jobs = []
       end
 
-      def job(tag, params = {}, &block)
+      def job(tag, **params, &block)
         raise "job #{tag} is missing definition block" if block.nil?
 
-        job = JobDSL.new(tag, params, block)
+        job = JobDSL.new(tag, **params, &block)
         @jobs.push(job)
       end
 
