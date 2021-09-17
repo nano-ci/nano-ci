@@ -26,7 +26,7 @@ module Nanoci
       def stage(tag, params = {}, &block)
         raise "stage #{tag} is missing definition block" if block.nil?
 
-        stage_dsl = StageDSL.new(tag, params)
+        stage_dsl = StageDSL.new(tag, **params)
         stage_dsl.instance_eval(&block)
         @stages.push(stage_dsl)
       end
