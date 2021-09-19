@@ -99,7 +99,7 @@ module Nanoci
     # Runs a job on the agent
     # @param build_job [Nanoci::BuildJob]
     def run_job(build_job)
-      @agent.run_job(build_job.build, build_job).then do |_result |
+      @agent.run_job(build_job.build, build_job).then do |_result|
         schedule_job_state_report(build_job.build.project.tag, build_job.tag, @agent.tag, build_job.state)
       end
     end

@@ -52,7 +52,7 @@ module Nanoci
       end
 
       def refresh_repos(project)
-        project.repos.values.each do |r|
+        project.repos.each_value do |r|
           workdir = r.repo_cache
           r.update(workdir)
           r.current_commit = r.tip_of_tree(workdir, r.branch)
@@ -110,7 +110,7 @@ module Nanoci
     end
 
     def commits
-      @commits ||= @project.repos.map { |t, r| [t, r.current_commit] }.to_h
+      @commits ||= @project.repos.transform_values(&:current_commit)
     end
 
     attr_writer :commits
