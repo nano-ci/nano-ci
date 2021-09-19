@@ -1,6 +1,8 @@
 AllCops:
   NewCops: enable
   TargetRubyVersion: 3.0
+  Exclude:
+    - 'lib/nanoci/remote/*_pb.rb'
 
 Layout/EndOfLine:
   EnforcedStyle: lf
