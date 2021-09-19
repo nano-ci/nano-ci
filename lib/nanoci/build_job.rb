@@ -43,13 +43,9 @@ module Nanoci
     attr_reader :completed_future
 
     def state=(value)
-      if value == @state
-        return
-      end
+      return if value == @state
 
-      if Build::State.done === @state then
-        logger.debug("cannot change state of finished job")
-      end
+      logger.debug('cannot change state of finished job') if Build::State.done === @state
 
       logger.debug("build job #{build.tag}.#{definition.tag} state changed from #{Build::State.key(@state)} to #{Build::State.key(value)}")
       @state = value

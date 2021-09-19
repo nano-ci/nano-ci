@@ -7,7 +7,7 @@ require 'nanoci/config/ucs'
 RSpec.describe Nanoci::BuildScheduler do
   before(:example) do
     Nanoci::Config::UCS.initialize(nil, nil)
-    Nanoci::Config::UCS.instance.override(Nanoci::Config::AgentConfig::BUILD_DATA_DIR, "")
+    Nanoci::Config::UCS.instance.override(Nanoci::Config::AgentConfig::BUILD_DATA_DIR, '')
   end
 
   after(:example) do

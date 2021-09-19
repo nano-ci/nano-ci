@@ -13,11 +13,15 @@ RSpec.describe Nanoci::Config::UCS do
     end
 
     it 'raise error on missing double dash' do
-      expect { Nanoci::Config::UCS.parse_argv(['config.a=abc']) }.to raise_error("invalid option config.a=abc - does not start with --")
+      expect do
+        Nanoci::Config::UCS.parse_argv(['config.a=abc'])
+      end.to raise_error('invalid option config.a=abc - does not start with --')
     end
 
     it 'raise error on missing equal' do
-      expect { Nanoci::Config::UCS.parse_argv(['--config.a abc']) }.to raise_error("invalid option config.a abc - does not have = to split key and value")
+      expect do
+        Nanoci::Config::UCS.parse_argv(['--config.a abc'])
+      end.to raise_error('invalid option config.a abc - does not have = to split key and value')
     end
   end
 end

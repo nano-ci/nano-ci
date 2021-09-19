@@ -4,7 +4,7 @@
 require 'google/protobuf'
 
 Google::Protobuf::DescriptorPool.generated_pool.build do
-  add_enum "nanoci.remote.AgentStatus" do
+  add_enum 'nanoci.remote.AgentStatus' do
     value :UNKNOWN, 0
     value :IDLE, 1
     value :PENDING, 2
@@ -14,6 +14,6 @@ end
 
 module Nanoci
   module Remote
-    AgentStatus = Google::Protobuf::DescriptorPool.generated_pool.lookup("nanoci.remote.AgentStatus").enummodule
+    AgentStatus = Google::Protobuf::DescriptorPool.generated_pool.lookup('nanoci.remote.AgentStatus').enummodule
   end
 end

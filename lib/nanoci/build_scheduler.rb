@@ -92,29 +92,25 @@ module Nanoci
 
     def finalize_builds
       finished_builds.each do |build|
-        begin
-          build.complete
-          @state_manager.put_state(StateManager::Types::BUILD, build.memento)
-          build.project.build_number = build.number
-          @state_manager.put_state(StateManager::Types::PROJECT, build.project.state)
-          @builds.delete build
-          logger.info "finished build #{build.tag} in state #{Build::State.key(build.state)}"
-        rescue StandardError => e
-          logger.fatal "failed to schedule build #{build.tag}"
-          logger.fatal e
-        end
+        build.complete
+        @state_manager.put_state(StateManager::Types::BUILD, build.memento)
+        build.project.build_number = build.number
+        @state_manager.put_state(StateManager::Types::PROJECT, build.project.state)
+        @builds.delete build
+        logger.info "finished build #{build.tag} in state #{Build::State.key(build.state)}"
+      rescue StandardError => e
+        logger.fatal "failed to schedule build #{build.tag}"
+        logger.fatal e
       end
     end
 
     def schedule_builds
       logger.debug 'scheduling the builds...'
       queued_jobs.each_entry do |j|
-        begin
-          schedule_job(j)
-        rescue StandardError => e
-          logger.error("failed to schedule job #{j.tag}")
-          logger.error(e)
-        end
+        schedule_job(j)
+      rescue StandardError => e
+        logger.error("failed to schedule job #{j.tag}")
+        logger.error(e)
       end
       logger.debug 'processed all builds in the queue'
     end

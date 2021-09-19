@@ -8,7 +8,7 @@ require 'rspec/core/rake_task'
 
 GRPC = 'grpc_tools_ruby_protoc'
 
-Dir['lib/rake/*.rb'].sort.each { |file| require file }
+Dir['lib/rake/*.rb'].each { |file| require file }
 
 NANO_CI_GEM = 'nanoci-0.1.0.gem'
 

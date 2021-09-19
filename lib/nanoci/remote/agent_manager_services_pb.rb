@@ -8,7 +8,6 @@ module Nanoci
   module Remote
     module AgentManager
       class Service
-
         include GRPC::GenericService
 
         self.marshal_class_method = :encode

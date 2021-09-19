@@ -46,23 +46,21 @@ module Nanoci
         end
 
         @recipients.each do |r|
-          begin
-            log.debug "sending email to #{r}"
-            mail = Mail.new do
-              from    from
-              to      r
-              subject subject
-              body    body
-            end
-            mail.delivery_method :smtp_connection, connection: smtp_conn
-            mail.deliver
-            log.debug "successfully sent email to #{r}"
-          rescue StandardError => e
-            log.error "failed to send report to #{r}"
-            log.error e
-          ensure
-            smtp_conn.finish
+          log.debug "sending email to #{r}"
+          mail = Mail.new do
+            from    from
+            to      r
+            subject subject
+            body    body
           end
+          mail.delivery_method :smtp_connection, connection: smtp_conn
+          mail.deliver
+          log.debug "successfully sent email to #{r}"
+        rescue StandardError => e
+          log.error "failed to send report to #{r}"
+          log.error e
+        ensure
+          smtp_conn.finish
         end
       end
     end

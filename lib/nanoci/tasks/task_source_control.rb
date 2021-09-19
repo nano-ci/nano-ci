@@ -10,10 +10,7 @@ module Nanoci
     class TaskSourceControl < Task
       provides 'source-control'
 
-      attr_accessor :repo_tag
-      attr_accessor :repo
-      attr_accessor :action
-      attr_accessor :branch
+      attr_accessor :repo_tag, :repo, :action, :branch
 
       # Initializes new instance of [TaskSourceControl]
       # @param definition [TaskDefinition]
@@ -33,6 +30,7 @@ module Nanoci
       def execute_imp(build, workdir)
         repo = build.project.repos[repo_tag]
         raise "Missing repo definition #{repo_tag}" if repo.nil?
+
         case action
         when 'checkout'
           execute_checkout(repo, workdir, build.output)

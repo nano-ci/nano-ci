@@ -7,7 +7,7 @@ module Nanoci
   # A variable is an object to hold string value to use in task configuration
   # Task may reference a variable using syntax ${var_name}
   class Variable
-    PATTERN = /\$\{([^\}]+)\}/
+    PATTERN = /\$\{([^}]+)\}/
 
     class << self
       # Expands a string using hash of variables
@@ -18,6 +18,7 @@ module Nanoci
         until (match = PATTERN.match(str)).nil?
           var_tag = match[1].to_sym
           raise "Cycle in expanding variable #{tag}" if expanded_vars.include? var_tag
+
           expanded_vars.add(var_tag)
           sub_value = vars.fetch(var_tag, '').to_s
           str = str.sub(match[0], sub_value)
@@ -26,8 +27,7 @@ module Nanoci
       end
     end
 
-    attr_accessor :tag
-    attr_accessor :value
+    attr_accessor :tag, :value
 
     # @overload initialize(definition)
     #   Inializes new instance of Variable using VariableDefinition
@@ -71,6 +71,7 @@ module Nanoci
     def memento=(value)
       raise "tag #{tag} does not match state tag #{value[:tag]}" \
         unless tag == value[:tag]
+
       self.value = value[:value]
     end
 

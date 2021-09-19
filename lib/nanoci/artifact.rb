@@ -4,9 +4,7 @@ module Nanoci
   ##
   # An artifact is the output of job and may contains files or folders
   class Artifact
-    attr_accessor :tag
-    attr_accessor :path
-    attr_accessor :pattern
+    attr_accessor :tag, :path, :pattern
 
     def initialize(hash = {})
       @tag = hash['tag']

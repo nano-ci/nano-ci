@@ -86,6 +86,7 @@ module Nanoci
       @log.debug("restoring state of repo #{tag} from #{value}")
       raise "tag #{tag} does not match state tag #{value[:tag]}" \
         unless tag == value[:tag].to_sym
+
       @current_commit = value[:current_commit]
     end
   end

@@ -109,14 +109,14 @@ module Nanoci
 
     def handle_state_transition(transition)
       case transition
-        in [State::IDLE, State::RUNNING]
-          @pending_outputs = {}
-        in [State::RUNNING, State::IDLE]
-          if success?
-            @outputs = @pending_outputs
-            @outputs.merge!(@inputs)
-          end
-          @pending_outputs = {}
+      in [State::IDLE, State::RUNNING]
+        @pending_outputs = {}
+      in [State::RUNNING, State::IDLE]
+        if success?
+          @outputs = @pending_outputs
+          @outputs.merge!(@inputs)
+        end
+        @pending_outputs = {}
         end
     end
   end

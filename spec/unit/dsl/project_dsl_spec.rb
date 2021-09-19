@@ -50,6 +50,6 @@ RSpec.describe Nanoci::DSL::ProjectDSL do
       end
     end
     project_def = dsl.build
-    expect(project_def[:pipeline]).to include(pipe: :"abc>>def")
+    expect(project_def[:pipeline]).to include(pipe: :'abc>>def')
   end
 end

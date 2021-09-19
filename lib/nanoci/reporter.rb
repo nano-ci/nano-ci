@@ -20,6 +20,7 @@ module Nanoci
     def self.create(type, src)
       reporter_class = types[type]
       raise "Unknown reporter type #{type}" if reporter_class.nil?
+
       reporter_class.new(src)
     end
 

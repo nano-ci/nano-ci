@@ -11,6 +11,7 @@ module Nanoci
         next if File.file? plugin_dir
         next if plugin_dir == '.'
         next if plugin_dir == '..'
+
         plugin = File.join(plugins_path, plugin_dir, "plugin_#{plugin_dir}")
         require plugin
       end

@@ -8,9 +8,9 @@ require 'nanoci/agent_engine'
 require 'nanoci/event'
 
 RSpec::Matchers.define :a_hash_with_keys do |x|
-  match { |actual|
+  match do |actual|
     Set.new(actual.keys) >= Set.new(x)
-  }
+  end
 end
 
 RSpec.describe Nanoci::AgentEngine do
@@ -28,10 +28,10 @@ RSpec.describe Nanoci::AgentEngine do
   it 'subscribes to agent events' do
     event_engine = double('event_engine')
     expect(event_engine).to receive(:register).with(a_hash_with_keys([
-      Nanoci::Events::GET_NEXT_JOB,
-      Nanoci::Events::REPORT_JOB_STATE,
-      Nanoci::Events::REPORT_STATUS
-    ]))
+                                                                       Nanoci::Events::GET_NEXT_JOB,
+                                                                       Nanoci::Events::REPORT_JOB_STATE,
+                                                                       Nanoci::Events::REPORT_STATUS
+                                                                     ]))
     Nanoci::AgentEngine.new(event_engine)
   end
 end

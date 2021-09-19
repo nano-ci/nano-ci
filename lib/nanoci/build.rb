@@ -79,11 +79,7 @@ module Nanoci
     # Build project
     # @return [Nanoci::Project]
     attr_accessor :project
-    attr_accessor :trigger
-    attr_accessor :start_time
-    attr_accessor :end_time
-    attr_accessor :stages
-    attr_accessor :current_stage
+    attr_accessor :trigger, :start_time, :end_time, :stages, :current_stage
 
     # Build variables
     # @return [Hash<String, Nanoci::Variable>]
@@ -114,7 +110,7 @@ module Nanoci
     end
 
     def commits
-      @commits ||= Hash[@project.repos.map { |t, r| [t, r.current_commit] }]
+      @commits ||= @project.repos.map { |t, r| [t, r.current_commit] }.to_h
     end
 
     attr_writer :commits
@@ -136,7 +132,7 @@ module Nanoci
         start_time: start_time,
         end_time: end_time,
         state: State.key(state),
-        stages: Hash[stages.map { |s| [s.tag, s.memento] }],
+        stages: stages.map { |s| [s.tag, s.memento] }.to_h,
         current_stage: current_stage.tag,
         tests: tests.map(&:memento),
         commits: commits.clone,

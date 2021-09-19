@@ -8,7 +8,7 @@ module Nanoci
   # Agent is an instance of nano-ci service that executes commands from
   # a main nano-ci service to run build jobs
   class Agent
-    attr_reader :tag
+    attr_reader :tag, :status, :status_timestamp
 
     # Agent capabilities
     # @return [Hash<Symbol, String>]
@@ -17,9 +17,6 @@ module Nanoci
     # Build the agent currently working on
     # @return [Nanoci::Build]
     attr_reader :build
-
-    attr_reader :status
-    attr_reader :status_timestamp
 
     # Gets a job agent is working on
     # @returns [Nanoci::BuildJob]
@@ -32,6 +29,7 @@ module Nanoci
       @tag = tag
 
       raise 'capabilities should be a Hash' unless capabilities.is_a? Hash
+
       @capabilities = capabilities
       @current_job = nil
       self.status = AgentStatus::IDLE
@@ -53,6 +51,7 @@ module Nanoci
     def capabilities?(required_capabilities)
       raise 'required_capabilities should be a Set' \
         unless required_capabilities.is_a? Set
+
       Set.new(@capabilities.keys.to_set).superset? required_capabilities
     end
 

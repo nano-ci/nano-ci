@@ -10,16 +10,18 @@ module Nanoci
     end
 
     def to_hash
-      Hash[@data]
+      @data.to_h
     end
 
     def [](key)
       raise 'key is not a Symbol' unless key.is_a? Symbol
+
       @data[key]
     end
 
     def []=(key, value)
       raise 'key is not a Symbol' unless key.is_a? Symbol
+
       @data[key] = to_variable(key, value)
     end
 
@@ -60,9 +62,10 @@ module Nanoci
     def initialize_from_hash(src)
       data = src.map do |k, v|
         raise 'hash key is not a Symbol' unless k.is_a?(Symbol)
+
         [k, to_variable(k, v)]
       end
-      Hash[data]
+      data.to_h
     end
 
     def initialize_from_variable_map(src)

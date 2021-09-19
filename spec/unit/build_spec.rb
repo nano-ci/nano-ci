@@ -80,8 +80,8 @@ RSpec.describe Nanoci::Build do
     )
     project = Nanoci::Project.new(project_def)
     env_vars = {
-      :var1 => Nanoci::Variable.new(Nanoci::Definition::VariableDefinition.new(tag: 'var1', value: 'var1 value')),
-      :var2 => Nanoci::Variable.new(Nanoci::Definition::VariableDefinition.new(tag: 'var2', value: 'var2 value'))
+      var1: Nanoci::Variable.new(Nanoci::Definition::VariableDefinition.new(tag: 'var1', value: 'var1 value')),
+      var2: Nanoci::Variable.new(Nanoci::Definition::VariableDefinition.new(tag: 'var2', value: 'var2 value'))
     }
     trigger = Nanoci::Trigger.new(nil)
     build = Nanoci::Build.run(project, trigger, env_vars)
@@ -108,8 +108,8 @@ RSpec.describe Nanoci::Build do
     )
     project = Nanoci::Project.new(project_def)
     env_vars = {
-      :var3 => Nanoci::Variable.new(Nanoci::Definition::VariableDefinition.new(tag: 'var3', value: 'var3 value')),
-      :var4 => Nanoci::Variable.new(Nanoci::Definition::VariableDefinition.new(tag: 'var4', value: 'var4 value'))
+      var3: Nanoci::Variable.new(Nanoci::Definition::VariableDefinition.new(tag: 'var3', value: 'var3 value')),
+      var4: Nanoci::Variable.new(Nanoci::Definition::VariableDefinition.new(tag: 'var4', value: 'var4 value'))
     }
     trigger = Nanoci::Trigger.new(nil)
     build = Nanoci::Build.run(project, trigger, env_vars)

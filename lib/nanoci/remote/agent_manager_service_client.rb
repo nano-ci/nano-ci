@@ -14,7 +14,7 @@ require 'nanoci/project'
 require 'nanoci/remote/agent_manager_services_pb'
 require 'nanoci/remote/get_next_job_message_pb'
 require 'nanoci/remote/report_agent_status_message_pb'
-require 'nanoci/remote/report_job_state_message_pb.rb'
+require 'nanoci/remote/report_job_state_message_pb'
 
 module Nanoci
   module Remote

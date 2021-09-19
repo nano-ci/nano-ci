@@ -10,8 +10,6 @@ module Nanoci
         @tag = tag
       end
 
-      # rubocop:disable  Style/TrivialAccessors
-
       # Sets repo type
       # @param type [Symbol]
       def type(type)
@@ -29,8 +27,6 @@ module Nanoci
       def auth(hash)
         @auth = hash
       end
-
-      # rubocop:enable  Style/TrivialAccessors
 
       # Builds [Nanoci::Definition::RepoDefinition]
       def build

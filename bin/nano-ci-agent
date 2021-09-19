@@ -11,4 +11,4 @@ require 'nanoci/application/agent'
 # require "pry"
 # Pry.start
 
-Nanoci::Application::Agent.new().main(ARGV)
+Nanoci::Application::Agent.new.main(ARGV)

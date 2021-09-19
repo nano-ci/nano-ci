@@ -78,6 +78,7 @@ module Nanoci
     def dispatch(event)
       logger.info("dispatching event #{event}")
       raise "unknown event class #{event.type}" unless handlers.key?(event.type)
+
       handler = handlers.fetch(event.type)
       call_handler(handler, event)
       logger.info("event #{event} dispatched")

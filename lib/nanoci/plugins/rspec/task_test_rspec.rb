@@ -89,6 +89,7 @@ module Nanoci
 
         def read_results(path)
           return [] unless File.exist? path
+
           data = File.read(path)
           json = JSON.parse(data)
           json['examples'].map do |example|

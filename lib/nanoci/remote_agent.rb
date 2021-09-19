@@ -18,6 +18,7 @@ module Nanoci
     # @param value [Hash<Symbol>]
     def capabilities=(value)
       raise 'value should be a hash' unless value.is_a? Hash
+
       @capabilities = value
     end
 
@@ -47,7 +48,8 @@ module Nanoci
     # @param value [Nanoci::AgentStatus]
     def status=(value)
       # Reset next job future if agent becomes idle
-      reset_pending_job_future if [AgentStatus::BUSY, AgentStatus::PENDING].include?(status) && value == AgentStatus::IDLE
+      reset_pending_job_future if [AgentStatus::BUSY,
+                                   AgentStatus::PENDING].include?(status) && value == AgentStatus::IDLE
       super
     end
 

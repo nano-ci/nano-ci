@@ -60,9 +60,9 @@ module Nanoci
         job.state = Build::State::RUNNING
         execute_tasks(job.definition.tasks, job.tag, build)
         job.state = Build::State::COMPLETED
-      rescue StandardError => reason
+      rescue StandardError => e
         logger.error "failed to execute job #{job.tag} of build #{build.tag}"
-        logger.error reason
+        logger.error e
         job.state = Build::State::FAILED
       end
 

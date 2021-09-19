@@ -55,6 +55,7 @@ module Nanoci
     # @return [void]
     def add_agent(agent)
       raise "agent with tag #{agent.tag} exists in pool" unless get_agent(agent.tag).nil?
+
       @agents.push(agent)
       logger.info("added a new agent #{agent.tag} to agents pool.")
       agent
@@ -62,12 +63,13 @@ module Nanoci
 
     # Removes an agent from the agents pool
     # @param agent [Agent]
-    # @return [void]
+    # @return [nil]
     def remove_agent(agent)
       raise "agent with tag #{agent.tag} does not exist in pool" if get_agent(agent.tag).nil?
+
       @agents.delete(agent)
       logger.info("remoted the agent #{agent.tag} from agents pool")
-      return
+      nil
     end
 
     private

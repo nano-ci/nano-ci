@@ -83,7 +83,7 @@ module Nanoci
       # @param config_path [String] path to config file
       def initialize(argv = ARGV, config_path = nil)
         @argv = UCS.parse_argv(argv).freeze
-        @env = Hash[ENV].symbolize_keys.freeze
+        @env = ENV.to_h.symbolize_keys.freeze
 
         config_path ||= @argv.fetch(:config, nil) || system_config_path
 

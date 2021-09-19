@@ -3,11 +3,13 @@ require 'spec_helper'
 require 'nanoci/artifact'
 
 RSpec.describe Nanoci::Artifact do
-  let(:src) { {
-    'tag' => 'tag',
-    'path' => 'abc/def/',
-    'pattern' => 'abc.*def'
-  } }
+  let(:src) do
+    {
+      'tag' => 'tag',
+      'path' => 'abc/def/',
+      'pattern' => 'abc.*def'
+    }
+  end
 
   it 'reads tag from source' do
     artifact = Nanoci::Artifact.new(src)

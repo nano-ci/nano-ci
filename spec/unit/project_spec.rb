@@ -56,7 +56,7 @@ RSpec.describe Nanoci::Project do
     project = Nanoci::Project.new(definition)
 
     expect(project.state[:repos]).to_not be_nil
-    expect(project.state[:repos]['project-repo'.to_sym]).to_not be_nil
+    expect(project.state[:repos][:'project-repo']).to_not be_nil
   end
 
   it 'restores state of repo' do
@@ -81,7 +81,7 @@ RSpec.describe Nanoci::Project do
       }
     }
     project.state = state
-    expect(project.repos['project-repo'.to_sym].current_commit).to eq 'abc'
+    expect(project.repos[:'project-repo'].current_commit).to eq 'abc'
   end
 
   it 'returns state of variables' do
@@ -95,7 +95,7 @@ RSpec.describe Nanoci::Project do
     project = Nanoci::Project.new(definition)
 
     expect(project.state[:variables]).to_not be_nil
-    expect(project.state[:variables]['var1'.to_sym]).to_not be_nil
+    expect(project.state[:variables][:var1]).to_not be_nil
   end
 
   it 'restores state of variables' do
@@ -119,7 +119,7 @@ RSpec.describe Nanoci::Project do
     }
 
     project.state = state
-    expect(project.variables['var1'.to_sym].value).to eq 'abc'
+    expect(project.variables[:var1].value).to eq 'abc'
   end
 
   it 'reades repo from definition' do
@@ -133,7 +133,7 @@ RSpec.describe Nanoci::Project do
     )
 
     project = Nanoci::Project.new(definition)
-    expect(project.repos['test repo'.to_sym]).to be_a(TestRepo)
+    expect(project.repos[:'test repo']).to be_a(TestRepo)
   end
 
   it 'reads stages from definition' do

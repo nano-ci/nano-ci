@@ -6,8 +6,7 @@ module Nanoci
   ##
   # BuildStage is the class to track Build Stage execution
   class BuildStage
-    attr_accessor :definition
-    attr_accessor :jobs
+    attr_accessor :definition, :jobs
 
     # Gets a future resolved when all jobs in the stage are completed
     # @return [Concurrent::Promises::Future]
@@ -31,7 +30,7 @@ module Nanoci
     def memento
       {
         tag: tag,
-        jobs: Hash[jobs.map { |j| [j.tag, j.memento] }],
+        jobs: jobs.map { |j| [j.tag, j.memento] }.to_h,
         stage: Build::State.key(state)
       }
     end

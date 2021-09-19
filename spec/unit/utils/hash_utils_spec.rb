@@ -51,7 +51,7 @@ RSpec.describe Hash do
         'def' => 345
       }.flatten_hash_value
       expect(hash).to include 'abc.def': 123
-      expect(hash).to include 'def': 345
+      expect(hash).to include def: 345
     end
   end
 end
