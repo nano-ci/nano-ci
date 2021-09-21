@@ -9,33 +9,23 @@ require 'nanoci/repo'
 module Nanoci
   # Represents a project in nano-ci
   class Project
+    attr_reader :name, :tag, :plugins, :reporters
+
     # @return [Hash{Symbol => Repo}]
     attr_reader :repos
 
     # @return [Nanoci::Pipeline]
     attr_reader :pipeline
-    attr_reader :reporters
-
-    def name
-      @source[:name]
-    end
-
-    def tag
-      @source[:tag]
-    end
-
-    # @return [Hash]
-    def plugins
-      @source[:plugins]
-    end
 
     # Initializes new instance of [Project]
     # @param source [Hash] Hash with data from DSL
-    def initialize(source)
+    def initialize(name:, tag:, repos: [], pipeline: {}, plugins: {})
       @log = Logging.logger[self]
-      @source = source
-      @repos = read_repos(@source.fetch(:repos, []))
-      @pipeline = read_pipeline(@source.fetch(:pipeline, {}))
+      @name = name
+      @tag = tag
+      @repos = read_repos(repos)
+      @pipeline = read_pipeline(pipeline)
+      @plugins = plugins
       @reporters = []
     end
 
@@ -83,7 +73,7 @@ module Nanoci
     # @param src [Array<Hash>]
     # @return [Array<Repo>]
     def read_repos(src)
-      src.to_h { |s| [s[:tag], Repo.new(s)] }
+      src.to_h { |s| [s[:tag], Repo.new(**s)] }
     end
 
     # Reads pipeline from src

@@ -2,6 +2,7 @@ project :'nano-ci', 'main nano-ci project' do
   plugin :'command.git', '0.1.0'
 
   repo :sample do
+    type :git
     uri 'https://github.com/nano-ci/sample.git'
   end
 

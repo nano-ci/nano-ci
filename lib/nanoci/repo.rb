@@ -12,42 +12,34 @@ module Nanoci
     # Tag is an id used to identify repo of a project
     # Repo tag must be unique
     # @return [Symbol]
-    def tag
-      @src[:tag]
-    end
+    attr_reader :tag
 
     # Type of the repo, e.g. 'git', 'svn', etc.
     # @return [String]
-    def type
-      @src[:type]
-    end
+    attr_reader :type
 
     # URI that points to repo storage (on http server, file path, etc.)
     # @return [String]
-    def uri
-      @src[:uri]
-    end
+    attr_reader :uri
 
     # Name of the branch, tag, commit hash, etc - anything points to a commit
-    def branch
-      @src.fetch(:branch, nil)
-    end
+    attr_reader :branch
 
     # Object specifies authentication against repo
-    def auth
-      @src.fetch(:auth, nil)
-    end
+    attr_reader :auth
 
     # Collection of capabilities requred to run
     # a job against the repo on an agent
     attr_reader :required_agent_capabilities
 
     # Initializes new instance of Repo
-    # @param src [Hash]
-    def initialize(src)
+    def initialize(tag:, type:, uri:, auth: nil)
       @log = Logging.logger[self]
 
-      @src = src
+      @tag = tag.to_sym
+      @type = type.to_sym
+      @uri = uri
+      @auth = auth
       @required_agent_capabilities = []
       @current_commit = ''
     end

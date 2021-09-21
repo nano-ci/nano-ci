@@ -71,7 +71,7 @@ module Nanoci
         script_dsl = DSL::ScriptDSL.from_string(script_text)
         project_dsl = script_dsl.projects[0]
         log.info "read project #{project_dsl.tag}"
-        Project.new(project_dsl.build)
+        Project.new(**project_dsl.build)
       end
     end
   end
