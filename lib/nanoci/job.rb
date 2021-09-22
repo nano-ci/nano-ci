@@ -26,10 +26,10 @@ module Nanoci
 
     # Initializes new instance of [Job]
     # @param src [Hash]
-    def initialize(src)
-      @tag = src[:tag]
-      @work_dir = src.fetch(:work_dir, '.')
-      @body = src[:block]
+    def initialize(tag:, block:, work_dir: '.')
+      @tag = tag.to_sym
+      @work_dir = work_dir
+      @body = block
       @state = State::IDLE
     end
   end
