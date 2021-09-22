@@ -32,8 +32,7 @@ module Nanoci
     def state
       {
         tag: tag,
-        repos: repos.transform_values(&:state),
-        variables: variables.transform_values(&:memento)
+        repos: repos.transform_values(&:state)
       }
     end
 
@@ -73,7 +72,7 @@ module Nanoci
     # @param src [Array<Hash>]
     # @return [Array<Repo>]
     def read_repos(src)
-      src.to_h { |s| [s[:tag], Repo.new(**s)] }
+      src.to_h { |s| [s[:tag].to_sym, Repo.new(**s)] }
     end
 
     # Reads pipeline from src
