@@ -21,7 +21,7 @@ RSpec.describe Nanoci::Config::UCS do
     it 'raise error on missing equal' do
       expect do
         Nanoci::Config::UCS.parse_argv(['--config.a abc'])
-      end.to raise_error('invalid option config.a abc - does not have = to split key and value')
+      end.to raise_error('invalid option --config.a abc - does not have = to split key and value')
     end
   end
 end
