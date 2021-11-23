@@ -11,6 +11,12 @@ module Nanoci
       # @return [Symbol]
       attr_reader :name
 
+      # A read-only array of attached subscriptions
+      # @return [Array<Nanoci::Messaging::Subscription>]
+      def subscriptions
+        @subscriptions.dup.freeze
+      end
+
       # Initializes new instance of [Nanoci::Messaging::Topic]
       # @param name [String,Symbol]
       def initialize(name)
