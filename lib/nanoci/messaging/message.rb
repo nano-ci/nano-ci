@@ -11,7 +11,7 @@ module Nanoci
 
       # Time in UTC timezone when the message was published.
       # @return [Time]
-      attr_reader :publish_time_utc
+      attr_accessor :publish_time_utc
 
       # Collection of custom attributes.
       # @return [Hash]
