@@ -6,7 +6,7 @@ module Nanoci
     class MessageLease
       # Unique message Id
       # @return [Nanoci::Messaging::Message]
-      attr_reader :message_id
+      attr_reader :message
 
       # Message lease timeout
       # @return [Number]
