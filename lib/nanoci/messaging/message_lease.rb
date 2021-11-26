@@ -5,15 +5,20 @@ module Nanoci
     # Tracks message lease and lease expiration
     class MessageLease
       # Unique message Id
-      # @return [String]
+      # @return [Nanoci::Messaging::Message]
       attr_reader :message_id
+
+      # Message lease timeout
+      # @return [Number]
+      attr_reader :timeout
 
       # Deadline for message lease. Lease is considered expired if deadline is in past
       # @return [Time]
       attr_reader :deadline
 
-      def initialize(message_id)
-        @message_id = message_id
+      # Initializes new instance of [Nanoci::Messaging::Message]
+      def initialize(message)
+        @message = message
         @is_leased = false
       end
 
@@ -22,13 +27,14 @@ module Nanoci
       end
 
       def leased?
-        @is_leased
+        @is_leased && !expired?
       end
 
-      def lease(deadline)
+      def lease(timeout)
         raise StandardError, 'Message is already leased' if leased?
 
-        @deadline = deadline
+        @timeout = timeout
+        @deadline = Time.now.utc + timeout
         @is_leased = true
       end
 

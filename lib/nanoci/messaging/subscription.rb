@@ -21,34 +21,29 @@ module Nanoci
         @name = name.to_sym
         # @type [Concurrent::Array]
         @message_queue = Concurrent::Array.new
-        # @type [Concurrent::Hash]
-        @lease = Concurrent::Hash.new
       end
 
       # Pushes a new message to the subscription
       # @Param msg [Nanoci::Messaging::Message]
       def push(msg)
-        @message_queue.push(msg)
-        @lease[msg.id] = MessageLease.new(mgs.id)
+        @message_queue.push(MessageLease.new(msg))
       end
 
       # Pulls a next available message from the subscription
       # @return [Nanoci::Messaging::MessageReceipt, nil]
       def pull
-        msg = @message_queue
-              .reject { |e| message_leased?(e.id) }
-              .first
+        message_lease = @message_queue.reject(&:leased?).first
 
-        return nil if msg.nil?
+        return nil if message_lease.nil?
 
-        @lease[msg.id].lease(get_next_deadline(@lease[msg.id]))
-        MessageReceipt.new(msg, self)
+        message_lease.lease(get_next_timeout(message_lease.timeout))
+        MessageReceipt.new(message_lease.message, self)
       end
 
       # Acknowledges and removes the message from subscription
       # @param msg [Nanoci::Messaging::Message]
       def ack(msg_id)
-        @message_queue.delete_if { |m| m.id == msg_id }
+        @message_queue.delete_if { |m| m.message.id == msg_id }
       end
 
       # Rejects message
@@ -56,12 +51,8 @@ module Nanoci
         # not implemented
       end
 
-      def message_leased?(msg_id)
-        @lease.key?(msg_id) && @lease[msg_id].leased? && !@lease[msg_id].expired?
-      end
-
-      def get_next_deadline(_prev_deadline)
-        Time.now.utc + ACK_TIMEOUT
+      def get_next_timeout(_prev_timeout)
+        ACK_TIMEOUT
       end
     end
   end
