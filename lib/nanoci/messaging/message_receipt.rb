@@ -17,11 +17,11 @@ module Nanoci
       end
 
       def ack
-        @subscription.ack(msg.id)
+        @subscription.ack(message.id)
       end
 
       def nack
-        @subscription.ack(msg.id)
+        @subscription.nack(message.id)
       end
     end
   end
