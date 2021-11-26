@@ -29,16 +29,20 @@ module Nanoci
       # @Param msg [Nanoci::Messaging::Message]
       def push(msg)
         @message_queue.push(msg)
-        @lease[msg.id] = MessageLease.new(mgs.id, get_next_deadline(nil))
+        @lease[msg.id] = MessageLease.new(mgs.id)
       end
 
       # Pulls a next available message from the subscription
       # @return [Nanoci::Messaging::MessageReceipt, nil]
       def pull
         msg = @message_queue
-              .select { |e| @lease.key?(e.id) && (!@lease[e.id].leased? || @lease[e.id].expired?) }
+              .reject { |e| message_leased?(e.id) }
               .first
-        msg.nil? ? nil : MessageReceipt.new(msg, self)
+
+        return nil if msg.nil?
+
+        @lease[msg.id].lease(get_next_deadline(@lease[msg.id]))
+        MessageReceipt.new(msg, self)
       end
 
       # Acknowledges and removes the message from subscription
@@ -50,6 +54,10 @@ module Nanoci
       # Rejects message
       def nack(msg_id)
         # not implemented
+      end
+
+      def message_leased?(msg_id)
+        @lease.key?(msg_id) && @lease[msg_id].leased? && !@lease[msg_id].expired?
       end
 
       def get_next_deadline(_prev_deadline)
