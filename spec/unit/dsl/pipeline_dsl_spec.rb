@@ -11,7 +11,7 @@ RSpec.describe Nanoci::DSL::PipelineDSL do
     expect(pd).to include(tag: :pipe)
   end
 
-  it 'reads pipeline tag from DSL' do
+  it 'reads pipeline name from DSL' do
     dsl = Nanoci::DSL::PipelineDSL.new(:pipe, 'test pipeline')
     pd = dsl.build
     expect(pd).to include(name: 'test pipeline')
