@@ -7,7 +7,7 @@ module Nanoci
       # Unique message Id. Id is set when message is published.
       # Id format depends on messaging component implementation.
       # @return [String]
-      attr_reader :id
+      attr_accessor :id
 
       # Time in UTC timezone when the message was published.
       # @return [Time]
