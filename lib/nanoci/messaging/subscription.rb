@@ -48,7 +48,9 @@ module Nanoci
 
       # Rejects message
       def nack(msg_id)
-        # not implemented
+        message_lease = @message_queue.select { |m| m.message.id == msg_id }.first
+
+        message_lease&.release
       end
 
       def get_next_timeout(_prev_timeout)
