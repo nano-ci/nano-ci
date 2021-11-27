@@ -20,6 +20,7 @@ module Nanoci
       # Initializes new instance of [Nanoci::Messaging::Topic]
       # @param name [String,Symbol]
       def initialize(name)
+        @counter = 0
         @name = name.to_sym
         # @type [Array<Nanoci::Messaging::Nanoci>]
         @subscriptions = []
@@ -29,6 +30,7 @@ module Nanoci
       # @param msg [Nanoci::Messaging::Message]
       # @return [Concurrent::Promises::Future] A future with a published message.
       def publish(msg)
+        msg.id = next_msg_id
         msg.publish_time_utc = Time.now.utc
 
         @subscriptions.each do |s|
@@ -45,6 +47,14 @@ module Nanoci
 
       def detach(subscription)
         @subscriptions.delete_if { |s| s == subscription }
+      end
+
+      private
+
+      def next_msg_id
+        next_id = @counter
+        @counter += 1
+        next_id
       end
     end
   end

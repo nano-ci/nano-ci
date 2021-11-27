@@ -5,6 +5,12 @@ require 'spec_helper'
 require 'nanoci/messaging/message'
 require 'nanoci/messaging/topic'
 
+RSpec::Matchers.define :a_message_id_eq do |expected|
+  match do |actual|
+    actual.id == expected
+  end
+end
+
 RSpec.describe Nanoci::Messaging::Topic do
   it '#initialize sets topic name' do
     topic = Nanoci::Messaging::Topic.new(:test_topic)
@@ -67,5 +73,23 @@ RSpec.describe Nanoci::Messaging::Topic do
     topic.detach(sub)
 
     topic.publish(msg)
+  end
+
+  it '#publish generates unique message id' do
+    sub = double(:sub)
+    allow(sub).to receive(:id) { :sub }
+    expect(sub).to receive(:push).with(a_message_id_eq(0))
+    expect(sub).to receive(:push).with(a_message_id_eq(1))
+
+    msg1 = Nanoci::Messaging::Message.new
+    msg1.payload = 'abc'
+
+    msg2 = Nanoci::Messaging::Message.new
+    msg2.payload = 'def'
+
+    topic = Nanoci::Messaging::Topic.new(:top)
+    topic.attach(sub)
+    topic.publish(msg1)
+    topic.publish(msg2)
   end
 end
