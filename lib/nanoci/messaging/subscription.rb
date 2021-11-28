@@ -30,7 +30,7 @@ module Nanoci
       end
 
       # Pulls a next available message from the subscription
-      # @return [Nanoci::Messaging::MessageReceipt, nil]
+      # @return [Nanoci::Messaging::MessageReceipt]
       def pull
         message_lease = @message_queue.reject(&:leased?).first
 
