@@ -13,11 +13,14 @@ module Nanoci
     class ExecuteJobSubscriber < Nanoci::Messaging::Subscriber
       include Nanoci::Mixins::Logger
 
+      # Initializes new object of [ExecuteJobSubscriber]
+      # @param topic_factory [Nanoci::Messaging::TopicFactory]
+      # @param subscription_factory [Nanoci::Messaging::SubscriptionFactory]
       def initialize(topic_factory, subscription_factory)
         # @type [Nanoci::Messaging::Topic]
-        @job_finished_topic = topic_factory.get_topic Topics::JOB_FINISHED
+        @job_finished_topic = topic_factory.create_topic Topics::JOB_FINISHED
 
-        subscription = subscription_factory.get_subscription Subscriptions::EXECUTE_JOB
+        subscription = subscription_factory.create_subscription Subscriptions::EXECUTE_JOB
         super(subscription)
       end
 
