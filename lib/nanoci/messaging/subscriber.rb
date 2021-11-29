@@ -14,6 +14,10 @@ module Nanoci
         @subscription = subscription
       end
 
+      def subscription_name
+        @subscription.name
+      end
+
       # Pulls messages from the subcription and runs message handler on them.
       # @return [Boolean] true if at least one message was pulled. false otherwise.
       def pipe_messages
