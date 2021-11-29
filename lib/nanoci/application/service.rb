@@ -5,7 +5,11 @@ require 'nanoci/agent_manager'
 require 'nanoci/config'
 require 'nanoci/config/ucs'
 require 'nanoci/dsl/script_dsl'
+require 'nanoci/events/workflow_config'
 require 'nanoci/log'
+require 'nanoci/messaging/subscriber'
+require 'nanoci/messaging/subscription_factory'
+require 'nanoci/messaging/topic_factory'
 require 'nanoci/mixins/logger'
 require 'nanoci/pipeline_engine'
 require 'nanoci/plugin_host'
@@ -45,6 +49,19 @@ module Nanoci
         @plugin_host = load_plugins(File.expand_path(ucs.plugins_path))
         # @state_manager = StateManager.new(ucs.mongo_connection_string)
         @pipeline_engine = PipelineEngine.new(@plugin_host)
+        @workflow_event_subscribers = setup_workflow_event_subscribers
+      end
+
+      # Sets up workflow event suscribers
+      # @return [Array<Nanoci::Messaging::Subscriber>]
+      def setup_workflow_event_subscribers
+        topic_factory = Messaging::TopicFactory.new
+        subscription_factory = Messaging::SubscriptionFactory.new
+        Events::WorkflowConfig.setup_topics_and_subscriptions(topic_factory, subscription_factory)
+
+        [
+          Events::ExecuteJobSubscriber.new(topic_factory, subscription_factory)
+        ]
       end
 
       # runs a nano-ci main service
@@ -52,7 +69,21 @@ module Nanoci
       # @return [void]
       def run(project)
         @pipeline_engine.run_pipeline(project.pipeline)
-        @pipeline_engine.run.wait!
+        message_loop
+      end
+
+      def message_loop
+        loop do
+          had_messages = false
+          @workflow_event_subscribers.each do |s|
+            had_messages ||= s.pipe_messages
+          rescue StandardError => e
+            log.error "failed to run message loop for subscriber #{s.name} due to unhandled error"
+            log.error e
+          end
+
+          sleep(0.1) unless had_messages
+        end
       end
 
       def load_plugins(plugins_path)
