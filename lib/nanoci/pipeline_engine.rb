@@ -96,6 +96,32 @@ module Nanoci
       @log.error e
     end
 
+    # Processes results of job execution
+    # @param stage [Nanoci::Stage]
+    # @param job [Nanoci::Job]
+    # @param outputs [Hash{Symbol => String}]
+    # @param success [Boolean]
+    def finalize_job(stage, job, outputs, success)
+      @log.info "finalizing job <#{stage.tag}.#{job.tag}> execution"
+      job.state = Job::State::IDLE
+      job.success = success
+      stage.pending_outputs.merge!(outputs) if success
+      e = OpenStruct.new(
+        type: Events::STAGE_FINISHED,
+        stage: stage
+      )
+      @log.info "job <#{stage.tag}.#{job.tag}> is completed"
+      @task_queue.push(e) if stage.jobs_idle?
+    end
+
+    # Processes results of stage execution
+    # @param stage [Nanoci::Stage]
+    def finalize_stage(stage)
+      @log.info "finalizing stage <#{stage.tag}> execution"
+      stage.finalize
+      pulse(stage.tag, stage.outputs) if stage.success?
+    end
+
     private
 
     def event_handlers
@@ -223,32 +249,6 @@ module Nanoci
 
         command_host.enable_plugin(plugin)
       end
-    end
-
-    # Processes results of job execution
-    # @param stage [Nanoci::Stage]
-    # @param job [Nanoci::Job]
-    # @param outputs [Hash{Symbol => String}]
-    # @param success [Boolean]
-    def finalize_job(stage, job, outputs, success)
-      @log.info "finalizing job <#{stage.tag}.#{job.tag}> execution"
-      job.state = Job::State::IDLE
-      job.success = success
-      stage.pending_outputs.merge!(outputs) if success
-      e = OpenStruct.new(
-        type: Events::STAGE_FINISHED,
-        stage: stage
-      )
-      @log.info "job <#{stage.tag}.#{job.tag}> is completed"
-      @task_queue.push(e) if stage.jobs_idle?
-    end
-
-    # Processes results of stage execution
-    # @param stage [Nanoci::Stage]
-    def finalize_stage(stage)
-      @log.info "finalizing stage <#{stage.tag}> execution"
-      stage.finalize
-      pulse(stage.tag, stage.outputs) if stage.success?
     end
   end
 end
