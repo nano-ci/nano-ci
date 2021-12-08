@@ -2,6 +2,7 @@
 
 module Nanoci
   module Events
+    # Data model for event that signals that job is finished.
     class JobFinishedEvent
       attr_accessor :project, :project_tag, :stage, :stage_tag, :job, :job_tag, :outputs, :success
 
