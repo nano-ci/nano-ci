@@ -16,6 +16,11 @@ module Nanoci
 
           execute_job_sub = subscription_factory.create_subscription(Subscriptions::EXECUTE_JOB)
           execute_job_topic.attach(execute_job_sub)
+
+          job_finished_topic = topic_factory.create_topic(Topics::JOB_FINISHED)
+
+          job_finished_sub = subscription_factory.create_subscription(Subscriptions::JOB_FINISHED)
+          job_finished_topic.attach(job_finished_sub)
         end
       end
     end
