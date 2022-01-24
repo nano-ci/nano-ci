@@ -6,9 +6,9 @@
     "configurations": [
 		{
 			"name": "Debug",
-			"type": "Ruby",
+			"type": "rdbg",
 			"request": "launch",
-			"program": "${workspaceRoot}/bin/nano-ci",
+			"script": "${workspaceRoot}/bin/nano-ci",
 			"args": [
 				"--project=samples/debug.nanoci",
 				"--config=samples/config-debug.yml"
@@ -16,21 +16,23 @@
 		},
         {
 			"name": "RSpec - all",
-			"type": "Ruby",
+			"type": "rdbg",
 			"request": "launch",
 			"cwd": "${workspaceRoot}",
-			"program": "/home/thevk/.rbenv/versions/2.7.2/bin/rspec",
+			"useBundler": true,
+			"command": "rspec",
+			"script": ".",
 			"args": [
 				"--format", "documentation"
 			]
 		},
 		{
 			"name": "RSpec - open spec file",
-			"type": "Ruby",
+			"type": "rdbg",
 			"request": "launch",
 			"cwd": "${workspaceRoot}",
-			"program": "/home/thevk/.rbenv/versions/2.7.2/bin/rspec",
-			"args": ["${file}"]
+			"command": "rspec",
+			"script": "${file}"
 		}
     ]
 }
