@@ -18,10 +18,10 @@ module Nanoci
       # @return [String]
       attr_reader :name
 
-      # @return [Array<Nanoci::Trigger>]
+      # @return [Array<Trigger>]
       attr_reader :triggers
 
-      # @return [Array<Nanoci::Stage>]
+      # @return [Array<Stage>]
       attr_reader :stages
 
       # @return [Hash{Symbol => Array<Symbol>}]
