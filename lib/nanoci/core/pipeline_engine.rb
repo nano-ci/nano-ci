@@ -8,11 +8,14 @@ module Nanoci
     class PipelineEngine
       include Nanoci::Mixins::Logger
 
-      def initialize
+      # Initializes new instance of [Nanoci::Core::PipelineEngine]
+      # @param job_executor [Nanoci::Core::JobExecutor]
+      def initialize(job_executor)
         @pipelines = []
         @stages = {}
         # @type [Hash{Symbol => Array<Symbol>}]
         @pipes = Hash.new { |h, k| h[k] = [] }
+        @job_executor = job_executor
       end
 
       # Runs the pipeline on the pipeline engine
@@ -26,13 +29,42 @@ module Nanoci
         pipeline.validate
 
         add_stages(pipeline)
-        add_pipes(pipeline)
 
         pipelines.push(pipeline)
 
-        start_pipeline(pipeline)
+        start_pipeline_triggers(pipeline)
 
         log.info "pipeline <#{pipeline.tag}> is running"
+      end
+
+      # Signals engine that stage is complete
+      # @param tag [Symbol] stage symbol
+      # @param outputs [Hash{Symbol => String}] stage outputs
+      def stage_complete(tag, outputs)
+        @log.info "pulse signal of completion <#{stage_tag}>"
+        @pipes[tag].each do |next_stage|
+          next_stage.run(outputs, self) if next_stage.should_trigger? outputs
+        rescue StandardError => e
+          @log.error "failed to run next stage <#{next_stage.tag}> after signal of completion <#{stage_tag}>"
+          @log.error e
+        end
+      rescue StandardError => e
+        @log.error "failed to pulse stage <#{stage_tag}> completion signal"
+        @log.error e
+      end
+
+      # Schedules execution of the job
+      # @param stage [Nanoci::Stage]
+      # @param job [Nanoci::Job]
+      # @param inputs [Hash{Symbol => String}]
+      # @param prev_inputs [Hash{Symbol => String}]
+      def run_job(stage, job, inputs, prev_inputs)
+        @job_executor.schedule_job_execution(stage, job, inputs, prev_inputs)
+      end
+
+      def job_complete(stage, job)
+        stage.job_complete(job)
+        stage_complete(stage, stage.outputs) if stage.jobs_idle?
       end
 
       private
@@ -46,7 +78,7 @@ module Nanoci
 
       # Starts the pipeline
       # @param pipeline [Nanoci::Pipeline]
-      def start_pipeline(pipeline)
+      def start_pipeline_triggers(pipeline)
         # @param t [Nanoci::Trigger]
         pipeline.triggers.each { |t| t.run(self) }
       end
@@ -58,13 +90,11 @@ module Nanoci
 
           @stages[s.tag] = s
         end
-      end
 
-      def add_pipes(pipeline)
-        # @param k [Symbol]
-        # @param v [Array<Symbol>]
-        pipeline.pipes.each do |(k, v)|
-          @pipes[k].push(*v)
+        pipeline.pipes.each do |(s_tag, v)|
+          v.each do |t_tag|
+            @pipes[s_tag].push(@stages[t_tag])
+          end
         end
       end
     end

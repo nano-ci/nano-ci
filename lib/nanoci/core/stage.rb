@@ -76,6 +76,10 @@ module Nanoci
         end
       end
 
+      def job_complete(job)
+        # TODO: implement me
+      end
+
       def finalize
         self.state = Stage::State::IDLE
         @log.info "stage <#{tag}> is completed with outputs #{outputs}"
