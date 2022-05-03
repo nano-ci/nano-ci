@@ -65,6 +65,14 @@ module Nanoci
       def validate_triggers
         raise ArgumentError, 'triggers is nil' if triggers.nil?
         raise ArgumentError, 'triggers is not an Array' unless triggers.is_a? Array
+
+        triggers.each do |t|
+          unless pipes.key?(t.full_tag)
+            @log.warn("trigger #{t.tag} output is not connected to any of stage inputs")
+            return false
+          end
+        end
+        true
       end
 
       def validate_stages
@@ -92,7 +100,7 @@ module Nanoci
         end
       end
 
-      #TODO: move methods below to PipelineDSL
+      # TODO: move methods below to PipelineDSL
 
       # Reads pipes from src
       # @param src [Array<String>]
