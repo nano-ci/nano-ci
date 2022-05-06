@@ -2,6 +2,7 @@
 
 require 'logging'
 
+require 'nanoci/mixins/logger'
 require 'nanoci/mixins/provides'
 
 module Nanoci
@@ -9,6 +10,7 @@ module Nanoci
     # Base class for nano-ci triggers
     class Trigger
       extend Mixins::Provides
+      include Mixins::Logger
 
       def self.item_type
         'trigger'
@@ -47,22 +49,21 @@ module Nanoci
 
       # Initializes new instance of [Trigger]
       # @param definition [Hash]
-      def initialize(tag:, type:, schedule:, start_time: Time.at(0, in: 'UTC'), end_time: nil, previous_run_time: nil, next_run_time: nil)
-        @log = Logging.logger[self]
+      def initialize(tag:, type:, schedule:)
         @tag = tag
         @type = type
         @schedule = schedule
-        @start_time = start_time
-        @end_time = end_time
-        @previous_run_time = previous_run_time
-        @next_run_time = next_run_time
+        @start_time = nil
+        @end_time = nil
+        @previous_run_time = nil
+        @next_run_time = nil
       end
 
       # Starts the trigger
       # @param pipeline_engine [Nanoci::Pipeline]
       def run(pipeline_engine)
         @pipeline_engine = pipeline_engine
-        @log.info("running trigger #{tag}")
+        log.info("running trigger #{tag}")
       end
 
       protected
