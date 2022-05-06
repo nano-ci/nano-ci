@@ -17,7 +17,13 @@ module Nanoci
 
       attr_reader :state
 
-      attr_accessor :success
+      # Gets status of the most recent job run
+      # @return [Boolean] true if job complete successfully; false otherwise
+      attr_reader :success
+
+      # Gets outputs of the most recent success job run
+      # @return [Hash{Symbol => String}]
+      attr_reader :outputs
 
       def state=(next_state)
         raise ArgumentError, "invalid state #{next_state}" unless State::VALUES.include? next_state
@@ -41,6 +47,16 @@ module Nanoci
 
         raise ArgumentError, 'body is nil' if body.nil?
         raise ArgumentError, 'body is not a Proc' unless body.is_a? Proc
+      end
+
+      def finalize(success, outputs)
+        raise ArgumentError, 'success is not a Boolean' unless [true, false].include? success
+        raise ArgumentError, 'outputs is not a Hash' unless outputs.is_a? Hash
+
+        @success = success
+        @outputs = outputs if success
+
+        self.state = State::IDLE
       end
     end
   end

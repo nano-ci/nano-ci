@@ -62,7 +62,8 @@ module Nanoci
         @job_executor.schedule_job_execution(stage, job, inputs, prev_inputs)
       end
 
-      def job_complete(stage, job)
+      def job_complete(stage, job, outputs)
+        job.finalize(true, outputs)
         stage.job_complete(job)
         stage_complete(stage, stage.outputs) if stage.jobs_idle?
       end
