@@ -2,9 +2,9 @@
 
 require 'logging'
 
-require 'nanoci/job'
+require 'nanoci/core/job'
+require 'nanoci/core/stage_state'
 require 'nanoci/mixins/logger'
-require 'nanoci/stage_state'
 
 module Nanoci
   module Core
