@@ -6,14 +6,14 @@ require 'nanoci/dsl/stage_dsl'
 
 RSpec.describe Nanoci::DSL::StageDSL do
   it 'reads tag from dsl' do
-    dsl = Nanoci::DSL::StageDSL.new(:stage, inputs: [])
-    stage_def = dsl.build
-    expect(stage_def).to include(tag: :stage)
+    dsl = Nanoci::DSL::StageDSL.new(nil, :stage, inputs: [])
+    stage = dsl.build
+    expect(stage.tag).to eq :stage
   end
 
   it 'reads inputs from dsl' do
-    dsl = Nanoci::DSL::StageDSL.new(:stage, inputs: [:abc])
-    stage_def = dsl.build
-    expect(stage_def).to include(inputs: [:abc])
+    dsl = Nanoci::DSL::StageDSL.new(nil, :stage, inputs: [:abc])
+    stage = dsl.build
+    expect(stage.inputs).to eq [:abc]
   end
 end

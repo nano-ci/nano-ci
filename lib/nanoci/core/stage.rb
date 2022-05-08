@@ -43,12 +43,11 @@ module Nanoci
       # @param inputs [Array<Symbol>] Array of triggering inputs
       # @param jobs [Array<Job>] Array of stage jobs
       # @return [Stage]
-      def initialize(tag, inputs, jobs)
+      def initialize(tag:, inputs:, jobs:)
         @tag = tag
         @triggering_inputs = inputs
         @jobs = jobs
-        @inputs = {}
-        @inputs = {}
+        @inputs = inputs
         @prev_inputs = {}
         @pending_outputs = {}
         @outputs = {}
