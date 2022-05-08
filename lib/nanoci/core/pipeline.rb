@@ -94,7 +94,7 @@ module Nanoci
           raise ArgumentError, "pipe #{key} connection array is nil" if value.nil?
           raise ArgumentError, "pipe #{key} connections object is not an Array" unless value.is_a? Array
 
-          values.each do |ps|
+          value.each do |ps|
             raise ArgumentError, "stage #{ps} does not exist" if find_stage(ps).nil?
           end
         end
