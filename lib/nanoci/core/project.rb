@@ -4,7 +4,7 @@ require 'logging'
 
 require 'nanoci'
 require 'nanoci/core/pipeline'
-require 'nanoci/repo'
+require 'nanoci/core/repo'
 
 module Nanoci
   module Core
