@@ -1,10 +1,7 @@
 # frozen_string_literal: true
 
 require 'nanoci/core/stage'
-
-# TODO: fix me
-require 'nanoci/trigger'
-require 'nanoci/triggers/all'
+require 'nanoci/core/trigger'
 
 module Nanoci
   module Core
@@ -97,27 +94,6 @@ module Nanoci
           values.each do |ps|
             raise ArgumentError, "stage #{ps} does not exist" if find_stage(ps).nil?
           end
-        end
-      end
-
-      # TODO: move methods below to PipelineDSL
-
-      # Reads pipes from src
-      # @param src [Array<String>]
-      # @return [Hash<Symbol, Array<Symbol>>]
-      def read_pipes(src)
-        # @param s [String]
-        # @param hash [Hash]
-        src.each_with_object(Hash.new { |h, k| h[k] = [] }) do |s, hash|
-          read_pipe(s, hash)
-        end
-      end
-
-      def read_pipe(str, hash)
-        pipe_array = str.to_s.split('>>').collect(&:strip)
-        pipe_array[0..-2].zip(pipe_array[1..]).each do |m|
-          list = hash[m[0].to_sym]
-          list.push(m[1].to_sym)
         end
       end
     end
