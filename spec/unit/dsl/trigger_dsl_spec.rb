@@ -2,34 +2,44 @@
 
 require 'spec_helper'
 
+require 'nanoci/core/trigger'
 require 'nanoci/dsl/trigger_dsl'
 
 RSpec.describe Nanoci::DSL::TriggerDSL do
-  it 'reads tag from DSL' do
-    dsl = Nanoci::DSL::TriggerDSL.new(:poll)
-    dsl.instance_eval do
-      interval 42
+  before(:each) do
+    @component_factory = double(:component_factory)
+    @trigger_factory = double(:component_factory)
+    allow(@component_factory).to receive(:triggers).and_return(@trigger_factory)
+    allow(@trigger_factory).to receive(:build) do |tag, type, schedule|
+      Nanoci::Core::Trigger.new(tag: tag, type: type, schedule: schedule)
     end
-    td = dsl.build
-    expect(td).to include(tag: :poll)
+  end
+
+  it 'reads tag from DSL' do
+    dsl = Nanoci::DSL::TriggerDSL.new(@component_factory, :poll)
+    dsl.instance_eval do
+      schedule 42
+    end
+    trigger = dsl.build
+    expect(trigger.tag).to eq :poll
   end
 
   it 'reads type from DSL' do
-    dsl = Nanoci::DSL::TriggerDSL.new(:poll_trigger)
+    dsl = Nanoci::DSL::TriggerDSL.new(@component_factory, :poll_trigger)
     dsl.instance_eval do
       type :poll
-      interval 42
+      schedule 42
     end
-    td = dsl.build
-    expect(td).to include(type: :poll)
+    trigger = dsl.build
+    expect(trigger.type).to eq :poll
   end
 
   it 'reads interval from DSL' do
-    dsl = Nanoci::DSL::TriggerDSL.new(:poll)
+    dsl = Nanoci::DSL::TriggerDSL.new(@component_factory, :poll)
     dsl.instance_eval do
-      interval 42
+      schedule 42
     end
-    trigger_def = dsl.build
-    expect(trigger_def).to include(interval: 42)
+    trigger = dsl.build
+    expect(trigger.schedule).to eq 42
   end
 end
