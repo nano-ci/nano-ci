@@ -6,7 +6,7 @@ require 'nanoci/command_host'
 module Nanoci
   module Components
     # Executes jobs in current thread
-    class InProcessJobExecutor < Nanoci::Core::JobExecutor
+    class SyncJobExecutor < Nanoci::Core::JobExecutor
       def schedule_job_execution(project, stage, job, inputs, prev_inputs)
         command_host = CommandHost.new(project, stage, job)
         enable_plugins(project, command_host)

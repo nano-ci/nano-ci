@@ -10,12 +10,12 @@ module Nanoci
       # @param job_result_publisher [Nanoci::Core::JobResultPublisher]
       # @param plugin_host [Nanoci::PluginHost]
       def initialize(plugin_host)
-        @result_publishers = []
+        @observers = []
         @plugin_host = plugin_host
       end
 
-      def add_result_publisher(job_result_publisher)
-        @result_publishers.push(job_result_publisher)
+      def add_observer(job_result_publisher)
+        @observers.push(job_result_publisher)
       end
 
       def schedule_job_execution(project, stage, job, inputs, prev_inputs)
@@ -25,7 +25,7 @@ module Nanoci
       protected
 
       def publish(stage, job, outputs)
-        @result_publishers.each do |p|
+        @observers.each do |p|
           p.publish(stage, job, outputs)
         end
       end
