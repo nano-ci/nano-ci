@@ -2,11 +2,14 @@
 
 require 'nanoci/core/stage'
 require 'nanoci/core/trigger'
+require 'nanoci/mixins/logger'
 
 module Nanoci
   module Core
     # Pipeline is the  class that organizes data flow between project stages.
     class Pipeline
+      include Mixins::Logger
+
       # Gets the pipeline tag.
       # @return [Symbol]
       attr_reader :tag
@@ -65,7 +68,7 @@ module Nanoci
 
         triggers.each do |t|
           unless pipes.key?(t.full_tag)
-            @log.warn("trigger #{t.tag} output is not connected to any of stage inputs")
+            log.warn("trigger #{t.tag} output is not connected to any of stage inputs")
             return false
           end
         end
