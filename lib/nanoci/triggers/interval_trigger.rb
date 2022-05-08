@@ -3,34 +3,26 @@
 require 'logging'
 require 'time'
 
-require 'nanoci/trigger'
+require 'nanoci/core/trigger'
 
 module Nanoci
   module Triggers
     # IntervalTriggers pulses a new output on defined interval.
-    class IntervalTrigger < Trigger
+    class IntervalTrigger < Core::Trigger
       provides :interval
-
-      # Returns trigger interval in seconds
-      # @return [Number]
-      attr_reader :interval
 
       # Initializes new instance of IntervalTrigger
       # @param src [Hash]
-      def initialize(src)
-        super(src)
+      def initialize(tag:, type:, schedule:)
+        super(tag: tag, type: type, schedule: schedule)
         @log = Logging.logger[self]
-        @interval = src[:interval]
       end
 
       # Starts the trigger
-      # @param pipeline_engine [Nanoci::PipelineEngine]
-      def run(pipeline_engine)
-        @timer = Concurrent::TimerTask.new(execution_interval: @interval) do
+      def run
+        @timer = Concurrent::TimerTask.new(execution_interval: @schedule) do
           @log.debug "interval trigger #{tag} signal pulse"
-          outputs = {}
-          outputs[format_output(:trigger_time)] = Time.now.utc.iso8601
-          pipeline_engine.pulse(format_tag(tag), outputs)
+          pulse
         end
         @timer.execute
       end

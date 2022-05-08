@@ -57,16 +57,28 @@ module Nanoci
         @end_time = nil
         @previous_run_time = nil
         @next_run_time = nil
+        @observers = []
+      end
+
+      def add_observer(observer)
+        @observers.push(observer)
       end
 
       # Starts the trigger
-      # @param pipeline_engine [Nanoci::Pipeline]
-      def run(pipeline_engine)
-        @pipeline_engine = pipeline_engine
+      # @param stage_complete_publisher [Nanoci::Core::StageCompletePublisher]
+      def run
         log.info("running trigger #{tag}")
       end
 
       protected
+
+      def pulse
+        outputs = {}
+        outputs[format_output(:trigger_time)] = Time.now.utc.iso8601
+        @observers.each do |o|
+          o.pulse(format_tag(tag), outputs)
+        end
+      end
 
       def format_tag(tag)
         "trigger.#{tag}".to_sym
