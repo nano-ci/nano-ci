@@ -8,7 +8,8 @@ module Nanoci
     class RepoDSL
       # Initializes a new instance of [Nanoci::DSL::RepoDSL]
       # @param tag [Symbol] Repo tag
-      def initialize(tag)
+      def initialize(component_factory, tag)
+        @component_factory = component_factory
         @tag = tag
       end
 
