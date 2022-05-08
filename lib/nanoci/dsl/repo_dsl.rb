@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'nanoci/core/repo'
+
 module Nanoci
   module DSL
     # Repo DSL
@@ -30,12 +32,12 @@ module Nanoci
 
       # Builds [Nanoci::Definition::RepoDefinition]
       def build
-        {
+        Core::Repo.new(
           tag: @tag,
           type: @type,
           uri: @uri,
           auth: @auth
-        }
+        )
       end
     end
   end
