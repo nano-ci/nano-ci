@@ -4,7 +4,8 @@ module Nanoci
   module DSL
     # TriggerDSL class contains methods to support nano-ci trigger DSL.
     class TriggerDSL
-      def initialize(tag)
+      def initialize(component_factory, tag)
+        @component_factory = component_factory
         @tag = tag
       end
 
@@ -12,21 +13,12 @@ module Nanoci
         @type = type
       end
 
-      def repo(repo_tag)
-        @repo = repo_tag
-      end
-
-      def interval(interval_sec)
-        @interval = interval_sec
+      def schedule(schedule)
+        @schedule = schedule
       end
 
       def build
-        {
-          tag: @tag,
-          type: @type,
-          repo: @repo,
-          interval: @interval
-        }
+        @component_factory.triggers.build(@tag, @type, @schedule)
       end
     end
   end

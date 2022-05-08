@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'nanoci//core/project'
 require 'nanoci/dsl/pipeline_dsl'
 require 'nanoci/dsl/repo_dsl'
 
@@ -24,9 +25,11 @@ module Nanoci
       attr_reader :repos
 
       # Initializes a new object of [ProjectDSL]
+      # @param component_factory [Nanoci::Components::ComponentFactory]
       # @param tag [Symbol] Tag of the project
       # @param name [String] Name of the project
-      def initialize(tag, name)
+      def initialize(component_factory, tag, name)
+        @component_factory = component_factory
         @tag = tag
         @name = name
         @plugins = {}
@@ -46,7 +49,7 @@ module Nanoci
       def repo(tag, &block)
         raise "repo #{tag} is missing definition block" if block.nil?
 
-        repo = RepoDSL.new(tag)
+        repo = RepoDSL.new(@component_factory, tag)
         repo.instance_eval(&block)
         @repos.push(repo)
       end
@@ -57,7 +60,7 @@ module Nanoci
       def pipeline(tag, name, &block)
         raise "pipeline #{name} is missing definition block" if block.nil?
 
-        @pipeline = PipelineDSL.new(tag, name)
+        @pipeline = PipelineDSL.new(@component_factory, tag, name)
 
         Symbol.class_eval do
           def >>(other)
@@ -71,15 +74,23 @@ module Nanoci
       end
 
       # Builds and returns [Hash] from DSL
-      # @return [Hash]
+      # @return [Nanoci::Core::Project]
       def build
-        {
+        # {
+        #   name: name,
+        #   tag: tag,
+        #   plugins: plugins,
+        #   repos: repos.collect(&:build),
+        #   pipeline: @pipeline&.build
+        # }
+
+        Core::Project.new(
           name: name,
           tag: tag,
-          plugins: plugins,
+          pipeline: @pipeline&.build,
           repos: repos.collect(&:build),
-          pipeline: @pipeline&.build
-        }
+          plugins: plugins
+        )
       end
     end
   end
