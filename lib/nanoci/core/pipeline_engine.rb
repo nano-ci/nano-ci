@@ -30,7 +30,7 @@ module Nanoci
 
         add_stages(pipeline)
 
-        pipelines.push(pipeline)
+        @pipelines.push(pipeline)
 
         start_pipeline_triggers(pipeline)
 
@@ -81,7 +81,7 @@ module Nanoci
       # @param pipeline [Nanoci::Pipeline]
       def start_pipeline_triggers(pipeline)
         # @param t [Nanoci::Trigger]
-        pipeline.triggers.each { |t| t.run(self) }
+        pipeline.triggers.each(&:run)
       end
 
       def add_stages(pipeline)

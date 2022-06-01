@@ -60,6 +60,10 @@ module Nanoci
         stages.select { |s| s.tag == tag }.first
       end
 
+      def find_trigger(tag)
+        triggers.select { |t| t.full_tag == tag }.first
+      end
+
       private
 
       def validate_triggers
@@ -89,14 +93,18 @@ module Nanoci
 
       def validate_pipe_connections
         pipes.each_pair do |key, value|
-          raise ArgumentError, "stage #{key} does not exist" if find_stage(key).nil?
+          validate_pipe_pair key, value
+        end
+      end
 
-          raise ArgumentError, "pipe #{key} connection array is nil" if value.nil?
-          raise ArgumentError, "pipe #{key} connections object is not an Array" unless value.is_a? Array
+      def validate_pipe_pair(key, value)
+        raise ArgumentError, "stage #{key} does not exist" if find_stage(key).nil? && find_trigger(key).nil?
 
-          value.each do |ps|
-            raise ArgumentError, "stage #{ps} does not exist" if find_stage(ps).nil?
-          end
+        raise ArgumentError, "pipe #{key} connection array is nil" if value.nil?
+        raise ArgumentError, "pipe #{key} connections object is not an Array" unless value.is_a? Array
+
+        value.each do |ps|
+          raise ArgumentError, "stage #{ps} does not exist" if find_stage(ps).nil?
         end
       end
     end

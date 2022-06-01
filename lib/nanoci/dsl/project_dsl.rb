@@ -76,14 +76,6 @@ module Nanoci
       # Builds and returns [Hash] from DSL
       # @return [Nanoci::Core::Project]
       def build
-        # {
-        #   name: name,
-        #   tag: tag,
-        #   plugins: plugins,
-        #   repos: repos.collect(&:build),
-        #   pipeline: @pipeline&.build
-        # }
-
         Core::Project.new(
           name: name,
           tag: tag,

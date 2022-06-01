@@ -10,10 +10,10 @@ module Nanoci
     # @param type [Symbol]
     # @param schedule [String]
     class TriggerFactory
-      def create(tag, type, schedule)
+      def build(tag, type, schedule)
         case type
         when :interval
-          Triggres::IntevalTrigger.new(tag, type, schedule)
+          Triggers::IntervalTrigger.new(tag: tag, type: type, schedule: schedule)
         else
           raise NotImplementedError, "trigger type #{type} is not supported"
         end
