@@ -30,9 +30,6 @@ module Nanoci
       # @return [Symbol]
       attr_reader :type
 
-      # Trigger schedule
-      attr_reader :schedule
-
       # Date and time when this trigger becomes active
       # @return [Time]
       attr_reader :start_time
@@ -55,10 +52,9 @@ module Nanoci
 
       # Initializes new instance of [Trigger]
       # @param definition [Hash]
-      def initialize(tag:, type:, schedule:)
+      def initialize(tag:, type:)
         @tag = tag
         @type = type
-        @schedule = schedule
         @start_time = nil
         @end_time = nil
         @previous_run_time = nil
