@@ -9,7 +9,7 @@ module Nanoci
         @subscribers = {}
       end
 
-      def attach(handler)
+      def attach(&handler)
         raise ArgumentError, 'handler is not a Proc' unless handler.is_a? Proc
         raise ArgumentError, 'handler should have 2 args' unless handler.arity == 2
 
