@@ -2,8 +2,10 @@
 
 require 'logging'
 
+require 'nanoci/core/trigger_pulse_event_args'
 require 'nanoci/mixins/logger'
 require 'nanoci/mixins/provides'
+require 'nanoci/system/event'
 
 module Nanoci
   module Core
@@ -47,6 +49,10 @@ module Nanoci
       # @return [Time]
       attr_reader :next_run_time
 
+      # Occurs when it's time to trigger pipeline line (on schedule, time elapsed, external event)
+      # @returns [Nanoci::System::Event]
+      attr_reader :pulse
+
       # Initializes new instance of [Trigger]
       # @param definition [Hash]
       def initialize(tag:, type:, schedule:)
@@ -57,11 +63,7 @@ module Nanoci
         @end_time = nil
         @previous_run_time = nil
         @next_run_time = nil
-        @observers = []
-      end
-
-      def add_observer(observer)
-        @observers.push(observer)
+        @pulse = System::Event.new
       end
 
       # Starts the trigger
@@ -72,12 +74,10 @@ module Nanoci
 
       protected
 
-      def pulse
-        outputs = {}
-        outputs[format_output(:trigger_time)] = Time.now.utc.iso8601
-        @observers.each do |o|
-          o.pulse(format_tag(tag), outputs)
-        end
+      def on_pulse
+        outputs = { format_output(:trigger_time) => Time.now.utc.iso8601 }
+
+        @pulse.invoke(self, TriggerPulseEventArgs.new(self, outputs))
       end
 
       def format_tag(tag)
