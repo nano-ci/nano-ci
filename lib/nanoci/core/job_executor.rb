@@ -27,7 +27,7 @@ module Nanoci
       protected
 
       def publish(stage, job, outputs)
-        @job_complete.trigger(JobCompleteEventArgs(stage, job, outputs))
+        @job_complete.invoke(JobCompleteEventArgs(stage, job, outputs))
       end
     end
   end

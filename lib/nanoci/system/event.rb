@@ -26,7 +26,7 @@ module Nanoci
         @subscribers.delete token
       end
 
-      def trigger(sender, event_args)
+      def invoke(sender, event_args)
         @subscribers.each_value do |handler|
           handler.call(sender, event_args)
         end
