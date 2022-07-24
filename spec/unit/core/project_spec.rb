@@ -23,16 +23,24 @@ RSpec.describe Nanoci::Core::Project do
   end
 
   it 'reads name from src' do
-    project = Nanoci::Project.new(tag: 'project-tag', name: 'project name', pipeline: @pipeline)
+    project = Nanoci::Core::Project.new(tag: :'project-tag', name: 'project name', pipeline: @pipeline)
     expect(project.name).to eq 'project name'
   end
 
   it 'reades repo from definition' do
-    repo = Nanoci::Core::Repo.new(:tag, :git, 'abc')
-    project = Nanoci::Project.new(
+    repo = Nanoci::Core::Repo.new(tag: :tag, type: :git, uri: 'abc')
+    pipeline = Nanoci::Core::Pipeline.new(
+      tag: :pipeline_tag,
+      name: 'pipeline name',
+      triggers: [],
+      stages: [],
+      pipes: {}
+    )
+    project = Nanoci::Core::Project.new(
       tag: :'project-tag',
       name: 'project name',
-      repos: [repo]
+      repos: [repo],
+      pipeline: pipeline
     )
     expect(project.repos).to include(repo)
   end
