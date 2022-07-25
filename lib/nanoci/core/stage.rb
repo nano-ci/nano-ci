@@ -47,7 +47,7 @@ module Nanoci
         @tag = tag
         @triggering_inputs = inputs
         @jobs = jobs
-        @inputs = inputs
+        @inputs = {}
         @prev_inputs = {}
         @pending_outputs = {}
         @outputs = {}
