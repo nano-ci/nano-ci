@@ -100,6 +100,19 @@ module Nanoci
         validate_jobs
       end
 
+      def take_memento
+        # TODO: implement all fields here
+        memento = {}
+        memento[:inputs] = @inputs
+        memento
+      end
+
+      def restore_memento(memento)
+        # TODO: validate memento
+
+        @inputs = memento[:inputs]
+      end
+
       private
 
       def state=(next_state)
