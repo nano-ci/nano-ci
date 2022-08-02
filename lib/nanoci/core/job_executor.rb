@@ -20,6 +20,12 @@ module Nanoci
         @job_complete = System::Event.new
       end
 
+      # Scheduled execution of a job
+      # @param project [Nanoci::Core::Project]
+      # @param stage [Nanoci::Core::Stage]
+      # @param job [Nanoci::Core::Job]
+      # @param inputs [Hash]
+      # @param prev_inputs [Hash]
       def schedule_job_execution(project, stage, job, inputs, prev_inputs)
         raise NotImplementedError, 'JobExecutor', 'schedule_job_execution'
       end
@@ -27,7 +33,7 @@ module Nanoci
       protected
 
       def publish(stage, job, outputs)
-        @job_complete.invoke(JobCompleteEventArgs(stage, job, outputs))
+        @job_complete.invoke(self, JobCompleteEventArgs.new(stage, job, outputs))
       end
     end
   end
