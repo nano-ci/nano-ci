@@ -31,32 +31,6 @@ module Nanoci
         validate
       end
 
-      def state
-        {
-          tag: tag,
-          repos: repos.transform_values(&:state)
-        }
-      end
-
-      def state=(value)
-        raise "tag #{tag} does not match state tag #{value[:tag]}" \
-          unless tag == value[:tag]
-
-        restore_repos(value[:repos]) unless value[:repos].nil?
-        restore_variables(value[:variables]) unless value[:variables].nil?
-      end
-
-      def restore_repos(repos_memento)
-        repos_memento.each do |k, v|
-          repo = repos[k.to_sym]
-          if repo.nil?
-            @log.warn "repo definition #{k} does not exist"
-          else
-            repo.state = v
-          end
-        end
-      end
-
       def validate
         validate_tag
         validate_name
