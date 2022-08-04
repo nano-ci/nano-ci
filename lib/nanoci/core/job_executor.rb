@@ -27,7 +27,7 @@ module Nanoci
       # @param inputs [Hash]
       # @param prev_inputs [Hash]
       def schedule_job_execution(project, stage, job, inputs, prev_inputs)
-        raise NotImplementedError, 'JobExecutor', 'schedule_job_execution'
+        raise 'method #schedule_job_execution should be implemented in subclass'
       end
 
       protected

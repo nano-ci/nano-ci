@@ -14,7 +14,7 @@ end
 RSpec.describe Nanoci::Core::JobExecutor do
   it '#schedule_job_execution raises error NotImplementedError' do
     executor = Nanoci::Core::JobExecutor.new(nil)
-    expect { executor.schedule_job_execution(nil, nil, nil, nil, nil) }.to raise_error NotImplementedError
+    expect { executor.schedule_job_execution(nil, nil, nil, nil, nil) }.to raise_error RuntimeError
   end
 
   it '#publish raises event job_complete' do
