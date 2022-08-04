@@ -10,8 +10,8 @@ RSpec.describe Nanoci::DSL::TriggerDSL do
     @component_factory = double(:component_factory)
     @trigger_factory = double(:component_factory)
     allow(@component_factory).to receive(:triggers).and_return(@trigger_factory)
-    allow(@trigger_factory).to receive(:build) do |tag, type, schedule|
-      Nanoci::Core::Trigger.new(tag: tag, type: type, schedule: schedule)
+    allow(@trigger_factory).to receive(:build) do |tag, type, _|
+      Nanoci::Core::Trigger.new(tag: tag, type: type)
     end
   end
 
@@ -32,14 +32,5 @@ RSpec.describe Nanoci::DSL::TriggerDSL do
     end
     trigger = dsl.build
     expect(trigger.type).to eq :poll
-  end
-
-  it 'reads interval from DSL' do
-    dsl = Nanoci::DSL::TriggerDSL.new(@component_factory, :poll)
-    dsl.instance_eval do
-      schedule 42
-    end
-    trigger = dsl.build
-    expect(trigger.schedule).to eq 42
   end
 end
