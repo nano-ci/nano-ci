@@ -40,6 +40,7 @@ module Nanoci
         @work_dir = work_dir
         @body = body
         @state = State::IDLE
+        @outputs = {}
       end
 
       def validate
