@@ -11,8 +11,11 @@ class TestTrigger < Nanoci::Core::Trigger
   end
 end
 
-
 RSpec.describe Nanoci::Core::Trigger do
+  it 'Trigger.item_type returns trigger' do
+    expect(Nanoci::Core::Trigger.item_type).to eq 'trigger'
+  end
+
   it '#initialize sets #tag' do
     trigger = Nanoci::Core::Trigger.new(tag: :'trigger-tag', type: :git)
     expect(trigger.tag).to be :'trigger-tag'
@@ -57,5 +60,10 @@ RSpec.describe Nanoci::Core::Trigger do
     expect(event_args.outputs).to be_a(Hash)
     expect(event_args.outputs).to include(:'trigger.test-trigger.trigger_time')
     expect(event_args.outputs[:'trigger.test-trigger.trigger_time']).to eq(time_now)
+  end
+
+  it '#run does not throw errors' do
+    trigger = Nanoci::Core::Trigger.new(tag: :trigger, type: :type)
+    expect { trigger.run }.to_not raise_error
   end
 end
