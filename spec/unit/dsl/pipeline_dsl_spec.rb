@@ -23,7 +23,7 @@ RSpec.describe Nanoci::DSL::PipelineDSL do
     trigger_factory = double(:component_factory)
     allow(component_factory).to receive(:triggers).and_return(trigger_factory)
     allow(trigger_factory).to receive(:build) do |tag, type, schedule|
-      Nanoci::Core::Trigger.new(tag: tag, type: type, schedule: schedule)
+      Nanoci::Core::Trigger.new(tag: tag, type: type)
     end
     dsl = Nanoci::DSL::PipelineDSL.new(component_factory, :pipe, 'test pipeline')
     dsl.instance_eval do
