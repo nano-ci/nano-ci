@@ -14,6 +14,6 @@ RSpec.describe Nanoci::DSL::StageDSL do
   it 'reads inputs from dsl' do
     dsl = Nanoci::DSL::StageDSL.new(nil, :stage, inputs: [:abc])
     stage = dsl.build
-    expect(stage.inputs).to eq [:abc]
+    expect(stage.triggering_inputs).to eq [:abc]
   end
 end
