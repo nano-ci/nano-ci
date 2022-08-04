@@ -6,7 +6,7 @@ require 'nanoci/dsl/repo_dsl'
 
 RSpec.describe Nanoci::DSL::RepoDSL do
   it 'reads type from DSL' do
-    dsl = Nanoci::DSL::RepoDSL.new(:git_repo)
+    dsl = Nanoci::DSL::RepoDSL.new(nil, :git_repo)
     dsl.instance_eval do
       type :git
     end
@@ -14,7 +14,7 @@ RSpec.describe Nanoci::DSL::RepoDSL do
   end
 
   it 'reads uri from DSL' do
-    dsl = Nanoci::DSL::RepoDSL.new(:git_repo)
+    dsl = Nanoci::DSL::RepoDSL.new(nil, :git_repo)
     dsl.instance_eval do
       type :git
       uri 'https://github.com'
@@ -23,7 +23,7 @@ RSpec.describe Nanoci::DSL::RepoDSL do
   end
 
   it 'reads auth from DSL' do
-    dsl = Nanoci::DSL::RepoDSL.new(:git_repo)
+    dsl = Nanoci::DSL::RepoDSL.new(nil, :git_repo)
     dsl.instance_eval do
       type :git
       auth(key: '/abc/def', password: 'abcde')
