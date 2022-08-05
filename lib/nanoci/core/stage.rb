@@ -66,7 +66,7 @@ module Nanoci
       # @param next_inputs [Hash{Symbol => String}]
       # @param pipeline_engine [Nanoci::PipelineEngine]
       def run(next_inputs, pipeline_engine)
-        @log.info "starting stage <#{tag}> with inputs #{next_inputs}"
+        log.info "starting stage <#{tag}> with inputs #{next_inputs}"
         @prev_inputs = @inputs
         @inputs = @inputs.merge(next_inputs)
         self.state = Stage::State::RUNNING
@@ -81,7 +81,7 @@ module Nanoci
 
       def finalize
         self.state = Stage::State::IDLE
-        @log.info "stage <#{tag}> is completed with outputs #{outputs}"
+        log.info "stage <#{tag}> is completed with outputs #{outputs}"
       end
 
       def jobs_idle?
@@ -121,7 +121,7 @@ module Nanoci
         transition = [@state, next_state]
         @state = next_state
 
-        @log.info "stage <#{tag}> state changed from #{transition[0]} to #{transition[1]}"
+        log.info "stage <#{tag}> state changed from #{transition[0]} to #{transition[1]}"
 
         handle_state_transition transition
       end
