@@ -10,6 +10,17 @@ module Nanoci
       def log
         Logging.logger[self]
       end
+
+      # Creates a structured log event for errors
+      # @param message [String]
+      # reason [Error]
+      # @return [Hash]
+      def error_log_event(message, reason: nil)
+        {
+          message: message,
+          reason: reason
+        }
+      end
     end
   end
 end
