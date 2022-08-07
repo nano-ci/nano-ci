@@ -1,12 +1,15 @@
 # frozen_string_literal: true
 
+require 'nanoci/core/repo'
+
 module Nanoci
   module DSL
     # Repo DSL
     class RepoDSL
       # Initializes a new instance of [Nanoci::DSL::RepoDSL]
       # @param tag [Symbol] Repo tag
-      def initialize(tag)
+      def initialize(component_factory, tag)
+        @component_factory = component_factory
         @tag = tag
       end
 
@@ -30,12 +33,12 @@ module Nanoci
 
       # Builds [Nanoci::Definition::RepoDefinition]
       def build
-        {
+        Core::Repo.new(
           tag: @tag,
           type: @type,
           uri: @uri,
           auth: @auth
-        }
+        )
       end
     end
   end

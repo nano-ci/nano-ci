@@ -2,7 +2,7 @@
 # frozen_string_literal: true
 
 require 'bundler/setup'
-require 'nanoci/application/service'
+require 'nanoci/application/console'
 
 # You can add fixtures and/or initialization code here to make experimenting
 # with your gem easier. You can also use a different console, if you like.
@@ -11,4 +11,4 @@ require 'nanoci/application/service'
 # require "pry"
 # Pry.start
 
-Nanoci::Application::Service.new.main(ARGV)
+Nanoci::Application::Console.new.main(ARGV)
