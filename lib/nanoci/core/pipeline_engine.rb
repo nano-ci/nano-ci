@@ -38,19 +38,18 @@ module Nanoci
       end
 
       # Signals engine that stage is complete
-      # @param tag [Symbol] stage symbol
+      # @param stage [Nanoci::Core::Stage] stage
       # @param outputs [Hash{Symbol => String}] stage outputs
-      def stage_complete(tag, outputs)
-        @log.info "pulse signal of completion <#{stage_tag}>"
-        @pipes[tag].each do |next_stage|
+      def stage_complete(stage, outputs)
+        log.info "pulse signal of completion <#{stage.tag}>"
+        @pipes[stage.tag].each do |next_stage|
           next_stage.run(outputs, self) if next_stage.should_trigger? outputs
         rescue StandardError => e
-          @log.error "failed to run next stage <#{next_stage.tag}> after signal of completion <#{stage_tag}>"
-          @log.error e
+          log.error(error_log_event(
+                      "failed to run next stage <#{next_stage.tag}> after signal of completion <#{stage.tag}>",
+                      reason: e
+                    ))
         end
-      rescue StandardError => e
-        @log.error "failed to pulse stage <#{stage_tag}> completion signal"
-        @log.error e
       end
 
       # Schedules execution of the job
@@ -66,6 +65,11 @@ module Nanoci
         job.finalize(true, outputs)
         stage.job_complete(job)
         stage_complete(stage, stage.outputs) if stage.jobs_idle?
+      rescue StandardError => e
+        log.error(error_log_event(
+                    "failed to pulse stage <#{stage.tag}> completion signal",
+                    reason: e
+                  ))
       end
 
       private
@@ -87,7 +91,7 @@ module Nanoci
       def add_stages(pipeline)
         # @param s [Nanoci::Stage]
         pipeline.stages.each do |s|
-          raise "duplicate stage #{s.tag}" if @stages.key? s.tag
+          raise ArgumentError, "duplicate stage #{s.tag}" if @stages.key? s.tag
 
           @stages[s.tag] = s
         end
