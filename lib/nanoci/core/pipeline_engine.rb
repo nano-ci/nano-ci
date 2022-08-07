@@ -14,7 +14,7 @@ module Nanoci
         @pipelines = []
         @stages = {}
         # @type [Hash{Symbol => Array<Symbol>}]
-        @pipes = Hash.new { |h, k| h[k] = [] }
+        @pipes = {}
         @job_executor = job_executor
       end
 
@@ -42,7 +42,7 @@ module Nanoci
       # @param outputs [Hash{Symbol => String}] stage outputs
       def stage_complete(stage, outputs)
         log.info "pulse signal of completion <#{stage.tag}>"
-        @pipes[stage.tag].each do |next_stage|
+        @pipes.fetch(stage.tag, []).each do |next_stage|
           next_stage.run(outputs, self) if next_stage.should_trigger? outputs
         rescue StandardError => e
           log.error(error_log_event(
@@ -96,8 +96,13 @@ module Nanoci
           @stages[s.tag] = s
         end
 
-        pipeline.pipes.each do |(s_tag, v)|
+        add_pipes(pipeline.pipes)
+      end
+
+      def add_pipes(pipes)
+        pipes.each do |(s_tag, v)|
           v.each do |t_tag|
+            @pipes[s_tag] = [] unless @pipes.key? s_tag
             @pipes[s_tag].push(@stages[t_tag])
           end
         end
