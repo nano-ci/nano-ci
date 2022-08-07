@@ -28,9 +28,6 @@ module Nanoci
       attr_reader :inputs
 
       # @return [Hash{Symbol => String}]
-      attr_reader :pending_outputs
-
-      # @return [Hash{Symbol => String}]
       attr_reader :outputs
 
       # @return [Array<Nanoci::Job>]
@@ -49,9 +46,14 @@ module Nanoci
         @jobs = jobs
         @inputs = {}
         @prev_inputs = {}
-        @pending_outputs = {}
         @outputs = {}
         @state = State::IDLE
+      end
+
+      # Gets pending outputs
+      # @return [Hash]
+      def pending_outputs
+        @jobs.map(&:outputs).reduce(:merge)
       end
 
       # Determines if there are changes in stage triggering inputs
@@ -76,11 +78,12 @@ module Nanoci
       end
 
       def job_complete(job)
-        # TODO: implement me
+        finalize if jobs_idle?
       end
 
       def finalize
         self.state = Stage::State::IDLE
+        @outputs = pending_outputs if jobs_idle?
         log.info "stage <#{tag}> is completed with outputs #{outputs}"
       end
 
