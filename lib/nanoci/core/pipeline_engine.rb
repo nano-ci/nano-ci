@@ -25,7 +25,6 @@ module Nanoci
 
         log.info "adding pipeline <#{pipeline.tag}> to pipeline engine"
 
-        # TODO: process validation results
         pipeline.validate
 
         add_stages(pipeline)
