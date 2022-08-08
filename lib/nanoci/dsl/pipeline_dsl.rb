@@ -8,8 +8,17 @@ module Nanoci
   module DSL
     # PipelineDSL class contains methods to support nano-ci pipeline DSL.
     class PipelineDSL
-      def initialize(component_factory, tag, name)
-        @component_factory = component_factory
+      class << self
+        def dsl_types
+          @dsl_types ||= {}
+        end
+
+        def add_dsl_type(type, clazz)
+          dsl_types[type] = clazz
+        end
+      end
+
+      def initialize(tag, name)
         @tag = tag
         @name = name
         @triggers = []
@@ -17,10 +26,15 @@ module Nanoci
         @pipes = []
       end
 
-      def trigger(tag, &block)
+      # Defines a pipeline trigger
+      # @param tag [Symbol] unique tag of the trigger
+      # @param type [Symbol] trigger type
+      def trigger(tag, type, &block)
         raise "trigger #{tag} is missing definition block" if block.nil?
+        raise "trigger type #{type} is not supported" unless PipelineDSL.dsl_types.key?(type)
 
-        trigger_dsl = TriggerDSL.new(@component_factory, tag)
+        trigger_dsl_class = PipelineDSL.dsl_types[type]
+        trigger_dsl = trigger_dsl_class.new(tag)
         trigger_dsl.instance_eval(&block)
         @triggers.push(trigger_dsl)
       end

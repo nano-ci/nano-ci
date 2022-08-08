@@ -60,8 +60,7 @@ RSpec.describe Nanoci::Core::Pipeline do
   end
 
   it '#initialize sets triggers array' do
-    trigger = Nanoci::Core::Trigger.new(tag: :trigger_tag, type: :test)
-
+    trigger = Nanoci::Core::Trigger.new(tag: :trigger_tag)
 
     pipeline = Nanoci::Core::Pipeline.new(
       tag: :pipe_tag,
@@ -75,7 +74,7 @@ RSpec.describe Nanoci::Core::Pipeline do
   end
 
   it '#initialize sets pipes' do
-    trigger = Nanoci::Core::Trigger.new(tag: :trigger_tag, type: :test)
+    trigger = Nanoci::Core::Trigger.new(tag: :trigger_tag)
     stage = Nanoci::Core::Stage.new(
       tag: :stage_tag,
       inputs: [],

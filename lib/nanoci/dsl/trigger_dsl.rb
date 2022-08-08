@@ -1,24 +1,17 @@
 # frozen_string_literal: true
 
+require 'nanoci/core/trigger'
+
 module Nanoci
   module DSL
     # TriggerDSL class contains methods to support nano-ci trigger DSL.
     class TriggerDSL
-      def initialize(component_factory, tag)
-        @component_factory = component_factory
+      def initialize(tag)
         @tag = tag
       end
 
-      def type(type)
-        @type = type
-      end
-
-      def schedule(schedule)
-        @schedule = schedule
-      end
-
       def build
-        @component_factory.triggers.build(@tag, @type, @schedule)
+        Nanoci::Core::Trigger.new(tag: @tag)
       end
     end
   end

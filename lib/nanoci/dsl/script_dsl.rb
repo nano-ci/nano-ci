@@ -6,8 +6,7 @@ module Nanoci
   module DSL
     # ScriptDSL is the class responsible to read and parse Ruby-based pipeline script
     class ScriptDSL
-      def initialize(component_factory)
-        @component_factory = component_factory
+      def initialize
         @projects = []
       end
 
@@ -16,8 +15,8 @@ module Nanoci
       attr_reader :projects
 
       class << self
-        def from_string(component_factory, str)
-          script = ScriptDSL.new(component_factory)
+        def from_string(str)
+          script = ScriptDSL.new
           script.instance_eval(str)
           script
         end
@@ -26,7 +25,7 @@ module Nanoci
       def project(tag, name, &block)
         raise "project #{tag} is missing definition block" if block.nil?
 
-        pr = ProjectDSL.new(@component_factory, tag, name)
+        pr = ProjectDSL.new(tag, name)
         pr.instance_eval(&block)
         @projects.push(pr)
       end

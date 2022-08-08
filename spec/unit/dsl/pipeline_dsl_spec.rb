@@ -6,29 +6,30 @@ require 'nanoci/dsl/pipeline_dsl'
 require 'nanoci/core/trigger'
 
 RSpec.describe Nanoci::DSL::PipelineDSL do
+  after(:each) do
+    Nanoci::DSL::PipelineDSL.dsl_types.clear
+  end
+
   it 'reads pipeline tag from DSL' do
-    dsl = Nanoci::DSL::PipelineDSL.new(nil, :pipe, 'test pipeline')
+    dsl = Nanoci::DSL::PipelineDSL.new(:pipe, 'test pipeline')
     pd = dsl.build
     expect(pd.tag).to eq :pipe
   end
 
   it 'reads pipeline name from DSL' do
-    dsl = Nanoci::DSL::PipelineDSL.new(nil, :pipe, 'test pipeline')
+    dsl = Nanoci::DSL::PipelineDSL.new(:pipe, 'test pipeline')
     pd = dsl.build
     expect(pd.name).to eq 'test pipeline'
   end
 
   it 'reads trigger from DSL' do
-    component_factory = double(:component_factory)
-    trigger_factory = double(:component_factory)
-    allow(component_factory).to receive(:triggers).and_return(trigger_factory)
-    allow(trigger_factory).to receive(:build) do |tag, type, schedule|
-      Nanoci::Core::Trigger.new(tag: tag, type: type)
-    end
-    dsl = Nanoci::DSL::PipelineDSL.new(component_factory, :pipe, 'test pipeline')
+    Nanoci::DSL::PipelineDSL.dsl_types[:poll] = Nanoci::DSL::TriggerDSL
+    dsl = Nanoci::DSL::PipelineDSL.new(:pipe, 'test pipeline')
     dsl.instance_eval do
-      trigger :poll do
+      # rubocop:disable Lint/EmptyBlock
+      trigger :poll, :poll do
       end
+      # rubocop:enable Lint/EmptyBlock
     end
     pipeline = dsl.build
     expect(pipeline.triggers.length).to eq 1
@@ -36,10 +37,12 @@ RSpec.describe Nanoci::DSL::PipelineDSL do
   end
 
   it 'reads stage from DSL' do
-    dsl = Nanoci::DSL::PipelineDSL.new(nil, :pipe, 'test pipeline')
+    dsl = Nanoci::DSL::PipelineDSL.new(:pipe, 'test pipeline')
     dsl.instance_eval do
+      # rubocop:disable Lint/EmptyBlock
       stage :test, inputs: [:'repo.abc'] do
       end
+      # rubocop:enable Lint/EmptyBlock
     end
     pipeline = dsl.build
     expect(pipeline.stages.length).to eq 1

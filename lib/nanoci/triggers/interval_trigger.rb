@@ -13,14 +13,15 @@ module Nanoci
 
       # Initializes new instance of IntervalTrigger
       # @param src [Hash]
-      def initialize(tag:, type:, schedule:)
-        super(tag: tag, type: type, schedule: schedule)
+      def initialize(tag:, interval:)
+        super(tag: tag)
+        @interval = interval
         @log = Logging.logger[self]
       end
 
       # Starts the trigger
       def run
-        @timer = Concurrent::TimerTask.new(execution_interval: @schedule) do
+        @timer = Concurrent::TimerTask.new(execution_interval: @interval) do
           @log.debug "interval trigger #{tag} signal pulse"
           pulse
         end

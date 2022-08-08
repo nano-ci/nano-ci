@@ -27,9 +27,6 @@ module Nanoci
         format_tag(tag)
       end
 
-      # @return [Symbol]
-      attr_reader :type
-
       # Date and time when this trigger becomes active
       # @return [Time]
       attr_reader :start_time
@@ -52,9 +49,8 @@ module Nanoci
 
       # Initializes new instance of [Trigger]
       # @param definition [Hash]
-      def initialize(tag:, type:)
+      def initialize(tag:)
         @tag = tag
-        @type = type
         @start_time = nil
         @end_time = nil
         @previous_run_time = nil

@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
-require 'nanoci/components/component_factory'
 require 'nanoci/components/sync_job_executor'
 require 'nanoci/config/ucs'
 require 'nanoci/core/pipeline_engine'
 require 'nanoci/mixins/logger'
 require 'nanoci/plugin_host'
 require 'nanoci/dsl/script_dsl'
+require 'nanoci/triggers/interval_trigger_dsl'
 
 module Nanoci
   module Application
@@ -33,12 +33,11 @@ module Nanoci
         ucs = Config::UCS.instance
 
         @plugin_host = load_plugins(File.expand_path(ucs.plugins_path))
-        @component_factory = Components::ComponentFactory.new
         @job_executor = Components::SyncJobExecutor.new(@plugin_host)
         @pipeline_engine = Core::PipelineEngine.new(@job_executor)
-        @job_executor.job_complete.attach(lambda { |_, e|
+        @job_executor.job_complete.attach do |_, e|
           @pipeline_engine.job_complete(e.stage, e.job, e.outputs)
-        })
+        end
       end
 
       # runs a nano-ci main service
@@ -62,7 +61,7 @@ module Nanoci
         log.info "reading project definition from #{project_path}..."
         script_text = File.read(project_path)
         log.debug "input script text:\n#{script_text}"
-        script_dsl = DSL::ScriptDSL.from_string(@component_factory, script_text)
+        script_dsl = DSL::ScriptDSL.from_string(script_text)
         project_dsl = script_dsl.projects[0]
         log.info "read project #{project_dsl.tag}"
         project_dsl.build
