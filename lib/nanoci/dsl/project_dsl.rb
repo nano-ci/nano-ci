@@ -25,11 +25,9 @@ module Nanoci
       attr_reader :repos
 
       # Initializes a new object of [ProjectDSL]
-      # @param component_factory [Nanoci::Components::ComponentFactory]
       # @param tag [Symbol] Tag of the project
       # @param name [String] Name of the project
-      def initialize(component_factory, tag, name)
-        @component_factory = component_factory
+      def initialize(tag, name)
         @tag = tag
         @name = name
         @plugins = {}
@@ -60,7 +58,7 @@ module Nanoci
       def pipeline(tag, name, &block)
         raise "pipeline #{name} is missing definition block" if block.nil?
 
-        @pipeline = PipelineDSL.new(@component_factory, tag, name)
+        @pipeline = PipelineDSL.new(tag, name)
 
         Symbol.class_eval do
           def >>(other)

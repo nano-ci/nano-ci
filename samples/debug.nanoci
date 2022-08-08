@@ -7,9 +7,8 @@ project :'nano-ci', 'main nano-ci project' do
   end
 
   pipeline :pipeline, 'web service pipeline' do
-    trigger :pipeline_trigger do
-      type :interval
-      schedule 5
+    trigger :pipeline_trigger, :interval do
+      interval 5
     end
 
     stage :debug do
