@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'nanoci/core/trigger'
+
 module Nanoci
   module DSL
     # TriggerDSL class contains methods to support nano-ci trigger DSL.
@@ -9,7 +11,7 @@ module Nanoci
       end
 
       def build
-        raise 'method TriggerDSL#build should be implemented in subclasses'
+        Nanoci::Core::Trigger.new(tag: @tag)
       end
     end
   end

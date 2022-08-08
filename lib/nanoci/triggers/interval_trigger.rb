@@ -14,7 +14,7 @@ module Nanoci
       # Initializes new instance of IntervalTrigger
       # @param src [Hash]
       def initialize(tag:, interval:)
-        super(tag: tag, type: type)
+        super(tag: tag)
         @interval = interval
         @log = Logging.logger[self]
       end

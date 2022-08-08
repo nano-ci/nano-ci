@@ -12,7 +12,7 @@ RSpec.describe Nanoci::DSL::ScriptDSL do
         end
       end
     )
-    pipe_dsl = Nanoci::DSL::ScriptDSL.from_string(nil, str)
+    pipe_dsl = Nanoci::DSL::ScriptDSL.from_string(str)
     expect(pipe_dsl).not_to be nil
     expect(pipe_dsl.projects.length).to eq 1
     pr = pipe_dsl.projects[0].build
@@ -26,7 +26,7 @@ RSpec.describe Nanoci::DSL::ScriptDSL do
         end
       end
     )
-    pipe_dsl = Nanoci::DSL::ScriptDSL.from_string(nil, str)
+    pipe_dsl = Nanoci::DSL::ScriptDSL.from_string(str)
 
     pr = pipe_dsl.projects[0].build
     expect(pr.name).to eq 'test project'

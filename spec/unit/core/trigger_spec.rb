@@ -17,22 +17,17 @@ RSpec.describe Nanoci::Core::Trigger do
   end
 
   it '#initialize sets #tag' do
-    trigger = Nanoci::Core::Trigger.new(tag: :'trigger-tag', type: :git)
+    trigger = Nanoci::Core::Trigger.new(tag: :'trigger-tag')
     expect(trigger.tag).to be :'trigger-tag'
   end
 
-  it '#initialize sets #type' do
-    trigger = Nanoci::Core::Trigger.new(tag: :'trigger-tag', type: :git)
-    expect(trigger.type).to be :git
-  end
-
   it '#full_tag returns fully formatted tag' do
-    trigger = Nanoci::Core::Trigger.new(tag: :'trigger-tag', type: :git)
+    trigger = Nanoci::Core::Trigger.new(tag: :'trigger-tag')
     expect(trigger.full_tag).to be :'trigger.trigger-tag'
   end
 
   it '#on_pulse invokes #pulse event' do
-    trigger = TestTrigger.new(tag: :'test-trigger', type: :test)
+    trigger = TestTrigger.new(tag: :'test-trigger')
 
     sender = nil
     event_args = nil
@@ -47,7 +42,7 @@ RSpec.describe Nanoci::Core::Trigger do
   end
 
   it '#on_pulse sets event args properties' do
-    trigger = TestTrigger.new(tag: :'test-trigger', type: :test)
+    trigger = TestTrigger.new(tag: :'test-trigger')
 
     event_args = nil
 
@@ -63,7 +58,7 @@ RSpec.describe Nanoci::Core::Trigger do
   end
 
   it '#run does not throw errors' do
-    trigger = Nanoci::Core::Trigger.new(tag: :trigger, type: :type)
+    trigger = Nanoci::Core::Trigger.new(tag: :trigger)
     expect { trigger.run }.to_not raise_error
   end
 end
