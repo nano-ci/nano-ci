@@ -3,6 +3,7 @@
 require 'nanoci/components/sync_job_executor'
 require 'nanoci/config/ucs'
 require 'nanoci/core/pipeline_engine'
+require 'nanoci/log'
 require 'nanoci/mixins/logger'
 require 'nanoci/plugin_host'
 require 'nanoci/dsl/script_dsl'
@@ -16,7 +17,7 @@ module Nanoci
     class Console
       include Nanoci::Mixins::Logger
       def main(argv)
-        log.info 'nano-ci starting...'
+        log.info 'nano-ci is starting...'
 
         Config::UCS.initialize(argv)
         setup_components
@@ -25,6 +26,20 @@ module Nanoci
         log.info 'nano-ci is running'
 
         run(project)
+
+        keep_running = true
+
+        trap('INT') do
+          keep_running = false
+        end
+
+        sleep(0.1) while keep_running
+
+        log.info 'nano-ci is stopping...'
+
+        @pipeline_engine.stop
+
+        log.info 'nano-ci is stopped'
       end
 
       private
@@ -45,7 +60,6 @@ module Nanoci
       # @return [void]
       def run(project)
         @pipeline_engine.run_pipeline(project.pipeline)
-        @pipeline_engine.run.wait!
       end
 
       def load_plugins(plugins_path)
