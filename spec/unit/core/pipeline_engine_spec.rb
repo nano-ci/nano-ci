@@ -2,7 +2,16 @@
 
 require 'spec_helper'
 
+require 'nanoci/core/pipeline'
 require 'nanoci/core/pipeline_engine'
+require 'nanoci/core/trigger'
+
+# Test class to run trigger -> pipeline engine test cases
+class PipelineTestTrigger < Nanoci::Core::Trigger
+  def trigger_pulse
+    on_pulse
+  end
+end
 
 RSpec.describe Nanoci::Core::PipelineEngine do
   it '#run_pipeline calls Pipeline#validate' do
@@ -44,6 +53,7 @@ RSpec.describe Nanoci::Core::PipelineEngine do
   it '#run_pipeline runs triggers' do
     trigger = double(:trigger)
     allow(trigger).to receive(:full_tag).and_return(:'trigger.test_trigger')
+    allow(trigger).to receive(:pulse).and_return(Nanoci::System::Event.new)
     expect(trigger).to receive(:run)
     stage_a = Nanoci::Core::Stage.new(
       tag: :stage_tag,
@@ -65,13 +75,14 @@ RSpec.describe Nanoci::Core::PipelineEngine do
   it '#run_job schedule job execution on job_executor' do
     job_executor = double(:job_executor)
     expect(job_executor).to receive(:schedule_job_execution).with(
+      :project,
       :stage,
       :job,
       :inputs,
       :prev_inputs
     )
     eng = Nanoci::Core::PipelineEngine.new(job_executor)
-    eng.run_job(:stage, :job, :inputs, :prev_inputs)
+    eng.run_job(:project, :stage, :job, :inputs, :prev_inputs)
   end
 
   it '#job_complete finalizes job and stage if all jobs are done' do
@@ -129,5 +140,23 @@ RSpec.describe Nanoci::Core::PipelineEngine do
 
     expect(job_a.outputs).to include({ abc: 123 })
     expect(stage_a.outputs).to_not include({ abc: 123 })
+  end
+
+  it 'pipeline engine runs the next stage when trigger pulses' do
+    trigger = PipelineTestTrigger.new(tag: :test_trigger)
+    stage = double(:stage)
+    allow(stage).to receive(:should_trigger?).and_return(true)
+    allow(stage).to receive(:tag).and_return(:stage_tag)
+    expect(stage).to receive(:run)
+    pipeline = Nanoci::Core::Pipeline.new(
+      tag: :pipeline_tag,
+      name: 'pipeline name',
+      triggers: [trigger],
+      stages: [stage],
+      pipes: { 'trigger.test_trigger': [:stage_tag] }
+    )
+    eng = Nanoci::Core::PipelineEngine.new(nil)
+    eng.run_pipeline(pipeline)
+    trigger.trigger_pulse
   end
 end

@@ -18,6 +18,18 @@ module Nanoci
         @job_executor = job_executor
       end
 
+      def start
+        log.info 'starting the pipeline engine...'
+        # TODO: add code
+        log.info 'the pipeline engine is running'
+      end
+
+      def stop
+        log.info 'stopping the pipeline engine...'
+        # TODO: add code
+        log.info 'the pipeline engine is stopped'
+      end
+
       # Runs the pipeline on the pipeline engine
       # @param pipeline [Nanoci::Core::Pipeline]
       def run_pipeline(pipeline)
@@ -37,27 +49,28 @@ module Nanoci
       end
 
       # Signals engine that stage is complete
-      # @param stage [Nanoci::Core::Stage] stage
+      # @param stage_tag [Symbol] stage
       # @param outputs [Hash{Symbol => String}] stage outputs
-      def stage_complete(stage, outputs)
-        log.info "pulse signal of completion <#{stage.tag}>"
-        @pipes.fetch(stage.tag, []).each do |next_stage|
+      def stage_complete(stage_tag, outputs)
+        log.info "pulse signal of completion <#{stage_tag}>"
+        @pipes.fetch(stage_tag, []).each do |next_stage|
           next_stage.run(outputs, self) if next_stage.should_trigger? outputs
         rescue StandardError => e
           log.error(error_log_event(
-                      "failed to run next stage <#{next_stage.tag}> after signal of completion <#{stage.tag}>",
+                      "failed to run next stage <#{next_stage.tag}> after signal of completion <#{stage_tag}>",
                       reason: e
                     ))
         end
       end
 
       # Schedules execution of the job
+      # @param project [Nanoci::Project]
       # @param stage [Nanoci::Stage]
       # @param job [Nanoci::Job]
       # @param inputs [Hash{Symbol => String}]
       # @param prev_inputs [Hash{Symbol => String}]
-      def run_job(stage, job, inputs, prev_inputs)
-        @job_executor.schedule_job_execution(stage, job, inputs, prev_inputs)
+      def run_job(project, stage, job, inputs, prev_inputs)
+        @job_executor.schedule_job_execution(project, stage, job, inputs, prev_inputs)
       end
 
       def job_complete(stage, job, outputs)
@@ -84,7 +97,12 @@ module Nanoci
       # @param pipeline [Nanoci::Pipeline]
       def start_pipeline_triggers(pipeline)
         # @param t [Nanoci::Trigger]
-        pipeline.triggers.each(&:run)
+        pipeline.triggers.each do |t|
+          t.pulse.attach do |s, e|
+            stage_complete(s.full_tag, e.outputs)
+          end
+          t.run
+        end
       end
 
       def add_stages(pipeline)
