@@ -70,7 +70,7 @@ RSpec.describe Nanoci::Core::Stage do
       }
     }
     stage.restore_memento(memento)
-    stage.run({ abc: 2, def: 3 }, nil)
+    stage.run({ abc: 2, def: 3 })
     expect(stage.prev_inputs).to include({ abc: 1 })
     expect(stage.inputs).to include({ aaa: 1, abc: 2, def: 3})
   end
@@ -83,7 +83,7 @@ RSpec.describe Nanoci::Core::Stage do
       }
     }
     stage.restore_memento(memento)
-    stage.run({ abc: 2 }, nil)
+    stage.run({ abc: 2 })
     expect(stage.state).to be Nanoci::Core::Stage::State::RUNNING
   end
 
@@ -97,10 +97,7 @@ RSpec.describe Nanoci::Core::Stage do
     }
     stage.restore_memento(memento)
 
-    pipeline_engine = double(:pipeline_engine)
-    expect(pipeline_engine).to receive(:run_job).with(stage, job, { abc: 2 }, { abc: 1})
-
-    stage.run({ abc: 2 }, pipeline_engine)
+    expect(stage.run({ abc: 2 })).to include(job)
   end
 
   it '#finalize sets stage state to IDLE' do
@@ -113,10 +110,7 @@ RSpec.describe Nanoci::Core::Stage do
     }
     stage.restore_memento(memento)
 
-    pipeline_engine = double(:pipeline_engine)
-    expect(pipeline_engine).to receive(:run_job).with(stage, job, { abc: 2 }, { abc: 1 })
-
-    stage.run({ abc: 2 }, pipeline_engine)
+    stage.run({ abc: 2 })
 
     expect(stage.state).to be Nanoci::Core::Stage::State::RUNNING
 
@@ -131,9 +125,7 @@ RSpec.describe Nanoci::Core::Stage do
     allow(job).to receive(:outputs).and_return({ def: 321 })
     allow(job).to receive(:state).and_return(Nanoci::Core::Job::State::IDLE)
     stage = Nanoci::Core::Stage.new(tag: :'stage-tag', inputs: [], jobs: [job])
-    pipeline_engine = double(:pipeline_engine)
-    allow(pipeline_engine).to receive(:run_job)
-    stage.run({ abc: 1 }, pipeline_engine)
+    stage.run({ abc: 1 })
 
     expect(stage.outputs.empty?).to be true
 

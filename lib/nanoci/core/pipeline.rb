@@ -82,6 +82,13 @@ module Nanoci
       def validate_stages
         raise ArgumentError, 'stages is nil' if stages.nil?
         raise ArgumentError, 'stages is not an Array' unless stages.is_a? Array
+
+        set = Set.new
+        stages.each do |s|
+          raise ArgumentError, "duplicate state #{s.tag}" if set.include? s.tag
+
+          set.add(s.tag)
+        end
       end
 
       def validate_pipes
