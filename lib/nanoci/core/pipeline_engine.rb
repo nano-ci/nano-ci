@@ -30,8 +30,8 @@ module Nanoci
       end
 
       # Runs the pipeline on the pipeline engine
-      # @param pipeline [Nanoci::Core::Pipeline]
-      def run_pipeline(project)
+      # @param pipeline [Nanoci::Core::Project]
+      def run_project(project)
         pipeline = project.pipeline
 
         log.info "adding pipeline <#{pipeline.tag}> to pipeline engine"

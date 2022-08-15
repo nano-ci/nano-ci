@@ -55,7 +55,7 @@ module Nanoci
       def run
         project = load_project(Config::UCS.instance.project)
         @project_repository.add(project)
-        @pipeline_engine.run_pipeline(project)
+        @pipeline_engine.run_project(project)
 
         keep_running = true
 
