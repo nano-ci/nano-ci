@@ -4,6 +4,7 @@ require 'spec_helper'
 
 require 'nanoci/core/pipeline'
 require 'nanoci/core/pipeline_engine'
+require 'nanoci/core/project'
 require 'nanoci/core/trigger'
 
 # Test class to run trigger -> pipeline engine test cases
@@ -14,7 +15,7 @@ class PipelineTestTrigger < Nanoci::Core::Trigger
 end
 
 RSpec.describe Nanoci::Core::PipelineEngine do
-  it '#run_pipeline calls Pipeline#validate' do
+  it '#run_project calls Pipeline#validate' do
     pipeline = Nanoci::Core::Pipeline.new(
       tag: :pipe_tag,
       name: 'pipe name',
@@ -23,34 +24,12 @@ RSpec.describe Nanoci::Core::PipelineEngine do
       pipes: {}
     )
     expect(pipeline).to receive(:validate)
-    eng = Nanoci::Core::PipelineEngine.new(nil)
-    eng.run_pipeline pipeline
+    project = Nanoci::Core::Project.new(name: 'abc', tag: :def, pipeline: pipeline)
+    eng = Nanoci::Core::PipelineEngine.new(nil, nil)
+    eng.run_project project
   end
 
-  it '#run_pipeline raises ArgumentError if pipeline contains duplicate stages' do
-    stage_a = Nanoci::Core::Stage.new(
-      tag: :stage_tag,
-      inputs: [],
-      jobs: []
-    )
-    stage_b = Nanoci::Core::Stage.new(
-      tag: :stage_tag,
-      inputs: [],
-      jobs: []
-    )
-    pipeline = Nanoci::Core::Pipeline.new(
-      tag: :pipe_tag,
-      name: 'pipe name',
-      triggers: [],
-      stages: [stage_a, stage_b],
-      pipes: {}
-    )
-
-    eng = Nanoci::Core::PipelineEngine.new(nil)
-    expect { eng.run_pipeline pipeline }.to raise_error(ArgumentError)
-  end
-
-  it '#run_pipeline runs triggers' do
+  it '#run_project runs triggers' do
     trigger = double(:trigger)
     allow(trigger).to receive(:full_tag).and_return(:'trigger.test_trigger')
     allow(trigger).to receive(:pulse).and_return(Nanoci::System::Event.new)
@@ -68,8 +47,10 @@ RSpec.describe Nanoci::Core::PipelineEngine do
       pipes: { 'trigger.test_trigger': [:stage_tag] }
     )
 
-    eng = Nanoci::Core::PipelineEngine.new(nil)
-    eng.run_pipeline pipeline
+    project = Nanoci::Core::Project.new(name: 'proj', tag: :tag, pipeline: pipeline)
+
+    eng = Nanoci::Core::PipelineEngine.new(nil, nil)
+    eng.run_project project
   end
 
   it '#run_job schedule job execution on job_executor' do
@@ -81,7 +62,7 @@ RSpec.describe Nanoci::Core::PipelineEngine do
       :inputs,
       :prev_inputs
     )
-    eng = Nanoci::Core::PipelineEngine.new(job_executor)
+    eng = Nanoci::Core::PipelineEngine.new(job_executor, nil)
     eng.run_job(:project, :stage, :job, :inputs, :prev_inputs)
   end
 
@@ -100,16 +81,20 @@ RSpec.describe Nanoci::Core::PipelineEngine do
       stages: [stage_a],
       pipes: {}
     )
+    project = Nanoci::Core::Project.new(name: 'proj', tag: :tag, pipeline: pipeline)
 
-    eng = Nanoci::Core::PipelineEngine.new(nil)
-    eng.run_pipeline(pipeline)
+    project_repository = double(:project_repository)
+    allow(project_repository).to receive(:find_by_tag).and_return(project)
+
+    eng = Nanoci::Core::PipelineEngine.new(nil, project_repository)
+    eng.run_project(project)
 
     pipeline_engine = double(:pipeline_engine)
     allow(pipeline_engine).to receive(:run_job)
 
-    stage_a.run({ abc: 1 }, pipeline_engine)
+    stage_a.run({ abc: 1 })
 
-    eng.job_complete(stage_a, job, { abc: 123 })
+    eng.job_complete(project.tag, stage_a.tag, job.tag, { abc: 123 })
 
     expect(job.outputs).to include({ abc: 123 })
     expect(stage_a.outputs).to include({ abc: 123 })
@@ -131,12 +116,16 @@ RSpec.describe Nanoci::Core::PipelineEngine do
       stages: [stage_a],
       pipes: {}
     )
+    project = Nanoci::Core::Project.new(name: 'proj', tag: :tag, pipeline: pipeline)
 
-    eng = Nanoci::Core::PipelineEngine.new(nil)
-    eng.run_pipeline(pipeline)
+    project_repository = double(:project_repository)
+    allow(project_repository).to receive(:find_by_tag).and_return(project)
+
+    eng = Nanoci::Core::PipelineEngine.new(nil, project_repository)
+    eng.run_project(project)
     job_b.state = Nanoci::Core::Job::State::RUNNING
 
-    eng.job_complete(stage_a, job_a, { abc: 123 })
+    eng.job_complete(project.tag, stage_a.tag, job_a.tag, { abc: 123 })
 
     expect(job_a.outputs).to include({ abc: 123 })
     expect(stage_a.outputs).to_not include({ abc: 123 })
@@ -147,7 +136,9 @@ RSpec.describe Nanoci::Core::PipelineEngine do
     stage = double(:stage)
     allow(stage).to receive(:should_trigger?).and_return(true)
     allow(stage).to receive(:tag).and_return(:stage_tag)
-    expect(stage).to receive(:run)
+    allow(stage).to receive(:inputs).and_return({ abc: 123 })
+    allow(stage).to receive(:prev_inputs).and_return({ abc: 12 })
+    expect(stage).to receive(:run).and_return([])
     pipeline = Nanoci::Core::Pipeline.new(
       tag: :pipeline_tag,
       name: 'pipeline name',
@@ -155,8 +146,14 @@ RSpec.describe Nanoci::Core::PipelineEngine do
       stages: [stage],
       pipes: { 'trigger.test_trigger': [:stage_tag] }
     )
-    eng = Nanoci::Core::PipelineEngine.new(nil)
-    eng.run_pipeline(pipeline)
+
+    project = Nanoci::Core::Project.new(name: 'proj', tag: :tag, pipeline: pipeline)
+
+    project_repository = double(:project_repository)
+    allow(project_repository).to receive(:find_by_tag).and_return(project)
+
+    eng = Nanoci::Core::PipelineEngine.new(nil, project_repository)
+    eng.run_project(project)
     trigger.trigger_pulse
   end
 end
