@@ -36,8 +36,6 @@ module Nanoci
 
         log.info "adding pipeline <#{pipeline.tag}> to pipeline engine"
 
-        pipeline.validate
-
         start_pipeline_triggers(project)
 
         log.info "pipeline <#{pipeline.tag}> is running"
