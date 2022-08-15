@@ -39,6 +39,10 @@ module Nanoci
         validate_plugins
       end
 
+      def find_repo(tag)
+        @repos.select { |x| x.tag == tag }.first
+      end
+
       private
 
       def validate_tag
