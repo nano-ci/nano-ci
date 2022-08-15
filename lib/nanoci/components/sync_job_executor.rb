@@ -7,11 +7,16 @@ module Nanoci
   module Components
     # Executes jobs in current thread
     class SyncJobExecutor < Nanoci::Core::JobExecutor
+      include Nanoci::Mixins::Logger
+
       def schedule_job_execution(project, stage, job, inputs, prev_inputs)
+        log.info("executing job #{job}")
         command_host = CommandHost.new(project, stage, job)
         enable_plugins(project, command_host)
         job_outputs = command_host.run(inputs, prev_inputs)
-        publish(stage, job, job_outputs)
+        publish(project, stage, job, job_outputs)
+      rescue StandardError => e
+        log.error e
       end
 
       # Enables plugins on command host

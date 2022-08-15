@@ -50,6 +50,10 @@ module Nanoci
         @state = State::IDLE
       end
 
+      def find_job(tag)
+        @jobs.select { |x| x.tag == tag }.first
+      end
+
       # Gets pending outputs
       # @return [Hash]
       def pending_outputs
@@ -66,15 +70,15 @@ module Nanoci
 
       # Runs the jobs with the new inputs
       # @param next_inputs [Hash{Symbol => String}]
-      # @param pipeline_engine [Nanoci::PipelineEngine]
-      def run(next_inputs, pipeline_engine)
+      # @return [Array] an array of jobs to schedule for execution
+      def run(next_inputs)
+        return unless should_trigger? next_inputs
+
         log.info "starting stage <#{tag}> with inputs #{next_inputs}"
         @prev_inputs = @inputs
         @inputs = @inputs.merge(next_inputs)
         self.state = Stage::State::RUNNING
-        @jobs.each do |j|
-          pipeline_engine.run_job(self, j, @inputs, @prev_inputs)
-        end
+        @jobs
       end
 
       def job_complete(job)

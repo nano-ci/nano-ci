@@ -4,11 +4,12 @@ module Nanoci
   module Core
     # Event args for Job Complete event
     class JobCompleteEventArgs
-      attr_reader :stage, :job, :outputs
+      attr_reader :project_tag, :stage_tag, :job_tag, :outputs
 
-      def initialize(stage, job, outputs)
-        @stage = stage
-        @job = job
+      def initialize(project, stage, job, outputs)
+        @project_tag = project
+        @stage_tag = stage
+        @job_tag = job
         @outputs = outputs
       end
     end
