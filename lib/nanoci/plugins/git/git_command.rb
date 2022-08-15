@@ -92,10 +92,7 @@ module Nanoci
         # Gets repo with a given tag from project
         # @return [Nanoci::Repo]
         def repo(repo_tag)
-          raise "repo #{repo_tag} is not defined in the project #{@project.tag}" \
-            unless @project.repos.key? repo_tag
-
-          @project.repos[repo_tag]
+          @project.find_repo repo_tag
         end
       end
     end

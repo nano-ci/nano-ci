@@ -3,8 +3,10 @@
 require 'nanoci/components/sync_job_executor'
 require 'nanoci/config/ucs'
 require 'nanoci/core/pipeline_engine'
+require 'nanoci/log'
 require 'nanoci/mixins/logger'
 require 'nanoci/plugin_host'
+require 'nanoci/project_repository'
 require 'nanoci/dsl/script_dsl'
 require 'nanoci/triggers/interval_trigger_dsl'
 
@@ -16,36 +18,52 @@ module Nanoci
     class Console
       include Nanoci::Mixins::Logger
       def main(argv)
-        log.info 'nano-ci starting...'
+        log.info 'nano-ci is starting...'
 
-        Config::UCS.initialize(argv)
-        setup_components
-        project = load_project(Config::UCS.instance.project)
+        setup_components(argv)
 
         log.info 'nano-ci is running'
 
-        run(project)
+        run
+
+        log.info 'nano-ci is stopping...'
+
+        @pipeline_engine.stop
+
+        log.info 'nano-ci is stopped'
       end
 
       private
 
-      def setup_components
+      def setup_components(argv)
+        Config::UCS.initialize(argv)
+
         ucs = Config::UCS.instance
 
+        @project_repository = ProjectRepository.new
         @plugin_host = load_plugins(File.expand_path(ucs.plugins_path))
         @job_executor = Components::SyncJobExecutor.new(@plugin_host)
-        @pipeline_engine = Core::PipelineEngine.new(@job_executor)
+        @pipeline_engine = Core::PipelineEngine.new(@job_executor, @project_repository)
         @job_executor.job_complete.attach do |_, e|
-          @pipeline_engine.job_complete(e.stage, e.job, e.outputs)
+          @pipeline_engine.job_complete(e.project_tag, e.stage_tag, e.job_tag, e.outputs)
         end
       end
 
       # runs a nano-ci main service
       # @param project [Nanoci::Project]
       # @return [void]
-      def run(project)
-        @pipeline_engine.run_pipeline(project.pipeline)
-        @pipeline_engine.run.wait!
+      def run
+        project = load_project(Config::UCS.instance.project)
+        @project_repository.add(project)
+        @pipeline_engine.run_project(project)
+
+        keep_running = true
+
+        trap('INT') do
+          keep_running = false
+        end
+
+        sleep(0.1) while keep_running
       end
 
       def load_plugins(plugins_path)

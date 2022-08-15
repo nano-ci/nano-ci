@@ -91,4 +91,20 @@ RSpec.describe Nanoci::Core::Pipeline do
 
     expect(pipeline.pipes).to include({ 'trigger.trigger_tag': [:stage_tag] })
   end
+
+  it '#validate raises ArgumentError if pipeline contains duplicate stages' do
+    stage_a = Nanoci::Core::Stage.new(
+      tag: :stage_tag,
+      inputs: [],
+      jobs: []
+    )
+    stage_b = Nanoci::Core::Stage.new(
+      tag: :stage_tag,
+      inputs: [],
+      jobs: []
+    )
+
+    expect { Nanoci::Core::Pipeline.new(tag: :p, name: 'p', triggers: [], stages: [stage_a, stage_b], pipes: {}) }.
+      to raise_error(ArgumentError)
+  end
 end

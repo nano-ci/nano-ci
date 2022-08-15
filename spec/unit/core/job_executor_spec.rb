@@ -6,8 +6,8 @@ require 'nanoci/core/job_executor'
 
 # JobExecutor implementation for tests
 class TestJobExecutor < Nanoci::Core::JobExecutor
-  def raise_publish(stage, job, outputs)
-    publish(stage, job, outputs)
+  def raise_publish(project, stage, job, outputs)
+    publish(project, stage, job, outputs)
   end
 end
 
@@ -28,12 +28,22 @@ RSpec.describe Nanoci::Core::JobExecutor do
       event_args = e
     end
 
-    executor.raise_publish(:stage, :job, :outputs)
+    project = double(:project)
+    allow(project).to receive(:tag).and_return(:project)
+
+    stage = double(:stage)
+    allow(stage).to receive(:tag).and_return(:stage)
+
+    job = double(:job)
+    allow(job).to receive(:tag).and_return(:job)
+
+    executor.raise_publish(project, stage, job, :outputs)
 
     expect(sender).to be executor
     expect(event_args).to be_a(Nanoci::Core::JobCompleteEventArgs)
-    expect(event_args.stage).to eq(:stage)
-    expect(event_args.job).to eq(:job)
+    expect(event_args.project_tag).to eq(:project)
+    expect(event_args.stage_tag).to eq(:stage)
+    expect(event_args.job_tag).to eq(:job)
     expect(event_args.outputs).to eq(:outputs)
   end
 end

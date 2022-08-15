@@ -10,100 +10,91 @@ module Nanoci
 
       # Initializes new instance of [Nanoci::Core::PipelineEngine]
       # @param job_executor [Nanoci::Core::JobExecutor]
-      def initialize(job_executor)
-        @pipelines = []
-        @stages = {}
+      # @param project_repository [Nanoci::ProjectRepository]
+      def initialize(job_executor, project_repository)
         # @type [Hash{Symbol => Array<Symbol>}]
-        @pipes = {}
         @job_executor = job_executor
+        @project_repository = project_repository
+      end
+
+      def start
+        log.info 'starting the pipeline engine...'
+        # TODO: add code
+        log.info 'the pipeline engine is running'
+      end
+
+      def stop
+        log.info 'stopping the pipeline engine...'
+        # TODO: add code
+        log.info 'the pipeline engine is stopped'
       end
 
       # Runs the pipeline on the pipeline engine
-      # @param pipeline [Nanoci::Core::Pipeline]
-      def run_pipeline(pipeline)
-        raise "duplicate pipeline #{pipeline.tag}" if duplicate? pipeline
+      # @param pipeline [Nanoci::Core::Project]
+      def run_project(project)
+        pipeline = project.pipeline
 
         log.info "adding pipeline <#{pipeline.tag}> to pipeline engine"
 
-        pipeline.validate
-
-        add_stages(pipeline)
-
-        @pipelines.push(pipeline)
-
-        start_pipeline_triggers(pipeline)
+        start_pipeline_triggers(project)
 
         log.info "pipeline <#{pipeline.tag}> is running"
       end
 
       # Signals engine that stage is complete
-      # @param stage [Nanoci::Core::Stage] stage
+      # @param project_tag [Symbol]
+      # @param stage_tag [Symbol] stage
       # @param outputs [Hash{Symbol => String}] stage outputs
-      def stage_complete(stage, outputs)
-        log.info "pulse signal of completion <#{stage.tag}>"
-        @pipes.fetch(stage.tag, []).each do |next_stage|
-          next_stage.run(outputs, self) if next_stage.should_trigger? outputs
-        rescue StandardError => e
-          log.error(error_log_event(
-                      "failed to run next stage <#{next_stage.tag}> after signal of completion <#{stage.tag}>",
-                      reason: e
-                    ))
+      def stage_complete(project_tag, stage_tag, outputs)
+        log.info "pulse signal of completion <#{stage_tag}>"
+        project = @project_repository.find_by_tag(project_tag)
+        project.pipeline.pipes.fetch(stage_tag, []).each do |next_stage_tag|
+          next_stage = project.pipeline.find_stage(next_stage_tag)
+          run_stage(project, next_stage, outputs)
+        end
+      end
+
+      def run_stage(project, stage, next_inputs)
+        jobs = stage.run(next_inputs)
+        run_jobs(jobs, project, stage, stage.inputs, stage.prev_inputs)
+      end
+
+      def run_jobs(jobs, project, stage, inputs, prev_inputs)
+        jobs.each do |x|
+          run_job(project, stage, x, inputs, prev_inputs)
         end
       end
 
       # Schedules execution of the job
+      # @param project [Nanoci::Project]
       # @param stage [Nanoci::Stage]
       # @param job [Nanoci::Job]
       # @param inputs [Hash{Symbol => String}]
       # @param prev_inputs [Hash{Symbol => String}]
-      def run_job(stage, job, inputs, prev_inputs)
-        @job_executor.schedule_job_execution(stage, job, inputs, prev_inputs)
+      def run_job(project, stage, job, inputs, prev_inputs)
+        @job_executor.schedule_job_execution(project, stage, job, inputs, prev_inputs)
       end
 
-      def job_complete(stage, job, outputs)
+      def job_complete(project_tag, stage_tag, job_tag, outputs)
+        project = @project_repository.find_by_tag(project_tag)
+        stage = project.pipeline.find_stage(stage_tag)
+        job = stage.find_job(job_tag)
         job.finalize(true, outputs)
         stage.job_complete(job)
-        stage_complete(stage, stage.outputs) if stage.jobs_idle?
-      rescue StandardError => e
-        log.error(error_log_event(
-                    "failed to pulse stage <#{stage.tag}> completion signal",
-                    reason: e
-                  ))
+        stage_complete(project_tag, stage_tag, stage.outputs) if stage.jobs_idle?
       end
 
       private
 
-      # Checks for duplicate pipeline
-      # @param pipeline [Nanoci::Core::Pipeline]
-      # @return Boolean true if there was another pipeline with the same tag; false otherwise
-      def duplicate?(pipeline)
-        @pipelines.any? { |x| x.tag == pipeline.tag }
-      end
-
       # Starts the pipeline
-      # @param pipeline [Nanoci::Pipeline]
-      def start_pipeline_triggers(pipeline)
+      # @param pipeline [Nanoci::Core::Project]
+      def start_pipeline_triggers(project)
         # @param t [Nanoci::Trigger]
-        pipeline.triggers.each(&:run)
-      end
-
-      def add_stages(pipeline)
-        # @param s [Nanoci::Stage]
-        pipeline.stages.each do |s|
-          raise ArgumentError, "duplicate stage #{s.tag}" if @stages.key? s.tag
-
-          @stages[s.tag] = s
-        end
-
-        add_pipes(pipeline.pipes)
-      end
-
-      def add_pipes(pipes)
-        pipes.each do |(s_tag, v)|
-          v.each do |t_tag|
-            @pipes[s_tag] = [] unless @pipes.key? s_tag
-            @pipes[s_tag].push(@stages[t_tag])
+        project.pipeline.triggers.each do |t|
+          t.pulse.attach do |s, e|
+            stage_complete(project.tag, s.full_tag, e.outputs)
           end
+          t.run
         end
       end
     end

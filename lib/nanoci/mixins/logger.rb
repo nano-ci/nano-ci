@@ -18,7 +18,7 @@ module Nanoci
       def error_log_event(message, reason: nil)
         {
           message: message,
-          reason: reason
+          reason: reason.full_message
         }
       end
     end

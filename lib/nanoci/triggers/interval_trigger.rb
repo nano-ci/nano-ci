@@ -23,7 +23,7 @@ module Nanoci
       def run
         @timer = Concurrent::TimerTask.new(execution_interval: @interval) do
           @log.debug "interval trigger #{tag} signal pulse"
-          pulse
+          on_pulse
         end
         @timer.execute
       end
