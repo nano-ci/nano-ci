@@ -3,7 +3,7 @@
 require 'logging'
 
 layout = Logging.layouts.pattern(
-  pattern: '[%d] %-5l [%c] %m\n',
+  pattern: '[%d] %-5l <%t> [%c] %m\n',
   date_pattern: '%Y-%m-%d %H:%M:%S'
 )
 

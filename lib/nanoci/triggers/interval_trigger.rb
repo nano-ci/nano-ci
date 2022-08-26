@@ -17,15 +17,19 @@ module Nanoci
         super(tag: tag)
         @interval = interval
         @log = Logging.logger[self]
+        @next_run_time = Time.now.utc + @interval
       end
 
-      # Starts the trigger
-      def run
-        @timer = Concurrent::TimerTask.new(execution_interval: @interval) do
-          @log.debug "interval trigger #{tag} signal pulse"
-          on_pulse
-        end
-        @timer.execute
+      def due?
+        @next_run_time < Time.now.utc
+      end
+
+      protected
+
+      def on_pulse
+        super
+      ensure
+        @next_run_time = Time.now.utc + @interval
       end
     end
   end
