@@ -10,6 +10,9 @@ require 'nanoci/project_repository'
 require 'nanoci/dsl/script_dsl'
 require 'nanoci/triggers/interval_trigger_dsl'
 
+require_relative '../components/single_thread_trigger_engine'
+require_relative '../system/cancellation_token_source'
+
 module Nanoci
   module Application
     # Entry point to nano-ci in console mode
@@ -36,9 +39,7 @@ module Nanoci
       private
 
       def setup_components(argv)
-        Config::UCS.initialize(argv)
-
-        ucs = Config::UCS.instance
+        ucs = Config::UCS.initialize(argv)
 
         @project_repository = ProjectRepository.new
         @plugin_host = load_plugins(File.expand_path(ucs.plugins_path))
@@ -47,6 +48,7 @@ module Nanoci
         @job_executor.job_complete.attach do |_, e|
           @pipeline_engine.job_complete(e.project_tag, e.stage_tag, e.job_tag, e.outputs)
         end
+        @trigger_engine = Components::SingleThreadTriggerEngine.new
       end
 
       # runs a nano-ci main service
@@ -54,16 +56,15 @@ module Nanoci
       # @return [void]
       def run
         project = load_project(Config::UCS.instance.project)
-        @project_repository.add(project)
-        @pipeline_engine.run_project(project)
+        run_project(project)
 
-        keep_running = true
+        cancellation_token_source = System::CancellationTokenSource.new
 
         trap('INT') do
-          keep_running = false
+          cancellation_token_source.request_cancellation
         end
 
-        sleep(0.1) while keep_running
+        @trigger_engine.run cancellation_token_source.token
       end
 
       def load_plugins(plugins_path)
@@ -83,6 +84,14 @@ module Nanoci
         project_dsl = script_dsl.projects[0]
         log.info "read project #{project_dsl.tag}"
         project_dsl.build
+      end
+
+      def run_project(project)
+        @project_repository.add(project)
+        @pipeline_engine.run_project(project)
+        project.pipeline.triggers.each do |x|
+          @trigger_engine.add_trigger x
+        end
       end
     end
   end

@@ -27,6 +27,10 @@ module Nanoci
         format_tag(tag)
       end
 
+      # Get state of the trigger
+      # @return [Boolean] True if trigger is active; false otherwise
+      attr_reader :active
+
       # Date and time when this trigger becomes active
       # @return [Time]
       attr_reader :start_time
@@ -62,12 +66,30 @@ module Nanoci
       # @param stage_complete_publisher [Nanoci::Core::StageCompletePublisher]
       def run
         log.info("running trigger #{tag}")
+        @active = true
+      end
+
+      def stop
+        @active = false
+        log.info("trigger #{tag} is stopped")
+      end
+
+      # is trigger due to run?
+      # @return [Boolean]
+      def due?
+        false
+      end
+
+      # Raises #pulse event
+      def raise_pulse
+        on_pulse
       end
 
       protected
 
       def on_pulse
-        outputs = { format_output(:trigger_time) => Time.now.utc.iso8601 }
+        @previous_run_time = Time.now.utc
+        outputs = { format_output(:trigger_time) => @previous_run_time.iso8601 }
 
         @pulse.invoke(self, TriggerPulseEventArgs.new(self, outputs))
       end
