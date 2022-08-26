@@ -2,6 +2,7 @@
 
 require 'nanoci/commands/shell'
 require 'nanoci/commands/command_output'
+require 'nanoci/core/project_repo_locator'
 require 'nanoci/tool_process'
 
 module Nanoci
@@ -64,6 +65,10 @@ module Nanoci
 
     def shell
       Commands::Shell.new(self)
+    end
+
+    def repos
+      Core::ProjectRepoLocator.new(@project)
     end
 
     # Returns work directory for the job

@@ -63,8 +63,8 @@ module Nanoci
           @project = project
         end
 
-        def clone(repo_tag, args = '')
-          run_git('clone', "#{repo(repo_tag).uri} #{args}")
+        def clone(repo, args = '')
+          run_git('clone', "#{repo.uri} #{args}")
         end
 
         def method_missing(method_name, *args, &_block)
@@ -87,12 +87,6 @@ module Nanoci
 
         def run_git(command, args = '')
           @command_host.execute_shell("git #{command} #{args}")
-        end
-
-        # Gets repo with a given tag from project
-        # @return [Nanoci::Repo]
-        def repo(repo_tag)
-          @project.find_repo repo_tag
         end
       end
     end
