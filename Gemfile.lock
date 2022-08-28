@@ -8,13 +8,20 @@ PATH
       grpc (~> 1.43.1)
       logging (~> 2.2)
       mail (~> 2.7)
-      mongo (~> 2.18)
+      mongoid (~> 8.0)
       precursor (~> 0.8)
       ruby-enum (~> 0.7)
 
 GEM
   remote: https://rubygems.org/
   specs:
+    activemodel (7.0.3.1)
+      activesupport (= 7.0.3.1)
+    activesupport (7.0.3.1)
+      concurrent-ruby (~> 1.0, >= 1.0.2)
+      i18n (>= 1.6, < 2)
+      minitest (>= 5.1)
+      tzinfo (~> 2.0)
     ast (2.4.2)
     bson (4.15.0)
     code-scanning-rubocop (0.6.1)
@@ -41,8 +48,13 @@ GEM
     mail (2.7.1)
       mini_mime (>= 0.1.1)
     mini_mime (1.1.2)
+    minitest (5.16.3)
     mongo (2.18.1)
       bson (>= 4.14.1, < 5.0.0)
+    mongoid (8.0.2)
+      activemodel (>= 5.1, < 7.1, != 7.0.0)
+      mongo (>= 2.18.0, < 3.0.0)
+      ruby2_keywords (~> 0.0.5)
     multi_json (1.15.0)
     optparse (0.2.0)
     parallel (1.22.1)
@@ -82,12 +94,15 @@ GEM
     ruby-enum (0.9.0)
       i18n
     ruby-progressbar (1.11.0)
+    ruby2_keywords (0.0.5)
     simplecov (0.21.2)
       docile (~> 1.1)
       simplecov-html (~> 0.11)
       simplecov_json_formatter (~> 0.1)
     simplecov-html (0.12.3)
     simplecov_json_formatter (0.1.4)
+    tzinfo (2.0.5)
+      concurrent-ruby (~> 1.0)
     unicode-display_width (2.3.0)
 
 PLATFORMS
