@@ -11,6 +11,7 @@ require 'nanoci/dsl/script_dsl'
 require 'nanoci/triggers/interval_trigger_dsl'
 
 require_relative '../components/single_thread_trigger_engine'
+require_relative '../db/mongo/db_mongo_provider'
 require_relative '../system/cancellation_token_source'
 
 module Nanoci
@@ -41,14 +42,24 @@ module Nanoci
       def setup_components(argv)
         ucs = Config::UCS.initialize(argv)
 
+        setup_db(ucs)
+
         @project_repository = ProjectRepository.new
         @plugin_host = load_plugins(File.expand_path(ucs.plugins_path))
-        @job_executor = Components::SyncJobExecutor.new(@plugin_host)
+        setup_job_executor
         @pipeline_engine = Core::PipelineEngine.new(@job_executor, @project_repository)
+        @trigger_engine = Components::SingleThreadTriggerEngine.new
+      end
+
+      def setup_db(ucs)
+        @db_provider = DB::Mongo::DBMongoProvider.new(ucs)
+      end
+
+      def setup_job_executor
+        @job_executor = Components::SyncJobExecutor.new(@plugin_host)
         @job_executor.job_complete.attach do |_, e|
           @pipeline_engine.job_complete(e.project_tag, e.stage_tag, e.job_tag, e.outputs)
         end
-        @trigger_engine = Components::SingleThreadTriggerEngine.new
       end
 
       # runs a nano-ci main service

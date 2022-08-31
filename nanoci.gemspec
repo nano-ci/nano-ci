@@ -29,7 +29,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'grpc', '~> 1.43.1'
   spec.add_runtime_dependency 'logging', '~> 2.2'
   spec.add_runtime_dependency 'mail', '~> 2.7'
-  spec.add_runtime_dependency 'mongoid', '~> 8.0'
+  spec.add_runtime_dependency 'mongo', '~> 2.18'
   spec.add_runtime_dependency 'precursor', '~> 0.8'
   spec.add_runtime_dependency 'ruby-enum', '~> 0.7'
 
