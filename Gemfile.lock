@@ -9,6 +9,7 @@ PATH
       logging (~> 2.2)
       mail (~> 2.7)
       mongo (~> 2.5)
+      precursor (~> 0.5)
       ruby-enum (~> 0.7)
 
 GEM
@@ -42,9 +43,12 @@ GEM
     mongo (2.17.0)
       bson (>= 4.8.2, < 5.0.0)
     multi_json (1.15.0)
+    optparse (0.2.0)
     parallel (1.21.0)
     parser (3.1.0.0)
       ast (~> 2.4.1)
+    precursor (0.5.1)
+      optparse (~> 0.2.0)
     rainbow (3.1.1)
     rake (13.0.6)
     regexp_parser (2.2.0)
