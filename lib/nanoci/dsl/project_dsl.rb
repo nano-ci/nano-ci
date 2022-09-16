@@ -24,6 +24,8 @@ module Nanoci
       # @return [Hash<Symbol, Nanoci::DSL::RepoDSL]
       attr_reader :repos
 
+      attr_accessor :src
+
       # Initializes a new object of [ProjectDSL]
       # @param tag [Symbol] Tag of the project
       # @param name [String] Name of the project
@@ -74,13 +76,16 @@ module Nanoci
       # Builds and returns [Hash] from DSL
       # @return [Nanoci::Core::Project]
       def build
-        Core::Project.new(
+        project = Core::Project.new(
           name: name,
           tag: tag,
           pipeline: @pipeline&.build,
           repos: repos.collect(&:build),
           plugins: plugins
         )
+
+        project.src = @src
+        project
       end
     end
   end

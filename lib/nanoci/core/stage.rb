@@ -107,17 +107,17 @@ module Nanoci
         validate_jobs
       end
 
-      def take_memento
-        # TODO: implement all fields here
-        memento = {}
-        memento[:inputs] = @inputs
-        memento
+      def memento
+        {
+          tag: tag,
+          inputs: @inputs
+        }
       end
 
-      def restore_memento(memento)
-        # TODO: validate memento
+      def memento=(memento)
+        raise ArgumentError, "stage tag #{tag} does not match memento tag #{memento[:tag]}" unless tag == memento[:tag]
 
-        @inputs = memento[:inputs]
+        @inputs = memento.fetch(:inputs, {})
       end
 
       private

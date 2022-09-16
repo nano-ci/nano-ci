@@ -36,6 +36,7 @@ module Nanoci
       end
 
       # Returns a config value in following order:
+      # * override
       # * ARGV
       # * environment variable
       # * config
@@ -43,6 +44,10 @@ module Nanoci
       # @return [String] config value
       def get(key)
         @config_root[key]
+      end
+
+      def key?(key)
+        @config_root.key? key
       end
 
       def override(key, value)

@@ -1,6 +1,7 @@
 build-data-dir: /var/nano-ci/builds-data
 
 db:
+  provider: 'mongo'
   mongo:
     clients:
       default:
