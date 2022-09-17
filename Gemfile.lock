@@ -9,7 +9,7 @@ PATH
       logging (~> 2.2)
       mail (~> 2.7)
       mongo (~> 2.5)
-      precursor (~> 0.5)
+      precursor (~> 0.8)
       ruby-enum (~> 0.7)
 
 GEM
@@ -47,7 +47,7 @@ GEM
     parallel (1.21.0)
     parser (3.1.0.0)
       ast (~> 2.4.1)
-    precursor (0.5.1)
+    precursor (0.8.2)
       optparse (~> 0.2.0)
     rainbow (3.1.1)
     rake (13.0.6)
