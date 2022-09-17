@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'yaml'
+require 'precursor'
 
 require 'nanoci/config/agent_config'
 require 'nanoci/config/service_config'
@@ -25,36 +25,15 @@ module Nanoci
 
         # Initializes an UCS
         # @return [UCS]
-        def initialize(argv = ARGV, config_path = nil)
-          @instance = UCS.new(argv || [], config_path)
+        def initialize(argv = ARGV)
+          @instance = UCS.new(argv || [])
         end
 
         # Destroys an UCS instance
         def destroy
-          @instance = nil
-        end
-
-        # parses ARGV into Hash
-        # @param argv [Array<String>]
-        # @return [Hash<Symbol, String>]
-        def parse_argv(argv)
-          argv.map do |item|
-            raise "invalid option #{item} - does not start with --" unless item.start_with? '--'
-            raise "invalid option #{item} - does not have = to split key and value" unless item.match(/.+=.+/)
-
-            item.slice(2, item.length - 2).split('=')
-          end.to_h.symbolize_keys
+          @config_root = nil
         end
       end
-
-      # @return [Hash<Symbol, String>] argument vector AKA command line arguments
-      attr_reader :argv
-
-      # @return [Hash<Symbol, String>] environment variables
-      attr_reader :env
-
-      # @return [Hash<Symbol, String>] config
-      attr_reader :config
 
       # Returns a config value in following order:
       # * ARGV
@@ -62,18 +41,12 @@ module Nanoci
       # * config
       # @param key [Symbol] config key
       # @return [String] config value
-      def get(key, default = nil)
-        return @argv.fetch(key) if @argv.key?(key)
-        return @env.fetch(key) if @env.key?(key)
-        return @config.fetch(key) if !@config.nil? && @config.key?(key)
-        return @override.fetch(key) if @override.key?(key)
-        raise "missing config key '#{key}'" if default.nil?
-
-        default
+      def get(key)
+        @config_root[key]
       end
 
       def override(key, value)
-        @override[key] = value
+        @override_vault.override(key, value)
       end
 
       private
@@ -81,15 +54,41 @@ module Nanoci
       # Initializes new instance of [UCS]
       # @param argv [Array<String>] argument vector AKA command line arguments
       # @param config_path [String] path to config file
-      def initialize(argv = ARGV, config_path = nil)
-        @argv = UCS.parse_argv(argv).freeze
-        @env = ENV.to_h.symbolize_keys.freeze
+      def initialize(argv = ARGV)
+        @config_root = Precursor.create do |builder|
+          @override_vault = Precursor::OverrideVault.new
 
-        config_path ||= @argv.fetch(:config, nil) || system_config_path
+          builder.vault @override_vault
+          builder.vault(setup_argv_vault(argv))
+          builder.vault(Precursor::EnvVault.new)
+          builder.vault(Precursor::YamlFileVault.new('${config}'))
 
-        @config = YAML.load_file(config_path).flatten_hash_value.freeze if File.exist?(config_path)
+          setup_defaults(builder)
+        end
+      end
 
-        @override = {}
+      def setup_argv_vault(argv)
+        Precursor::ArgvVault.new(argv) do |argv_builder|
+          argv_builder.key :config do |kv|
+            kv.long '--config PATH'
+            kv.description 'Path to config file'
+          end
+
+          argv_builder.key :project do |kv|
+            kv.long '--project PROJECT'
+            kv.description 'Path to project file'
+          end
+        end
+      end
+
+      def setup_defaults(builder)
+        builder.key :config do |kb|
+          kb.default system_config_path
+        end
+
+        builder.key :'plugins-path' do |kb|
+          kb.default 'lib/nanoci/plugins'
+        end
       end
 
       def destroy

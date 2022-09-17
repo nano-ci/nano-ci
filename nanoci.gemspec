@@ -30,6 +30,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'logging', '~> 2.2'
   spec.add_runtime_dependency 'mail', '~> 2.7'
   spec.add_runtime_dependency 'mongo', '~> 2.5'
+  spec.add_runtime_dependency 'precursor', '~> 0.8'
   spec.add_runtime_dependency 'ruby-enum', '~> 0.7'
 
   spec.add_development_dependency 'code-scanning-rubocop', '~> 0.5'
