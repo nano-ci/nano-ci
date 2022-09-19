@@ -110,14 +110,20 @@ module Nanoci
       def memento
         {
           tag: tag,
-          inputs: @inputs
+          state: state,
+          inputs: @inputs,
+          outputs: @outputs,
+          pending_outputs: @pending_outputs
         }
       end
 
       def memento=(memento)
         raise ArgumentError, "stage tag #{tag} does not match memento tag #{memento[:tag]}" unless tag == memento[:tag]
 
+        @state = memento.fetch(:state)
         @inputs = memento.fetch(:inputs, {})
+        @outputs = memento.fetch(:outputs, {})
+        @pending_outputs = memento.fetch(:pending_outputs)
       end
 
       private

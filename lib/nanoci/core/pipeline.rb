@@ -66,14 +66,13 @@ module Nanoci
 
       def memento
         {
-          stages: @stages.map(&:memento)
+          stages: @stages.to_h { |s| [s.tag, s.memento] }
         }
       end
 
       def memento=(value)
-        value.fetch(:stages, []).each do |stage_memento|
-          tag = stage_memento[:tag]
-          stage = find_stage(tag)
+        value.fetch(:stages, {}).each do |tag, stage_memento|
+          stage = find_stage(tag.to_sym)
           stage.memento = stage_memento unless stage.nil?
         end
       end

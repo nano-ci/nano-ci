@@ -21,6 +21,14 @@ module Nanoci
       project
     end
 
+    def save(project)
+      raise ArgumentError, 'project is not tracked by the repository' unless @store.include? project
+    end
+
+    def save_stage(project, _stage)
+      raise ArgumentError, 'project is not tracked by the repository' unless @store.include? project
+    end
+
     # Finds a project by tag
     # @param tag [Symbol]
     # @return [Nanoci::Core::Project|Nil] project; nil if project is not found

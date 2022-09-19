@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'time'
+
 require_relative '../../dsl/script_dsl'
 
 module Nanoci
@@ -26,6 +28,14 @@ module Nanoci
           project.memento = doc.nil? ? insert_project(project.memento) : map_doc_to_memento(doc.symbolize_keys)
 
           project
+        end
+
+        def save(project)
+          update_project(project.memento)
+        end
+
+        def save_stage(project, stage)
+          update_stage(project.id, stage.tag, stage.memento)
         end
 
         def find_by_tag(tag)
@@ -61,9 +71,19 @@ module Nanoci
           memento
         end
 
-        def update_project(memento, doc)
-          doc = map_memento_to_doc(memento, doc)
+        def update_project(memento)
+          doc = map_memento_to_doc(memento)
           @client[PROJECTS_COLLECTION].find_one_and_update({ _id: doc[:_id] }, doc)
+        end
+
+        def update_stage(project_id, stage_tag, memento)
+          update_doc = {
+            '$set': {
+              "pipeline.stages.#{stage_tag}": memento
+            },
+            '$currentDate': { last_modified_ts: true }
+          }
+          @client[PROJECTS_COLLECTION].find_one_and_update({ _id: project_id }, update_doc)
         end
 
         def map_memento_to_doc(memento)
@@ -71,6 +91,7 @@ module Nanoci
           doc[:_id] = memento[:id] if memento.key? :id
           doc[:tag] = memento[:tag]
           doc[:src] = memento[:src]
+          doc[:pipeline] = memento[:pipeline] if memento.key? :pipeline
           doc
         end
 
@@ -79,6 +100,7 @@ module Nanoci
           memento[:id] = doc[:_id]
           memento[:tag] = doc[:tag]
           memento[:src] = doc[:src]
+          memento[:pipeline] = doc[:pipeline] if doc.key? :pipeline
           memento
         end
       end
