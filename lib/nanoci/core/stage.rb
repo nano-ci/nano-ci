@@ -123,7 +123,7 @@ module Nanoci
         @state = memento.fetch(:state)
         @inputs = memento.fetch(:inputs, {})
         @outputs = memento.fetch(:outputs, {})
-        @pending_outputs = memento.fetch(:pending_outputs)
+        @pending_outputs = memento.fetch(:pending_outputs, {})
       end
 
       private

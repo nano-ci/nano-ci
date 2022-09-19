@@ -40,11 +40,13 @@ RSpec.describe Nanoci::Core::Stage do
   it '#should_trigger? returns true if next input is not equal to current inputs' do
     stage = Nanoci::Core::Stage.new(tag: :'stage-tag', inputs: [:abc], jobs: [])
     memento = {
+      tag: :'stage-tag',
+      state: :idle,
       inputs: {
         abc: 0
       }
     }
-    stage.restore_memento(memento)
+    stage.memento = memento
     expect(stage.inputs[:abc]).not_to eq 1
     expect(stage.should_trigger?({ abc: 1 })).to be true
   end
@@ -52,11 +54,13 @@ RSpec.describe Nanoci::Core::Stage do
   it '#should_trigger? returns true if next input is equal to current inputs' do
     stage = Nanoci::Core::Stage.new(tag: :'stage-tag', inputs: [:abc], jobs: [])
     memento = {
+      tag: :'stage-tag',
+      state: :idle,
       inputs: {
         abc: 1
       }
     }
-    stage.restore_memento(memento)
+    stage.memento = memento
     expect(stage.inputs[:abc]).to eq 1
     expect(stage.should_trigger?({ abc: 1 })).to be false
   end
@@ -64,12 +68,14 @@ RSpec.describe Nanoci::Core::Stage do
   it '#run stores current inputs to prev_inputs and merge next_inputs into current' do
     stage = Nanoci::Core::Stage.new(tag: :'stage-tag', inputs: [:abc], jobs: [])
     memento = {
+      tag: :'stage-tag',
+      state: :idle,
       inputs: {
         abc: 1,
         aaa: 1
       }
     }
-    stage.restore_memento(memento)
+    stage.memento = memento
     stage.run({ abc: 2, def: 3 })
     expect(stage.prev_inputs).to include({ abc: 1 })
     expect(stage.inputs).to include({ aaa: 1, abc: 2, def: 3})
@@ -78,11 +84,13 @@ RSpec.describe Nanoci::Core::Stage do
   it '#run sets state to RUNNING' do
     stage = Nanoci::Core::Stage.new(tag: :'stage-tag', inputs: [:abc], jobs: [])
     memento = {
+      tag: :'stage-tag',
+      state: :idle,
       inputs: {
         abc: 1
       }
     }
-    stage.restore_memento(memento)
+    stage.memento = memento
     stage.run({ abc: 2 })
     expect(stage.state).to be Nanoci::Core::Stage::State::RUNNING
   end
@@ -91,11 +99,13 @@ RSpec.describe Nanoci::Core::Stage do
     job = Nanoci::Core::Job.new(tag: :job, body: -> {})
     stage = Nanoci::Core::Stage.new(tag: :'stage-tag', inputs: [:abc], jobs: [job])
     memento = {
+      tag: :'stage-tag',
+      state: :idle,
       inputs: {
         abc: 1
       }
     }
-    stage.restore_memento(memento)
+    stage.memento = memento
 
     expect(stage.run({ abc: 2 })).to include(job)
   end
@@ -104,11 +114,13 @@ RSpec.describe Nanoci::Core::Stage do
     job = Nanoci::Core::Job.new(tag: :job, body: -> {})
     stage = Nanoci::Core::Stage.new(tag: :'stage-tag', inputs: [:abc], jobs: [job])
     memento = {
+      tag: :'stage-tag',
+      state: :idle,
       inputs: {
         abc: 1
       }
     }
-    stage.restore_memento(memento)
+    stage.memento = memento
 
     stage.run({ abc: 2 })
 
