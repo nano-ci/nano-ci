@@ -56,6 +56,7 @@ module Nanoci
 
       def run_stage(project, stage, next_inputs)
         jobs = stage.run(next_inputs)
+        @project_repository.save_stage(project, stage)
         run_jobs(jobs, project, stage, stage.inputs, stage.prev_inputs)
       end
 
@@ -81,6 +82,9 @@ module Nanoci
         job = stage.find_job(job_tag)
         job.finalize(true, outputs)
         stage.job_complete(job)
+
+        @project_repository.save_stage(project, stage)
+
         stage_complete(project_tag, stage_tag, stage.outputs) if stage.jobs_idle?
       end
 

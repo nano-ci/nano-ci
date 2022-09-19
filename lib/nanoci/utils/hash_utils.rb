@@ -20,21 +20,15 @@ class Hash
   # convert string keys to symbols
   # @return [Hash<Symbol, String|Hash|Array>]
   def symbolize_keys
-    map do |k, v|
-      [
-        k.is_a?(String) ? k.to_sym : k,
-        symbolize_value(v)
-      ]
-    end.to_h
-  end
-
-  private
-
-  def symbolize_value(value)
-    case value
-    when Hash then value.symbolize_keys
-    when Array then value.map(&->(x) { symbolize_value(x) })
-    else value
+    transform_keys { |k| k.is_a?(String) ? k.to_sym : k }.transform_values do |v|
+      case v
+      when Hash
+        v.symbolize_keys
+      when Array
+        v.map { |i| i.is_a?(Hash) ? i.symbolize_keys : i }
+      else
+        v
+      end
     end
   end
 end

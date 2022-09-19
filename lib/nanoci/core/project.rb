@@ -10,6 +10,9 @@ module Nanoci
   module Core
     # Represents a project in nano-ci
     class Project
+      # Storage specific unique Id
+      attr_reader :id
+
       attr_reader :name, :tag, :plugins
 
       # @return [Array<Repo>]
@@ -17,6 +20,10 @@ module Nanoci
 
       # @return [Nanoci::Pipeline]
       attr_reader :pipeline
+
+      # Source script used to define the project
+      # @return [String]
+      attr_accessor :src
 
       # Initializes new instance of [Project]
       # @param source [Hash] Hash with data from DSL
@@ -41,6 +48,21 @@ module Nanoci
 
       def find_repo(tag)
         @repos.select { |x| x.tag == tag }.first
+      end
+
+      def memento
+        {
+          id: id,
+          tag: tag,
+          pipeline: pipeline.memento,
+          src: @src
+        }
+      end
+
+      def memento=(value)
+        @id = value[:id]
+        @pipeline.memento = value.fetch(:pipeline, {})
+        @src = value[:src]
       end
 
       private

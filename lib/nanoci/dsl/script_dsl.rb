@@ -8,7 +8,10 @@ module Nanoci
     class ScriptDSL
       def initialize
         @projects = []
+        @src = nil
       end
+
+      attr_accessor :src
 
       # Gets array of projects read from the script
       # @return [Array<Nanoci::DSL::ProjectDSL>]
@@ -17,6 +20,7 @@ module Nanoci
       class << self
         def from_string(str)
           script = ScriptDSL.new
+          script.src = str
           script.instance_eval(str)
           script
         end
@@ -26,6 +30,7 @@ module Nanoci
         raise "project #{tag} is missing definition block" if block.nil?
 
         pr = ProjectDSL.new(tag, name)
+        pr.src = @src
         pr.instance_eval(&block)
         @projects.push(pr)
       end

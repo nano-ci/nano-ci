@@ -85,6 +85,7 @@ RSpec.describe Nanoci::Core::PipelineEngine do
 
     project_repository = double(:project_repository)
     allow(project_repository).to receive(:find_by_tag).and_return(project)
+    expect(project_repository).to receive(:save_stage)
 
     eng = Nanoci::Core::PipelineEngine.new(nil, project_repository)
     eng.run_project(project)
@@ -120,6 +121,7 @@ RSpec.describe Nanoci::Core::PipelineEngine do
 
     project_repository = double(:project_repository)
     allow(project_repository).to receive(:find_by_tag).and_return(project)
+    expect(project_repository).to receive(:save_stage)
 
     eng = Nanoci::Core::PipelineEngine.new(nil, project_repository)
     eng.run_project(project)
@@ -151,6 +153,7 @@ RSpec.describe Nanoci::Core::PipelineEngine do
 
     project_repository = double(:project_repository)
     allow(project_repository).to receive(:find_by_tag).and_return(project)
+    expect(project_repository).to receive(:save_stage)
 
     eng = Nanoci::Core::PipelineEngine.new(nil, project_repository)
     eng.run_project(project)

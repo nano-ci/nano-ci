@@ -1,1 +1,11 @@
 build-data-dir: /var/nano-ci/builds-data
+
+db:
+  provider: 'mongo'
+  mongo:
+    clients:
+      default:
+        database: "nano-ci-dev"
+        hosts: [localhost:27017]
+        options:
+          app_name: "nano-ci"

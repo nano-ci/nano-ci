@@ -64,6 +64,19 @@ module Nanoci
         triggers.select { |t| t.full_tag == tag }.first
       end
 
+      def memento
+        {
+          stages: @stages.to_h { |s| [s.tag, s.memento] }
+        }
+      end
+
+      def memento=(value)
+        value.fetch(:stages, {}).each do |tag, stage_memento|
+          stage = find_stage(tag.to_sym)
+          stage.memento = stage_memento unless stage.nil?
+        end
+      end
+
       private
 
       def validate_triggers
