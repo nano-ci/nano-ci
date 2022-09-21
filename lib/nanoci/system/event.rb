@@ -31,6 +31,10 @@ module Nanoci
           handler.call(sender, event_args)
         end
       end
+
+      def subscribers?
+        @subscribers.any?
+      end
     end
   end
 end

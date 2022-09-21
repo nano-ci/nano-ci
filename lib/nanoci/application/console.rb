@@ -10,6 +10,7 @@ require 'nanoci/project_repository'
 require 'nanoci/dsl/script_dsl'
 require 'nanoci/triggers/interval_trigger_dsl'
 
+require_relative '../trigger_repository'
 require_relative '../components/single_thread_trigger_engine'
 require_relative '../db/db_provider_factory'
 require_relative '../system/cancellation_token_source'
@@ -46,14 +47,15 @@ module Nanoci
 
         @plugin_host = load_plugins(File.expand_path(ucs.plugins_path))
         setup_job_executor
-        @pipeline_engine = Core::PipelineEngine.new(@job_executor, @project_repository)
-        @trigger_engine = Components::SingleThreadTriggerEngine.new
+        @trigger_engine = Components::SingleThreadTriggerEngine.new(@trigger_repository)
+        @pipeline_engine = Core::PipelineEngine.new(@job_executor, @project_repository, @trigger_engine)
       end
 
       def setup_db
         @db_provider_factory = DB::DBProviderFactory.new
         @db_provider = @db_provider_factory.current_provider
         @project_repository = @db_provider.project_repository
+        @trigger_repository = TriggerRepository.new
       end
 
       def setup_job_executor
@@ -67,6 +69,7 @@ module Nanoci
       # @param project [Nanoci::Project]
       # @return [void]
       def run
+        @pipeline_engine.start
         project = load_project(Config::UCS.instance.project)
         run_project(project)
 
@@ -100,10 +103,10 @@ module Nanoci
 
       def run_project(project)
         @project_repository.add(project)
-        @pipeline_engine.run_project(project)
         project.pipeline.triggers.each do |x|
-          @trigger_engine.add_trigger x
+          @trigger_repository.add(x)
         end
+        @pipeline_engine.run_project(project)
       end
     end
   end

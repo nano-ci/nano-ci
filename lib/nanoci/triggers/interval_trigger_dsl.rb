@@ -13,7 +13,9 @@ module Nanoci
       end
 
       def build
-        IntervalTrigger.new(tag: @tag, interval: @interval)
+        trigger = IntervalTrigger.new(tag: @tag, project_tag: @project_tag)
+        trigger.interval = @interval
+        trigger
       end
     end
 
