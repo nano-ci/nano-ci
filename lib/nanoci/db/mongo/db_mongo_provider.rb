@@ -3,6 +3,7 @@
 require 'mongo'
 
 require_relative './mongo_project_repository'
+require_relative 'mongo_trigger_repository'
 require_relative '../../config/ucs'
 
 module Nanoci
@@ -12,6 +13,10 @@ module Nanoci
       class DBMongoProvider
         def project_repository
           @project_repository ||= MongoProjectRepository.new(client)
+        end
+
+        def trigger_repository
+          @trigger_repository ||= MongoTriggerRepository.new(client)
         end
 
         private
