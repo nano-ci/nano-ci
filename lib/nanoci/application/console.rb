@@ -55,7 +55,7 @@ module Nanoci
         @db_provider_factory = DB::DBProviderFactory.new
         @db_provider = @db_provider_factory.current_provider
         @project_repository = @db_provider.project_repository
-        @trigger_repository = TriggerRepository.new
+        @trigger_repository = @db_provider.trigger_repository
       end
 
       def setup_job_executor

@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 require_relative '../config/ucs'
-require_relative './mongo/db_mongo_provider'
+require_relative 'mongo/db_mongo_provider'
+require_relative 'ram/db_ram_provider'
 
 module Nanoci
   module DB
@@ -9,7 +10,8 @@ module Nanoci
     class DBProviderFactory
       def initialize
         @provider_classes = {
-          mongo: Nanoci::DB::Mongo::DBMongoProvider
+          mongo: Nanoci::DB::Mongo::DBMongoProvider,
+          ram: Nanoci::DB::Ram::DBRamProvider
         }
 
         @current = nil
