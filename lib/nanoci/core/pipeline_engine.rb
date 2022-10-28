@@ -85,12 +85,6 @@ module Nanoci
 
         stage_complete(project_tag, stage_tag, stage.outputs) if stage.jobs_idle?
       end
-
-      private
-
-      def on_trigger_pulse(project_tag, trigger_tag, outputs)
-        stage_complete(project_tag, trigger_tag, outputs)
-      end
     end
   end
 end
