@@ -6,6 +6,7 @@ require 'nanoci/core/trigger'
 require 'nanoci/mixins/logger'
 
 module Nanoci
+  # Defines and registers built-in nano-ci triggers
   module Triggers
     # IntervalTriggers pulses a new output on defined interval.
     class IntervalTrigger < Core::Trigger
@@ -13,25 +14,46 @@ module Nanoci
 
       provides :interval
 
+      attr_reader :interval
+
+      def interval=(value)
+        @interval = value
+        @next_run_time = (@previous_run_time || Time.now.utc) + @interval
+      end
+
       # Initializes new instance of IntervalTrigger
-      # @param src [Hash]
-      def initialize(tag:, interval:)
-        super(tag: tag)
+      # @param tag [Symbol] Trigger tag
+      # @param project_tag [Symbol] Project tag
+      def initialize(tag:, project_tag:)
+        super(tag: tag, project_tag: project_tag)
         @interval = interval
-        @next_run_time = Time.now.utc + @interval
+        @previous_run_time = nil
+        @next_run_time = Time.now.utc
       end
 
       def due?
         @next_run_time < Time.now.utc
       end
 
-      protected
-
-      def on_pulse
-        super
-      ensure
+      def pulse
+        outputs = super
         @next_run_time = Time.now.utc + @interval
+        outputs
+      end
+
+      def memento
+        m = super
+        m[:interval] = @interval
+        m[:type] = :interval
+        m
+      end
+
+      def memento=(value)
+        super(value)
+        @interval = value[:interval]
       end
     end
+
+    Nanoci::Core::Trigger.add_trigger_type(:interval, IntervalTrigger)
   end
 end

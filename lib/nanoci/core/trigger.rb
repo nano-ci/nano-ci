@@ -12,12 +12,32 @@ module Nanoci
       extend Mixins::Provides
       include Mixins::Logger
 
+      class << self
+        def trigger_types
+          @trigger_types ||= {}
+        end
+
+        def add_trigger_type(type, clazz)
+          trigger_types[type] = clazz
+        end
+
+        def find_trigger_type(type)
+          @trigger_types[type]
+        end
+      end
+
       def self.item_type
         'trigger'
       end
 
+      # Storage specific id
+      attr_reader :id
+
       # @return [Symbol]
       attr_reader :tag
+
+      # @return [Symbol]
+      attr_reader :project_tag
 
       # Gets the fully formatted tag for pipeline pipes
       # @return [Symbol]
@@ -45,19 +65,15 @@ module Nanoci
       # @return [Time]
       attr_reader :next_run_time
 
-      # Occurs when it's time to trigger pipeline line (on schedule, time elapsed, external event)
-      # @returns [Nanoci::System::Event]
-      attr_reader :pulse
-
       # Initializes new instance of [Trigger]
       # @param definition [Hash]
-      def initialize(tag:)
+      def initialize(tag:, project_tag:)
         @tag = tag
+        @project_tag = project_tag
         @start_time = nil
         @end_time = nil
         @previous_run_time = nil
         @next_run_time = nil
-        @pulse = System::Event.new
       end
 
       # Starts the trigger
@@ -78,19 +94,36 @@ module Nanoci
         false
       end
 
-      # Raises #pulse event
-      def raise_pulse
-        on_pulse
+      # Called at time when Trigger is due.
+      # Trigger is expected to update internal state and return [Hash] with outputs
+      def pulse
+        @previous_run_time = Time.now.utc
+        { format_output(:trigger_time) => @previous_run_time.iso8601 }
+      end
+
+      def memento
+        {
+          id: id,
+          tag: tag,
+          project_tag: project_tag,
+          start_time: start_time,
+          end_time: end_time,
+          previous_run_time: previous_run_time,
+          next_run_time: next_run_time
+        }
+      end
+
+      def memento=(memento)
+        raise ArgumentError 'tag mismatch' if tag != memento.fetch(:tag)
+
+        @id = memento.fetch(:id)
+        @start_time = memento.fetch(:start_time, nil)
+        @end_time = memento.fetch(:end_time, nil)
+        @previous_run_time = memento.fetch(:previous_run_time, nil)
+        @next_run_time = memento.fetch(:next_run_time, nil)
       end
 
       protected
-
-      def on_pulse
-        @previous_run_time = Time.now.utc
-        outputs = { format_output(:trigger_time) => @previous_run_time.iso8601 }
-
-        @pulse.invoke(self, TriggerPulseEventArgs.new(self, outputs))
-      end
 
       def format_tag(tag)
         "trigger.#{tag}".to_sym

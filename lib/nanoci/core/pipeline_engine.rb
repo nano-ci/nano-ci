@@ -19,13 +19,13 @@ module Nanoci
 
       def start
         log.info 'starting the pipeline engine...'
-        # TODO: add code
+
         log.info 'the pipeline engine is running'
       end
 
       def stop
         log.info 'stopping the pipeline engine...'
-        # TODO: add code
+
         log.info 'the pipeline engine is stopped'
       end
 
@@ -35,8 +35,6 @@ module Nanoci
         pipeline = project.pipeline
 
         log.info "adding pipeline <#{pipeline.tag}> to pipeline engine"
-
-        start_pipeline_triggers(project)
 
         log.info "pipeline <#{pipeline.tag}> is running"
       end
@@ -86,20 +84,6 @@ module Nanoci
         @project_repository.save_stage(project, stage)
 
         stage_complete(project_tag, stage_tag, stage.outputs) if stage.jobs_idle?
-      end
-
-      private
-
-      # Starts the pipeline
-      # @param pipeline [Nanoci::Core::Project]
-      def start_pipeline_triggers(project)
-        # @param t [Nanoci::Trigger]
-        project.pipeline.triggers.each do |t|
-          t.pulse.attach do |s, e|
-            stage_complete(project.tag, s.full_tag, e.outputs)
-          end
-          t.run
-        end
       end
     end
   end

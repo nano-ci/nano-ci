@@ -18,9 +18,10 @@ module Nanoci
         end
       end
 
-      def initialize(tag, name)
+      def initialize(tag, name, project_tag)
         @tag = tag
         @name = name
+        @project_tag = project_tag
         @triggers = []
         @stages = []
         @pipes = []
@@ -34,7 +35,7 @@ module Nanoci
         raise "trigger type #{type} is not supported" unless PipelineDSL.dsl_types.key?(type)
 
         trigger_dsl_class = PipelineDSL.dsl_types[type]
-        trigger_dsl = trigger_dsl_class.new(tag)
+        trigger_dsl = trigger_dsl_class.new(tag, @project_tag)
         trigger_dsl.instance_eval(&block)
         @triggers.push(trigger_dsl)
       end
