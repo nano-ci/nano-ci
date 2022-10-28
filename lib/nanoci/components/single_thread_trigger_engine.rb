@@ -6,8 +6,8 @@ module Nanoci
   module Components
     # Runs triggers in the current thread
     class SingleThreadTriggerEngine < Nanoci::Core::TriggerEngine
-      def initialize(trigger_repository)
-        super(trigger_repository)
+      def initialize(trigger_repository, pipeline_engine)
+        super(trigger_repository, pipeline_engine)
         # minimal cycle period
         # the engine does not pulse due triggers if less then @cycle_period passed
         @cycle_period = 1

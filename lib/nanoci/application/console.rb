@@ -47,8 +47,8 @@ module Nanoci
 
         @plugin_host = load_plugins(File.expand_path(ucs.plugins_path))
         setup_job_executor
-        @trigger_engine = Components::SingleThreadTriggerEngine.new(@trigger_repository)
-        @pipeline_engine = Core::PipelineEngine.new(@job_executor, @project_repository, @trigger_engine)
+        @pipeline_engine = Core::PipelineEngine.new(@job_executor, @project_repository)
+        @trigger_engine = Components::SingleThreadTriggerEngine.new(@trigger_repository, @pipeline_engine)
       end
 
       def setup_db

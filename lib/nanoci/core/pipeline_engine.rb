@@ -11,28 +11,20 @@ module Nanoci
       # Initializes new instance of [Nanoci::Core::PipelineEngine]
       # @param job_executor [Nanoci::Core::JobExecutor]
       # @param project_repository [Nanoci::ProjectRepository]
-      # @param trigger_engine [Nanoci::Core::TriggerEngine]
-      def initialize(job_executor, project_repository, trigger_engine)
+      def initialize(job_executor, project_repository)
         # @type [Hash{Symbol => Array<Symbol>}]
         @job_executor = job_executor
         @project_repository = project_repository
-        @trigger_engine = trigger_engine
       end
 
       def start
         log.info 'starting the pipeline engine...'
-
-        @trigger_engine_pulse_token = @trigger_engine.trigger_pulse.attach do |_, e|
-          on_trigger_pulse(e.project_tag, e.trigger_tag, e.outputs)
-        end
 
         log.info 'the pipeline engine is running'
       end
 
       def stop
         log.info 'stopping the pipeline engine...'
-
-        @trigger_engine.trigger_pulse.detach(@trigger_engine_pulse_token) unless @trigger_engine_pulse_token.nil?
 
         log.info 'the pipeline engine is stopped'
       end

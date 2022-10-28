@@ -9,13 +9,10 @@ module Nanoci
     class TriggerEngine
       # Initializes new instance of [Nanoci::Core::TriggerEngine]
       # @param trigger_repository [Nanoci::TriggerRepository]
-      def initialize(trigger_repository)
-        @trigger_pulse_event = Nanoci::System::Event.new
+      # @param pipeline_engine [Nanoci::Core::PipelineEngine]
+      def initialize(trigger_repository, pipeline_engine)
         @trigger_repository = trigger_repository
-      end
-
-      def trigger_pulse
-        @trigger_pulse_event
+        @pipeline_engine = pipeline_engine
       end
 
       protected
@@ -33,7 +30,7 @@ module Nanoci
       end
 
       def run_cycle(cancellation_token)
-        while @trigger_pulse_event.subscribers? && due_triggers? && !cancellation_token.cancellation_requested?
+        while due_triggers? && !cancellation_token.cancellation_requested?
           trigger = read_and_lock_next_due_trigger
           next if trigger.nil?
 
@@ -43,8 +40,7 @@ module Nanoci
 
       def process_trigger(trigger)
         outputs = trigger.pulse
-        event_args = TriggerPulseEventArgs.new(trigger.project_tag, trigger.full_tag, outputs)
-        @trigger_pulse_event.invoke(self, event_args)
+        @pipeline_engine.stage_complete(trigger.project_tag, trigger.full_tag, outputs)
       ensure
         store_and_release_trigger trigger
       end
