@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'logging'
-
 require 'nanoci/core/job'
 require 'nanoci/core/stage_state'
 require 'nanoci/mixins/logger'

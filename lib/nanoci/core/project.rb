@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
-require 'logging'
-
 require 'nanoci'
 require 'nanoci/core/pipeline'
 require 'nanoci/core/repo'
+require 'nanoci/mixins/logger'
 
 module Nanoci
   module Core
     # Represents a project in nano-ci
     class Project
+      include Mixins::Logger
       # Storage specific unique Id
       attr_reader :id
 
@@ -28,7 +28,6 @@ module Nanoci
       # Initializes new instance of [Project]
       # @param source [Hash] Hash with data from DSL
       def initialize(name:, tag:, pipeline:, repos: [], plugins: {})
-        @log = Logging.logger[self]
         @name = name
         @tag = tag
         @repos = repos

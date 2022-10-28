@@ -1,14 +1,15 @@
 # frozen_string_literal: true
 
-require 'logging'
-
 require 'nanoci/config/ucs'
+require 'nanoci/mixins/logger'
 require 'nanoci/mixins/provides'
 
 module Nanoci
   module Core
     # Source control repository
     class Repo
+      include Mixins::Logger
+
       # Tag is an id used to identify repo of a project
       # Repo tag must be unique
       # @return [Symbol]
@@ -30,8 +31,6 @@ module Nanoci
 
       # Initializes new instance of Repo
       def initialize(tag:, type:, uri:, auth: nil)
-        @log = Logging.logger[self]
-
         @tag = tag.to_sym
         @type = type.to_sym
         @uri = uri

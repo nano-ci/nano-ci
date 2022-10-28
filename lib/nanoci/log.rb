@@ -1,21 +1,9 @@
 # frozen_string_literal: true
 
-require 'logging'
+require 'intake'
 
-layout = Logging.layouts.pattern(
-  pattern: '[%d] %-5l <%t> [%c] %m\n',
-  date_pattern: '%Y-%m-%d %H:%M:%S'
-)
-
-Logging.appenders.stdout(
-  layout: layout
-)
-
-root = Logging.logger.root
-# root.level = :info
-root.add_appenders(
-  Logging.appenders.stdout
-)
-
-build_job_logger = Logging.logger['Nanoci::BuildJob']
-build_job_logger.level = :debug
+TIMESTAMP_FORMAT = '%Y-%m-%dT%H:%M:%S.%6N'
+stdout_sink = Intake::IOSink.new($stdout)
+formatter = ->(e) { "#{e.level} #{e.timestamp.strftime(TIMESTAMP_FORMAT)} [#{e.logger_name}]: #{e.message}" }
+stdout_sink.formatter = formatter
+Intake.add_sink stdout_sink

@@ -1,14 +1,16 @@
 # frozen_string_literal: true
 
-require 'logging'
 require 'time'
 
 require 'nanoci/core/trigger'
+require 'nanoci/mixins/logger'
 
 module Nanoci
   module Triggers
     # IntervalTriggers pulses a new output on defined interval.
     class IntervalTrigger < Core::Trigger
+      include Mixins::Logger
+
       provides :interval
 
       # Initializes new instance of IntervalTrigger
@@ -16,7 +18,6 @@ module Nanoci
       def initialize(tag:, interval:)
         super(tag: tag)
         @interval = interval
-        @log = Logging.logger[self]
         @next_run_time = Time.now.utc + @interval
       end
 

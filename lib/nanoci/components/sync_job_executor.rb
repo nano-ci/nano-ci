@@ -16,7 +16,7 @@ module Nanoci
         job_outputs = command_host.run(inputs, prev_inputs)
         publish(project, stage, job, job_outputs)
       rescue StandardError => e
-        log.error e
+        log.error(error: e) { "failed to execute job <#{project}.#{stage}.#{job}>" }
       end
 
       # Enables plugins on command host

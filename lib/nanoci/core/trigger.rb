@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'logging'
-
 require 'nanoci/core/trigger_pulse_event_args'
 require 'nanoci/mixins/logger'
 require 'nanoci/mixins/provides'
