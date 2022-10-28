@@ -12,7 +12,7 @@ module Nanoci
       end
 
       def build
-        Nanoci::Core::Trigger.new(tag: @tag)
+        Nanoci::Core::Trigger.new(tag: @tag, project_tag: @project_tag)
       end
     end
   end
