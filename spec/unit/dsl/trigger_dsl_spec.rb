@@ -7,7 +7,7 @@ require 'nanoci/dsl/trigger_dsl'
 
 RSpec.describe Nanoci::DSL::TriggerDSL do
   it 'reads tag from DSL' do
-    dsl = Nanoci::DSL::TriggerDSL.new(:poll)
+    dsl = Nanoci::DSL::TriggerDSL.new(:poll, :project)
     # rubocop:disable Lint/EmptyBlock
     dsl.instance_eval do
     end

@@ -7,7 +7,7 @@ require 'nanoci/core/trigger'
 # Test trigger class
 class TestTrigger < Nanoci::Core::Trigger
   def invoke_pulse
-    on_pulse
+    pulse
   end
 end
 
@@ -17,48 +17,27 @@ RSpec.describe Nanoci::Core::Trigger do
   end
 
   it '#initialize sets #tag' do
-    trigger = Nanoci::Core::Trigger.new(tag: :'trigger-tag')
+    trigger = Nanoci::Core::Trigger.new(tag: :'trigger-tag', project_tag: :project)
     expect(trigger.tag).to be :'trigger-tag'
   end
 
   it '#full_tag returns fully formatted tag' do
-    trigger = Nanoci::Core::Trigger.new(tag: :'trigger-tag')
+    trigger = Nanoci::Core::Trigger.new(tag: :'trigger-tag', project_tag: :project)
     expect(trigger.full_tag).to be :'trigger.trigger-tag'
   end
 
-  it '#on_pulse invokes #pulse event' do
-    trigger = TestTrigger.new(tag: :'test-trigger')
+  it '#pulse returns outputs' do
+    trigger = TestTrigger.new(tag: :'test-trigger', project_tag: :project)
 
-    sender = nil
-    event_args = nil
-
-    trigger.pulse.attach do |s, e|
-      sender = s
-      event_args = e
-    end
-    trigger.invoke_pulse
-    expect(sender).to be trigger
-    expect(event_args).to be_a(Nanoci::Core::TriggerPulseEventArgs)
-  end
-
-  it '#on_pulse sets event args properties' do
-    trigger = TestTrigger.new(tag: :'test-trigger')
-
-    event_args = nil
-
-    trigger.pulse.attach do |_, e|
-      event_args = e
-    end
-    trigger.invoke_pulse
+    outputs = trigger.invoke_pulse
     time_now = Time.now.utc.iso8601
-    expect(event_args.trigger).to be(trigger)
-    expect(event_args.outputs).to be_a(Hash)
-    expect(event_args.outputs).to include(:'trigger.test-trigger.trigger_time')
-    expect(event_args.outputs[:'trigger.test-trigger.trigger_time']).to eq(time_now)
+    expect(outputs).to be_a(Hash)
+    expect(outputs).to include(:'trigger.test-trigger.trigger_time')
+    expect(outputs[:'trigger.test-trigger.trigger_time']).to eq(time_now)
   end
 
   it '#run does not throw errors' do
-    trigger = Nanoci::Core::Trigger.new(tag: :trigger)
+    trigger = Nanoci::Core::Trigger.new(tag: :trigger, project_tag: :project)
     expect { trigger.run }.to_not raise_error
   end
 end
