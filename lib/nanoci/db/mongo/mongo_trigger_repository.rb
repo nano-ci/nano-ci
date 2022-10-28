@@ -5,6 +5,7 @@ require_relative '../../trigger_repository'
 module Nanoci
   module DB
     module Mongo
+      # Implements TriggerRepository. Stores data in MongoDB
       class MongoTriggerRepository < TriggerRepository
         TRIGGERS_COLLECTION = :triggers
 
@@ -37,12 +38,7 @@ module Nanoci
         end
 
         def find_and_lock_due_doc(now_timestamp, state)
-          query = {
-            next_run_time: {
-              '$lte': now_timestamp
-            },
-            FIELD_LOCK => state
-          }
+          query = { next_run_time: { '$lte': now_timestamp }, FIELD_LOCK => state }
           update = {
             '$set': {
               FIELD_LOCK => LOCK_EXECUTING,

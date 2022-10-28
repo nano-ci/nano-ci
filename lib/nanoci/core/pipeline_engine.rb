@@ -22,7 +22,7 @@ module Nanoci
       def start
         log.info 'starting the pipeline engine...'
 
-        @trigger_engine_pulse_token = @trigger_engine.trigger_pulse.attach do |s, e|
+        @trigger_engine_pulse_token = @trigger_engine.trigger_pulse.attach do |_, e|
           on_trigger_pulse(e.project_tag, e.trigger_tag, e.outputs)
         end
 
@@ -32,7 +32,7 @@ module Nanoci
       def stop
         log.info 'stopping the pipeline engine...'
 
-        @trigger_engine.trigger_engine.detach(@trigger_engine_pulse_token) unless @trigger_engine_pulse_token.nil?
+        @trigger_engine.trigger_pulse.detach(@trigger_engine_pulse_token) unless @trigger_engine_pulse_token.nil?
 
         log.info 'the pipeline engine is stopped'
       end
