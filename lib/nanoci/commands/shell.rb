@@ -15,7 +15,6 @@ module Nanoci
       end
 
       def run(line)
-        log.info("shell: #{line}")
         @host.execute_shell(line)
       end
     end
