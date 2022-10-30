@@ -44,7 +44,7 @@ GEM
     immutable-ruby (0.1.0)
       concurrent-ruby (~> 1.1)
       sorted_set (~> 1.0)
-    intake (0.2.0)
+    intake (0.3.0)
       concurrent-ruby (~> 1.1.0)
       concurrent-ruby-ext (~> 1.1.0)
       immutable-ruby (~> 0.1.0)
