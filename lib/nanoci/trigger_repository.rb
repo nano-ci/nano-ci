@@ -33,20 +33,20 @@ module Nanoci
       trigger.memento = trigger_memento
     end
 
-    def read_and_lock_next_due_trigger(now_timestamp)
-      doc = find_and_lock_due_doc(now_timestamp, LOCK_WAITING)
-      return if doc.nil?
+    def read_and_lock_next_due_trigger(due_ts:, projects:)
+      doc = find_and_lock_due_doc(due_ts: due_ts, projects: projects, state: LOCK_WAITING)
+      return nil if doc.nil?
 
       hydrate_trigger(doc_to_memento(doc))
     end
 
-    def update_and_release_trigger(trigger)
+    def update_and_release_trigger(trigger:)
       memento = trigger.memento
       update_and_release_doc(memento[:id], memento_to_doc(memento))
     end
 
-    def due_triggers?(now_timestamp)
-      @triggers.any? { |t| t[:next_run_time] < now_timestamp && t[FIELD_LOCK] == LOCK_WAITING }
+    def due_triggers?(due_ts:, projects:)
+      @triggers.any? { |t| trigger_due?(trigger: t, due_ts: due_ts, projects: projects, state: LOCK_WAITING) }
     end
 
     protected
@@ -69,8 +69,8 @@ module Nanoci
       @triggers.find { |t| t[:tag] == tag }
     end
 
-    def find_and_lock_due_doc(now_timestamp, state)
-      doc = @triggers.find { |t| t[:next_run_time] < now_timestamp && t[FIELD_LOCK] == state }
+    def find_and_lock_due_doc(due_ts:, projects:, state:)
+      doc = @triggers.find { |t| trigger_due?(trigger: t, due_ts: due_ts, projects: projects, state: state) }
       return nil if doc.nil?
 
       doc[FIELD_LOCK] = LOCK_EXECUTING
@@ -89,6 +89,10 @@ module Nanoci
       doc[:_id] = @counter
       @counter += 1
       @triggers.push doc
+    end
+
+    def trigger_due?(trigger:, due_ts:, projects:, state:)
+      trigger[:next_run_time] < due_ts && projects.include?(trigger[:project_tag]) && trigger[FIELD_LOCK] == state
     end
 
     def hydrate_trigger(memento)
