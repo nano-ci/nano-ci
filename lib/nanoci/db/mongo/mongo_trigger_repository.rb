@@ -14,13 +14,8 @@ module Nanoci
           @client = client
         end
 
-        def due_triggers?(now_timestamp)
-          query = {
-            next_run_time: {
-              '$lte': now_timestamp
-            },
-            FIELD_LOCK => LOCK_WAITING
-          }
+        def due_triggers?(due_ts:, projects:)
+          query = build_due_triggers_query(due_ts: due_ts, projects: projects, state: LOCK_WAITING)
           @client[TRIGGERS_COLLECTION].find(query).count.positive?
         end
 
@@ -37,8 +32,8 @@ module Nanoci
           docs.first
         end
 
-        def find_and_lock_due_doc(now_timestamp, state)
-          query = { next_run_time: { '$lte': now_timestamp }, FIELD_LOCK => state }
+        def find_and_lock_due_doc(due_ts:, projects:, state:)
+          query = build_due_triggers_query(due_ts: due_ts, projects: projects, state: state)
           update = {
             '$set': {
               FIELD_LOCK => LOCK_EXECUTING,
@@ -63,6 +58,18 @@ module Nanoci
           result = @client[TRIGGERS_COLLECTION].insert_one(doc)
           doc[:_id] = result.inserted_id if result.successful?
           doc
+        end
+
+        def build_due_triggers_query(due_ts:, projects:, state:)
+          {
+            next_run_time: {
+              '$lte': due_ts
+            },
+            project_tag: {
+              '$in': projects
+            },
+            FIELD_LOCK => state
+          }
         end
       end
     end
