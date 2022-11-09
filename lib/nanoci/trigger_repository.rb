@@ -22,7 +22,7 @@ module Nanoci
 
     def add(trigger)
       trigger_memento = trigger.memento
-      doc = find_by_tag(trigger_memento[:tag])
+      doc = find_by_tag(trigger_memento[:project_tag], trigger_memento[:tag])
       if doc.nil?
         trigger_memento[FIELD_LOCK] = LOCK_WAITING
         trigger_memento[FIELD_LOCK_EXPIRES] = nil
@@ -65,8 +65,8 @@ module Nanoci
       memento
     end
 
-    def find_by_tag(tag)
-      @triggers.find { |t| t[:tag] == tag }
+    def find_by_tag(project_tag, tag)
+      @triggers.find { |t| t[:project_tag] == project_tag && t[:tag] == tag }
     end
 
     def find_and_lock_due_doc(due_ts:, projects:, state:)

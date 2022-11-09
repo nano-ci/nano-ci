@@ -21,9 +21,9 @@ module Nanoci
 
         protected
 
-        def find_by_tag(tag)
+        def find_by_tag(project_tag, tag)
           docs = []
-          @client[TRIGGERS_COLLECTION].find(tag: tag).each do |d|
+          @client[TRIGGERS_COLLECTION].find(project_tag: project_tag, tag: tag).each do |d|
             docs.push(d)
           end
 
