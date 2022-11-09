@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 require 'simplecov'
-SimpleCov.start
+SimpleCov.start do
+  enable_coverage :branch
+end
 
 require 'bundler/setup'
 # require 'rspec/logging_helper'
@@ -23,8 +25,4 @@ RSpec.configure do |config|
 
   # include RSpec::LoggingHelper
   # config.capture_log_messages
-end
-
-SimpleCov.configure do
-  add_filter 'spec'
 end

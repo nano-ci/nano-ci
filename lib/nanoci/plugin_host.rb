@@ -22,6 +22,7 @@ module Nanoci
 
       # TODO: implement proper plugin discovery process
       load_plugin(:'command.git', 'lib/nanoci/plugins/git')
+      load_plugin(:'command.ruby', 'lib/nanoci/plugins/ruby')
     end
 
     # Returns plugin with given tag
