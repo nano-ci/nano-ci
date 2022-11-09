@@ -67,6 +67,11 @@ module Nanoci
           run_git('clone', "#{repo.uri} #{args}")
         end
 
+        def ls_remote(repo, args = '')
+          result = run_git('ls-remote', "#{repo.uri} #{args}")
+          result.stdout.split("\n").to_h { |v| v.split("\t").reverse }
+        end
+
         def method_missing(method_name, *args, &_block)
           return unless GitCommand.commands.include?(method_name.to_sym)
 
