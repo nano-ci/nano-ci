@@ -46,9 +46,10 @@ module Nanoci
     # Executes passed command line
     def execute_shell(line)
       job_work_dir = work_dir(@stage, @job)
-      log.debug { "shell: \"#{line}\" at \"#{job_work_dir}\" "}
+      job_env = env(@job)
+      log.debug { "shell: \"#{line}\" at \"#{job_work_dir}\"" }
       FileUtils.mkpath job_work_dir
-      tool = ToolProcess.run("sh -c \"#{line}\"", chdir: job_work_dir).wait
+      tool = ToolProcess.run("sh -c \"#{line}\"", chdir: job_work_dir, env: job_env).wait
       log.debug { "shell: exit code - #{tool.status_code}" }
       Commands::CommandOutput.new(tool.status_code, tool.output, tool.error)
     end
@@ -81,6 +82,19 @@ module Nanoci
     # @param job [Nanoci::Job]
     def work_dir(stage, job)
       File.join(@root_work_dir, stage.tag.to_s, job.tag.to_s, job.work_dir)
+    end
+
+    def env(job)
+      job_env = job.env
+
+      job_env = case job_env
+                when nil then nil
+                when Hash then job_env
+                when Proc then job_env.call
+                end
+      raise 'env is not a Hash' unless job_env.nil? || job_env.is_a?(Hash)
+
+      job_env
     end
   end
 end

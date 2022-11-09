@@ -15,6 +15,9 @@ module Nanoci
       # @return [Proc]
       attr_reader :body
 
+      # @return [Hash|Proc]
+      attr_reader :env
+
       attr_reader :state
 
       # Gets status of the most recent job run
@@ -34,11 +37,13 @@ module Nanoci
       # Initializes new instance of [Job]
       # @param tag [Symbol] The job tag
       # @param body [Block] The job body block
-      # @param work_dir [String] The job work dir relative to build path.
-      def initialize(tag:, body:, work_dir: '.')
+      # @param work_dir [String] The job work dir relative to build path
+      # @param env [Hash|Proc] Job environment variables. Can be either a hash or proc that returns a hash
+      def initialize(tag:, body:, work_dir: '.', env: nil)
         @tag = tag&.to_sym
         @work_dir = work_dir
         @body = body
+        @env = env
         @state = State::IDLE
         @outputs = {}
       end

@@ -6,10 +6,11 @@ module Nanoci
   module DSL
     # JobDSL class contains methods to support nano-ci DSL
     class JobDSL
-      def initialize(component_factory, tag, work_dir: '.', &block)
+      def initialize(component_factory, tag, work_dir: '.', env: nil, &block)
         @component_factory = component_factory
         @tag = tag
         @work_dir = work_dir
+        @env = env
         @block = block
       end
 
@@ -17,7 +18,8 @@ module Nanoci
         Core::Job.new(
           tag: @tag,
           body: @block,
-          work_dir: @work_dir
+          work_dir: @work_dir,
+          env: @env
         )
       end
     end
