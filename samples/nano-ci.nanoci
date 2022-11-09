@@ -1,35 +1,37 @@
-name: nano-ci
-tag: nano-ci
-repos:
-  - tag: main-repo
-    type: git
-    src: git@bitbucket.org:thevk/nano-ci.git
-    auth:
-      ssh: c:/nano-ci/nanoci.ppk
-pipeline:
-  triggers:
-    - tag: trigger-pipeline
-      type: schedule
-      schedule: "0 0 1 ? * 1#2"
-  stages:
-    - tag: build
-      inputs:
-        - main-repo-head
-      jobs:
-        - tag: checkout
-          tasks:
-            - type: source-control
-              action: checkout
-              repo: main-repo
-            - type: test-rspec
-  links:
-    - "trigger-pipeline -> build"
-reporters:
-  - type: email
-    what: all
-    recipients:
-      - the_vk@thevk.net
-  - type: email
-    what: fail
-    recipients:
-      - the_vk@thevk.net
+# frozen_string_literal: true
+
+project :'nano-ci', 'main nano-ci project' do
+  plugin :'command.git', '0.1.0'
+  plugin :'command.ruby', '0.1.0'
+
+  repo :sample do
+    type :git
+    uri 'https://github.com/nano-ci/nano-ci.git'
+  end
+
+  pipeline :pipeline, 'nano-ci build pipeline' do
+    trigger :pipeline_trigger, :interval do
+      interval 5
+    end
+
+    stage :sense_tree_head do
+      job :sense do
+        refs = git.ls_remote repos.sample
+        {
+          :'git.heads.main' => refs['refs/heads/main']
+        }
+      end
+    end
+
+    stage :build, inputs: [:'git.heads.main'] do
+      job :build_job, work_dir: '.', env: -> { ENV.to_h } do |inputs|
+        shell.run 'rm -Rf ./*'
+        git.clone repos.sample, inputs[:'git.heads.main']
+        ruby.rspec.run
+        {}
+      end
+    end
+
+    pipe :'trigger.pipeline_trigger' >> :sense_tree_head >> :build
+  end
+end

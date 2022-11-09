@@ -1,4 +1,4 @@
-project :'nano-ci', 'main nano-ci project' do
+project :'debug-sample', 'main nano-ci project' do
   plugin :'command.git', '0.1.0'
 
   repo :sample do

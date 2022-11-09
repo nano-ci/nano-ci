@@ -14,6 +14,16 @@
 				"--config=samples/config-debug.yml"
 			]
 		},
+		{
+			"name": "Debug - nano-ci",
+			"type": "rdbg",
+			"request": "launch",
+			"script": "${workspaceRoot}/bin/nano-ci",
+			"args": [
+				"--project=samples/nano-ci.nanoci",
+				"--config=samples/config-debug.yml"
+			]
+		},
         {
 			"name": "RSpec - all",
 			"type": "rdbg",
