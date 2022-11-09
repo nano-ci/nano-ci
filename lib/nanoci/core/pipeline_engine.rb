@@ -55,7 +55,7 @@ module Nanoci
       def run_stage(project, stage, next_inputs)
         jobs = stage.run(next_inputs)
         @project_repository.save_stage(project, stage)
-        run_jobs(jobs, project, stage, stage.inputs, stage.prev_inputs)
+        run_jobs(jobs, project, stage, stage.inputs, stage.prev_inputs) unless jobs.nil?
       end
 
       def run_jobs(jobs, project, stage, inputs, prev_inputs)
