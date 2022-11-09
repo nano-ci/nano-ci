@@ -10,7 +10,7 @@ module Nanoci
       include Nanoci::Mixins::Logger
 
       def schedule_job_execution(project, stage, job, inputs, prev_inputs)
-        log.info("executing job #{job}")
+        log.info("executing job #{job} with inputs #{inputs}")
         command_host = CommandHost.new(project, stage, job)
         enable_plugins(project, command_host)
         job_outputs = command_host.run(inputs, prev_inputs)
