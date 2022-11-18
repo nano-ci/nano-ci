@@ -83,9 +83,7 @@ module Nanoci
       end
 
       def load_plugins(plugins_path)
-        log.debug "loading plugins from #{plugins_path}..."
-        # TODO: pass plugins_path to PluginHost
-        PluginHost.new
+        PluginHost.new(plugins_path: plugins_path)
       end
 
       # Reads project from the file

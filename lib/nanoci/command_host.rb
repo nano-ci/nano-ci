@@ -18,12 +18,13 @@ module Nanoci
     # @param project [Nanoci::Project]
     # @param stage [Nanoci::Stage]
     # @param job [Nanoci::Job]
-    def initialize(project, stage, job)
+    # @param extension_point [Nanoci::Plugins::ExtensionPoint]
+    def initialize(project, stage, job, extension_point)
       @root_work_dir = Config::UCS.instance.build_data_dir
       @project = project
       @stage = stage
       @job = job
-      @plugins = []
+      @extension_point = extension_point
     end
 
     def enable_plugin(plugin)
@@ -55,16 +56,15 @@ module Nanoci
     end
 
     def method_missing(method_name, *args, &block)
-      plugin = @plugins.select { |i| i.respond_to? method_name }.first
+      proc = @extension_point.find_command(method_name)
+      raise "command #{method_name} not found" if proc.nil?
+
       args.unshift(self, project)
-      plugin.send(method_name, *args, &block)
+      proc.call(*args, &block)
     end
 
     def respond_to_missing?(method_name, include_private)
-      @plugins.each do |i|
-        return true if i.respond_to?(method_name, include_private)
-      end
-      super
+      @extension_point.command?(method_name) || super
     end
 
     private
