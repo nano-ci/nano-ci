@@ -30,6 +30,14 @@ project :'nano-ci', 'main nano-ci project' do
         ruby.rspec.run
         {}
       end
+
+      after_failure do |inputs|
+        # email.send subject: 'stage failed', body: 'nano-ci stage failed', to: 'nano-ci-dev@nanoci.cloud'
+      end
+    end
+
+    after_failure do |inputs|
+      # email.send subject: 'stage failed', body: 'nano-ci stage failed', to: 'nano-ci-dev@nanoci.cloud'
     end
 
     pipe :'trigger.pipeline_trigger' >> :sense_tree_head >> :build
