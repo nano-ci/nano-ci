@@ -104,7 +104,7 @@ RSpec.describe Nanoci::Core::Pipeline do
       jobs: []
     )
 
-    expect { Nanoci::Core::Pipeline.new(tag: :p, name: 'p', triggers: [], stages: [stage_a, stage_b], pipes: {}) }.
-      to raise_error(ArgumentError)
+    expect { Nanoci::Core::Pipeline.new(tag: :p, name: 'p', triggers: [], stages: [stage_a, stage_b], pipes: {}) }
+      .to raise_error(ArgumentError)
   end
 end

@@ -26,7 +26,7 @@ module Nanoci
       # @param job [Nanoci::Core::Job]
       # @param inputs [Hash]
       # @param prev_inputs [Hash]
-      def schedule_job_execution(project, stage, job, inputs, prev_inputs)
+      def schedule_job_execution(_project, _stage, _job, _inputs, _prev_inputs)
         raise 'method #schedule_job_execution should be implemented in subclass'
       end
 

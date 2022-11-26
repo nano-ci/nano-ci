@@ -79,7 +79,7 @@ module Nanoci
         @jobs
       end
 
-      def job_complete(job)
+      def job_complete(_job)
         finalize if jobs_idle?
       end
 

@@ -22,6 +22,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.metadata['allowed_push_host'] = "TODO: Set to 'http://mygemserver.com'"
+  spec.metadata['rubygems_mfa_required'] = 'true'
 
   spec.add_runtime_dependency 'bundler', '~> 2.0'
   spec.add_runtime_dependency 'concurrent-ruby', '~> 1.0'

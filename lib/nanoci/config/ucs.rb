@@ -112,7 +112,7 @@ module Nanoci
         if match.nil? || ENV[match[1]].nil?
           name
         else
-          name.sub("${#{match[1]}}", ENV[match[1]])
+          name.sub("${#{match[1]}}", ENV.fetch(match[1], nil))
         end
       end
 

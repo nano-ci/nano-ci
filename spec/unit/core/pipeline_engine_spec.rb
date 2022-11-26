@@ -43,7 +43,7 @@ RSpec.describe Nanoci::Core::PipelineEngine do
   end
 
   it '#job_complete finalizes job and stage if all jobs are done' do
-    job = Nanoci::Core::Job.new(tag: :job_tab, body: -> { })
+    job = Nanoci::Core::Job.new(tag: :job_tab, body: -> {})
 
     stage_a = Nanoci::Core::Stage.new(
       tag: :stage_tag,
@@ -78,8 +78,8 @@ RSpec.describe Nanoci::Core::PipelineEngine do
   end
 
   it '#job_complete does not finalizes job and stage if not all jobs are done' do
-    job_a = Nanoci::Core::Job.new(tag: :job_idle, body: -> { })
-    job_b = Nanoci::Core::Job.new(tag: :job_running, body: -> { })
+    job_a = Nanoci::Core::Job.new(tag: :job_idle, body: -> {})
+    job_b = Nanoci::Core::Job.new(tag: :job_running, body: -> {})
 
     stage_a = Nanoci::Core::Stage.new(
       tag: :stage_tag,

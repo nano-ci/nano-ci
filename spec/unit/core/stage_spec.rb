@@ -78,7 +78,7 @@ RSpec.describe Nanoci::Core::Stage do
     stage.memento = memento
     stage.run({ abc: 2, def: 3 })
     expect(stage.prev_inputs).to include({ abc: 1 })
-    expect(stage.inputs).to include({ aaa: 1, abc: 2, def: 3})
+    expect(stage.inputs).to include({ aaa: 1, abc: 2, def: 3 })
   end
 
   it '#run sets state to RUNNING' do
