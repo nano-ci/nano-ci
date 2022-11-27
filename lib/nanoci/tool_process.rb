@@ -111,7 +111,7 @@ module Nanoci
     def read(from)
       from.read_nonblock(1024)
     rescue IO::WaitReadable
-      IO.select([from])
+      from.wait_readable
       retry
     rescue EOFError
       false
@@ -121,7 +121,7 @@ module Nanoci
       to.write(buf)
       true
     rescue IO::WaitWritable
-      IO.select(nil, [to])
+      to.wait_writable
       retry
     rescue EOFError
       false

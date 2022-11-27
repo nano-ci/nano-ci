@@ -27,18 +27,24 @@ module Nanoci
       # @return [Hash{Symbol => Array<Symbol>}]
       attr_reader :pipes
 
+      # Hash of pipeline hooks
+      # @return [Hash{Symbol => Proc}]
+      attr_reader :hooks
+
       # Initializes new instance of Pipeline
       # @param tag [Symbol] Pipeline tag
       # @param name [String] Pipeline name
       # @param triggers [Array<Trigger>] Array of pipeline triggers
       # @param stages [Array<Stage>] Array of pipeline stages
       # @param pipes [Hash{Symbol -> Array<Symbol>}] Hash of pipeline pipes
-      def initialize(tag:, name:, triggers:, stages:, pipes:)
+      # @param hooks [Hash{Symbol -> Proc}] Hash of pipeline hooks
+      def initialize(tag:, name:, triggers:, stages:, pipes:, hooks:) # rubocop:disable Metrics/ParameterLists All 6 arguments are required to set initial object state
         @tag = tag
         @name = name
         @triggers = triggers
         @stages = stages
         @pipes = pipes
+        @hooks = hooks
 
         validate
       end
@@ -54,6 +60,7 @@ module Nanoci
         validate_triggers
         validate_stages
         validate_pipes
+        validate_hooks
       end
 
       def find_stage(tag)
@@ -126,6 +133,10 @@ module Nanoci
         value.each do |ps|
           raise ArgumentError, "stage #{ps} does not exist" if find_stage(ps).nil?
         end
+      end
+
+      def validate_hooks
+        raise ArgumentError, 'hooks is nil' if hooks.nil?
       end
     end
   end

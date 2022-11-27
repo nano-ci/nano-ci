@@ -13,15 +13,25 @@ module Nanoci
 
       def schedule_job_execution(project, stage, job, inputs, prev_inputs)
         log.info("executing job #{job} with inputs #{inputs}")
-        extension_point = build_extension_point(project)
-        command_host = CommandHost.new(project, stage, job, extension_point)
-        job_outputs = command_host.run(inputs, prev_inputs)
-        publish(project, stage, job, job_outputs)
+        job_outputs = execute_job(project, stage, job, inputs, prev_inputs)
+        job_succeeded(project, stage, job, job_outputs)
       rescue StandardError => e
-        log.error(error: e) { "failed to execute job <#{project}.#{stage}.#{job}>" }
+        job_failed(project, stage, job, {}, e)
+      end
+
+      def schedule_hook_execution(project, stage, job, inputs, prev_inputs)
+        execute_job(project, stage, job, inputs, prev_inputs)
+      rescue StandardError => e
+        log.error(error: e) { "failed to execute hook #{job}" }
       end
 
       private
+
+      def execute_job(project, stage, job, inputs, prev_inputs)
+        extension_point = build_extension_point(project)
+        command_host = CommandHost.new(project, stage, job, extension_point)
+        command_host.run(inputs, prev_inputs)
+      end
 
       # Builds extension point with plugins requested by the project
       # @param project [Nanoci::Core::Project]
