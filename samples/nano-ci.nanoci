@@ -31,12 +31,14 @@ project :'nano-ci', 'main nano-ci project' do
         {}
       end
 
-      after_failure do |inputs|
-        # email.send subject: 'stage failed', body: 'nano-ci stage failed', to: 'nano-ci-dev@nanoci.cloud'
-      end
+      # after_failure do |inputs|
+      #   puts 'job failed, running stage after_failure hook'
+      #   # email.send subject: 'stage failed', body: 'nano-ci stage failed', to: 'nano-ci-dev@nanoci.cloud'
+      # end
     end
 
     after_failure do |inputs|
+      puts 'job failed, running pipeline after_failure hook'
       # email.send subject: 'stage failed', body: 'nano-ci stage failed', to: 'nano-ci-dev@nanoci.cloud'
     end
 

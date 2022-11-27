@@ -12,6 +12,8 @@ module Nanoci
     class Stage
       include Nanoci::Mixins::Logger
 
+      STAGE_HOOKS = %i[after_failure].freeze
+
       # @return [Symbol]
       attr_reader :tag
 
@@ -38,10 +40,11 @@ module Nanoci
       # @param inputs [Array<Symbol>] Array of triggering inputs
       # @param jobs [Array<Job>] Array of stage jobs
       # @return [Stage]
-      def initialize(tag:, inputs:, jobs:)
+      def initialize(tag:, inputs:, jobs:, hooks:)
         @tag = tag
         @triggering_inputs = inputs
         @jobs = jobs
+        @hooks = hooks
         @inputs = {}
         @prev_inputs = {}
         @outputs = {}
@@ -113,6 +116,15 @@ module Nanoci
           outputs: @outputs,
           pending_outputs: @pending_outputs
         }
+      end
+
+      STAGE_HOOKS.each do |hook|
+        code = <<-CODE
+          def hook_#{hook}
+            @hooks.fetch(:#{hook}, nil)
+          end
+        CODE
+        class_eval(code)
       end
 
       def memento=(memento)

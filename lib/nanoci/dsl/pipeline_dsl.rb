@@ -25,6 +25,7 @@ module Nanoci
         @triggers = []
         @stages = []
         @pipes = []
+        @hooks = {}
       end
 
       # Defines a pipeline trigger
@@ -52,13 +53,24 @@ module Nanoci
         @pipes.push(pipe)
       end
 
+      %i[after_failure].each do |hook|
+        code = <<-CODE
+          def #{hook}(&block)
+            raise 'pipeline hook #{hook} is missing block' if block.nil?
+            @hooks[:#{hook}] = block
+          end
+        CODE
+        class_eval(code)
+      end
+
       def build
         Core::Pipeline.new(
           tag: @tag,
           name: @name,
           triggers: @triggers.collect(&:build),
-          stages: @stages.collect(&:build),
-          pipes: read_pipes(@pipes)
+          stages: @stages.collect { |x| x.build(@hooks) },
+          pipes: read_pipes(@pipes),
+          hooks: @hooks
         )
       end
 

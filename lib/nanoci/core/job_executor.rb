@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'nanoci/core/job_complete_event_args'
+require 'nanoci/mixins/logger'
 require 'nanoci/not_implemented_error'
 require 'nanoci/system/event'
 
@@ -8,6 +9,8 @@ module Nanoci
   module Core
     # Executes jobs
     class JobExecutor
+      include Nanoci::Mixins::Logger
+
       # Job complete event
       # @return [Nanoci::System::Event]
       attr_accessor :job_complete
@@ -30,10 +33,31 @@ module Nanoci
         raise 'method #schedule_job_execution should be implemented in subclass'
       end
 
+      def schedule_hook_execution(_project, _stage, _job, _inputs, _prev_inputs)
+        raise 'method #schedule_hook_execution should be implemented in subclass'
+      end
+
       protected
 
-      def publish(project, stage, job, outputs)
+      def job_succeeded(project, stage, job, outputs)
         @job_complete.invoke(self, JobCompleteEventArgs.new(project.tag, stage.tag, job.tag, outputs))
+      end
+
+      # Job failure handler
+      # @param project [Nanoci::Core::Project]
+      # @param stage [Nanoci::Core::Stage]
+      # @param job [Nanoci::Core::Job]
+      # @param outputs [Hash]
+      # @param error [StandardError]
+      def job_failed(project, stage, job, _outputs, error)
+        log.error(error: error) { "failed to execute job <#{project}.#{stage}.#{job}>" }
+        after_failure_hook = stage.hook_after_failure
+        return if after_failure_hook.nil?
+
+        log.debug { "job #{job} has hook <after_failure>. running the hook..." }
+        hook_job_tag = "#{job.tag}_hook_after_failure".to_sym
+        hook_job = Job.new(tag: hook_job_tag, body: after_failure_hook, work_dir: job.work_dir, env: job.env)
+        schedule_hook_execution(project, stage, hook_job, {}, {})
       end
     end
   end
