@@ -21,7 +21,8 @@ RSpec.describe Nanoci::Core::PipelineEngine do
       name: 'pipe name',
       triggers: [],
       stages: [],
-      pipes: {}
+      pipes: {},
+      hooks: {}
     )
     expect(pipeline).to receive(:validate)
     project = Nanoci::Core::Project.new(name: 'abc', tag: :def, pipeline: pipeline)
@@ -48,14 +49,16 @@ RSpec.describe Nanoci::Core::PipelineEngine do
     stage_a = Nanoci::Core::Stage.new(
       tag: :stage_tag,
       inputs: [],
-      jobs: [job]
+      jobs: [job],
+      hooks: {}
     )
     pipeline = Nanoci::Core::Pipeline.new(
       tag: :pipe_tag,
       name: 'pipe name',
       triggers: [],
       stages: [stage_a],
-      pipes: {}
+      pipes: {},
+      hooks: {}
     )
     project = Nanoci::Core::Project.new(name: 'proj', tag: :tag, pipeline: pipeline)
 
@@ -84,14 +87,16 @@ RSpec.describe Nanoci::Core::PipelineEngine do
     stage_a = Nanoci::Core::Stage.new(
       tag: :stage_tag,
       inputs: [],
-      jobs: [job_a, job_b]
+      jobs: [job_a, job_b],
+      hooks: {}
     )
     pipeline = Nanoci::Core::Pipeline.new(
       tag: :pipe_tag,
       name: 'pipe name',
       triggers: [],
       stages: [stage_a],
-      pipes: {}
+      pipes: {},
+      hooks: {}
     )
     project = Nanoci::Core::Project.new(name: 'proj', tag: :tag, pipeline: pipeline)
 
@@ -122,7 +127,8 @@ RSpec.describe Nanoci::Core::PipelineEngine do
       name: 'pipeline name',
       triggers: [trigger],
       stages: [stage],
-      pipes: { 'trigger.test_trigger': [:stage_tag] }
+      pipes: { 'trigger.test_trigger': [:stage_tag] },
+      hooks: {}
     )
 
     project = Nanoci::Core::Project.new(name: 'proj', tag: :tag, pipeline: pipeline)

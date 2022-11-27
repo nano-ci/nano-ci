@@ -7,7 +7,7 @@ require 'nanoci/core/job_executor'
 # JobExecutor implementation for tests
 class TestJobExecutor < Nanoci::Core::JobExecutor
   def raise_publish(project, stage, job, outputs)
-    publish(project, stage, job, outputs)
+    job_succeeded(project, stage, job, outputs)
   end
 end
 

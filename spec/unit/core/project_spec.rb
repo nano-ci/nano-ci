@@ -13,7 +13,8 @@ RSpec.describe Nanoci::Core::Project do
       name: 'name',
       triggers: [],
       stages: [],
-      pipes: {}
+      pipes: {},
+      hooks: {}
     )
   end
 
@@ -34,7 +35,8 @@ RSpec.describe Nanoci::Core::Project do
       name: 'pipeline name',
       triggers: [],
       stages: [],
-      pipes: {}
+      pipes: {},
+      hooks: {}
     )
     project = Nanoci::Core::Project.new(
       tag: :'project-tag',

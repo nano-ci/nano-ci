@@ -11,7 +11,8 @@ RSpec.describe Nanoci::Core::Pipeline do
       name: 'pipe name',
       triggers: [],
       stages: [],
-      pipes: {}
+      pipes: {},
+      hooks: {}
     )
 
     expect(pipeline.tag).to eq :pipe_tag
@@ -23,7 +24,8 @@ RSpec.describe Nanoci::Core::Pipeline do
       name: 'pipe name',
       triggers: [],
       stages: [],
-      pipes: {}
+      pipes: {},
+      hooks: {}
     )
 
     expect(pipeline.name).to eq 'pipe name'
@@ -35,7 +37,8 @@ RSpec.describe Nanoci::Core::Pipeline do
       name: 'pipe name',
       triggers: [],
       stages: [],
-      pipes: {}
+      pipes: {},
+      hooks: {}
     )
 
     expect(pipeline.name).to eq 'pipe name'
@@ -45,7 +48,8 @@ RSpec.describe Nanoci::Core::Pipeline do
     stage = Nanoci::Core::Stage.new(
       tag: :stage_tag,
       inputs: [],
-      jobs: []
+      jobs: [],
+      hooks: {}
     )
 
     pipeline = Nanoci::Core::Pipeline.new(
@@ -53,7 +57,8 @@ RSpec.describe Nanoci::Core::Pipeline do
       name: 'pipe name',
       triggers: [],
       stages: [stage],
-      pipes: {}
+      pipes: {},
+      hooks: {}
     )
 
     expect(pipeline.stages).to include stage
@@ -67,7 +72,8 @@ RSpec.describe Nanoci::Core::Pipeline do
       name: 'pipe name',
       triggers: [trigger],
       stages: [],
-      pipes: {}
+      pipes: {},
+      hooks: {}
     )
 
     expect(pipeline.triggers).to include trigger
@@ -78,7 +84,8 @@ RSpec.describe Nanoci::Core::Pipeline do
     stage = Nanoci::Core::Stage.new(
       tag: :stage_tag,
       inputs: [],
-      jobs: []
+      jobs: [],
+      hooks: {}
     )
 
     pipeline = Nanoci::Core::Pipeline.new(
@@ -86,7 +93,8 @@ RSpec.describe Nanoci::Core::Pipeline do
       name: 'pipe name',
       triggers: [trigger],
       stages: [stage],
-      pipes: { 'trigger.trigger_tag': [:stage_tag] }
+      pipes: { 'trigger.trigger_tag': [:stage_tag] },
+      hooks: {}
     )
 
     expect(pipeline.pipes).to include({ 'trigger.trigger_tag': [:stage_tag] })
@@ -96,15 +104,19 @@ RSpec.describe Nanoci::Core::Pipeline do
     stage_a = Nanoci::Core::Stage.new(
       tag: :stage_tag,
       inputs: [],
-      jobs: []
+      jobs: [],
+      hooks: {}
     )
     stage_b = Nanoci::Core::Stage.new(
       tag: :stage_tag,
       inputs: [],
-      jobs: []
+      jobs: [],
+      hooks: {}
     )
 
-    expect { Nanoci::Core::Pipeline.new(tag: :p, name: 'p', triggers: [], stages: [stage_a, stage_b], pipes: {}) }
+    stages = [stage_a, stage_b]
+
+    expect { Nanoci::Core::Pipeline.new(tag: :p, name: 'p', triggers: [], stages: stages, pipes: {}, hooks: {}) }
       .to raise_error(ArgumentError)
   end
 end
