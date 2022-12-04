@@ -38,7 +38,7 @@ module Nanoci
     # @return [Class] class implementing the resource
     def get(key)
       key = key.to_sym
-      item = @map_stack.reverse.map { |x| x[key] }.reject(&:nil?).first
+      item = @map_stack.reverse.map { |x| x[key] }.compact.first
       raise "missing resource #{key}" if item.nil?
 
       item
