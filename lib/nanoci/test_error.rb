@@ -8,7 +8,8 @@ module Nanoci
 
     def initialize(failed_tests)
       @failed_tests = failed_tests
-      msg = "failed tests:\n" + @failed_tests.map { |t| "  #{t.tag}" }.join("\n")
+      error_lines = @failed_tests.map { |t| "  #{t.tag}" }.join("\n")
+      msg = "failed tests:\n#{error_lines}"
       super(msg)
     end
   end
