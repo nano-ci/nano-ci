@@ -30,27 +30,21 @@ module Nanoci
     # Initializes new instance of [ToolProcess]
     # @param cmd [String] command to execute
     # @param opts [Hash]  options
-    # @option opts [IO] :stdin stream to pass to stdin of the new process
-    # @option opts [IO] :stdout stream to receive the output of the new process
-    # @option opts [IO] :stderr stream to receive the error output of the new process
-    # @option opts [String] :chdir the working directory of the new process
-    # @option opts [Hash<Symbol, String>] :env environment variables for the new process
-    def initialize(cmd, stdin: nil, stdout: nil, stderr: nil, chdir: '.', env: {})
-      @stdin = stdin || StringIO.new
-      @stdout = stdout || StringIO.new
-      @stderr = stderr || StringIO.new
+    # @param streams [Hash] Sash with stdin, stdout, strerr streams. Streams are optional
+    # @param chdir [String] the working directory of the new process
+    # @param end [Hash<Symbol, String>] environment variables for the new process
+    def initialize(cmd, streams: {}, chdir: '.', env: {})
+      @stdin = streams[:stdin] || StringIO.new
+      @stdout = streams[:stdout] || StringIO.new
+      @stderr = streams[:stderr] || StringIO.new
       @chdir = chdir || '.'
       @env = env || {}
       @cmd = cmd
     end
 
     def run
-      log.debug("running #{@cmd} at #{@chdir}")
-      log.debug("env:\n#{@env}")
-      options = {
-        chdir: @chdir,
-        unsetenv_others: true
-      }
+      log.debug("running #{@cmd} at #{@chdir} with env: #{@env}")
+      options = { chdir: @chdir, unsetenv_others: true }
       p_in, p_out, p_err, @wait_thr = Open3.popen3(@env, @cmd, options)
       connect([
                 { from: @stdin, to: p_in },

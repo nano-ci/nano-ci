@@ -32,10 +32,8 @@ module Nanoci
           return false unless @data.key?(k) && @data[k] == to_variable(k, v)
         end
         true
-      when Symbol
-        @data.key?(k)
-      else
-        false
+      when Symbol then @data.key?(k)
+      else false
       end
     end
 
