@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/BlockLength
+
 require 'bundler/gem_tasks'
 require 'rake/clean'
 require 'rspec/core/rake_task'
@@ -52,15 +54,15 @@ PROTOBUF_FILES.each do |src|
   task grpc: dst
 end
 
+NANO_CI_MASTER_CONTAINER = 'nano-ci'
+NANO_CI_MASTER_DEBUG_CONTAINER = 'nano-ci-debug'
+NANO_CI_AGENT_CONTAINER = 'nano-ci-agent'
+NANO_CI_AGENT_DEBUG_CONTAINER = 'nano-ci-agent-debug'
+
+NANO_CI_NET = 'nano-ci-net'
+NANO_CI_DEBUG_NET = 'nano-ci-debug-net'
+
 namespace :docker do
-  NANO_CI_MASTER_CONTAINER = 'nano-ci'
-  NANO_CI_MASTER_DEBUG_CONTAINER = 'nano-ci-debug'
-  NANO_CI_AGENT_CONTAINER = 'nano-ci-agent'
-  NANO_CI_AGENT_DEBUG_CONTAINER = 'nano-ci-agent-debug'
-
-  NANO_CI_NET = 'nano-ci-net'
-  NANO_CI_DEBUG_NET = 'nano-ci-debug-net'
-
   task :'nano-ci-net' do
     sh "docker network create #{NANO_CI_NET}"
   end
@@ -123,11 +125,27 @@ namespace :docker do
 
   namespace :'nano-ci-master' do
     task run: [:'docker:nano-ci-master'] do
-      sh "docker run --detach --network #{NANO_CI_NET} --net-alias nanoci --name #{NANO_CI_MASTER_CONTAINER} nano-ci-master"
+      args = ['--detach',
+              "--network #{NANO_CI_NET}",
+              '--net-alias nanoci',
+              "--name #{NANO_CI_MASTER_CONTAINER}",
+              'nano-ci-master']
+      sh "docker run #{args.join(' ')}"
     end
 
     task debug: [:'docker:nano-ci-master'] do
-      sh "docker run --detach --network #{NANO_CI_DEBUG_NET} --net-alias nanoci --name #{NANO_CI_MASTER_DEBUG_CONTAINER} --entrypoint \"rdebug-ide\" --expose 23456 -p 23456:23456 nano-ci-master --host 0.0.0.0 --port 23456 -- /nano-ci/bin/nano-ci --project=/nano-ci-agent/master.nanoci"
+      args = ['--detach',
+              "--network #{NANO_CI_DEBUG_NET}",
+              '--net-alias nanoci',
+              "--name #{NANO_CI_MASTER_DEBUG_CONTAINER}",
+              '--entrypoint "rdebug-ide"',
+              '--expose 23456',
+              '-p 23456:23456',
+              'nano-ci-master',
+              '--host 0.0.0.0',
+              '--port 23456',
+              '-- /nano-ci/bin/nano-ci --project=/nano-ci-agent/master.nanoci']
+      sh "docker run #{args.join(' ')}"
     end
 
     task :'debug-logs' do
@@ -149,7 +167,17 @@ namespace :docker do
     end
 
     task debug: [:'docker:nano-ci-agent'] do
-      sh "docker run --detach --network #{NANO_CI_DEBUG_NET} --name #{NANO_CI_AGENT_DEBUG_CONTAINER} --entrypoint \"rdebug-ide\" --expose 23457 -p 23457:23457 nano-ci-agent --host 0.0.0.0 --port 23457 -- /nano-ci/bin/nano-ci-agent"
+      args = ['--detach',
+              "--network #{NANO_CI_DEBUG_NET}",
+              "--name #{NANO_CI_AGENT_DEBUG_CONTAINER}",
+              '--entrypoint "rdebug-ide"',
+              '--expose 23457',
+              '-p 23457:23457',
+              'nano-ci-agent',
+              '--host 0.0.0.0',
+              '--port 23457',
+              '-- /nano-ci/bin/nano-ci-agent']
+      sh "docker run #{args.join(' ')}"
     end
 
     task :'debug-logs' do
@@ -165,3 +193,4 @@ namespace :docker do
     end
   end
 end
+# rubocop:enable Metrics/BlockLength
