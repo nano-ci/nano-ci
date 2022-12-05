@@ -51,15 +51,11 @@ module Nanoci
         @state = State::IDLE
       end
 
-      def find_job(tag)
-        @jobs.select { |x| x.tag == tag }.first
-      end
+      def find_job(tag) = @jobs.select { |x| x.tag == tag }.first
 
       # Gets pending outputs
       # @return [Hash]
-      def pending_outputs
-        @jobs.map(&:outputs).reduce(:merge)
-      end
+      def pending_outputs = @jobs.map(&:outputs).reduce(:merge)
 
       # Determines if there are changes in stage triggering inputs
       # @param next_inputs [Hash{Symbol => String}]
@@ -92,13 +88,9 @@ module Nanoci
         log.info "stage <#{tag}> is completed with outputs #{outputs}"
       end
 
-      def jobs_idle?
-        jobs.none? { |j| j.state == Job::State::RUNNING }
-      end
+      def jobs_idle? = jobs.none? { |j| j.state == Job::State::RUNNING }
 
-      def success?
-        jobs.all?(&:success)
-      end
+      def success? = jobs.all?(&:success)
 
       def validate
         raise ArgumentError, 'tag is nil' if tag.nil?
@@ -151,8 +143,7 @@ module Nanoci
 
       def handle_state_transition(transition)
         case transition
-        in [State::IDLE, State::RUNNING]
-          @pending_outputs = {}
+        in [State::IDLE, State::RUNNING] then @pending_outputs = {}
         in [State::RUNNING, State::IDLE]
           if success?
             @outputs = @pending_outputs
@@ -163,13 +154,11 @@ module Nanoci
       end
 
       def validate_triggering_inputs
-        raise ArgumentError, 'inputs is nil' if triggering_inputs.nil?
-        raise ArgumentError, 'inputs is not an Array' unless triggering_inputs.is_a? Array
+        raise ArgumentError, 'inputs must be an Array' if triggering_inputs.nil? || !triggering_inputs.is_a?(Array)
       end
 
       def validate_jobs
-        raise ArgumentError, 'jobs is nil' if jobs.nil?
-        raise ArgumentError, 'jobs is not an Array' unless jobs.is_a? Array
+        raise ArgumentError, 'jobs must be an Array' if jobs.nil? || !jobs.is_a?(Array)
 
         jobs.each(&:validate)
       end
