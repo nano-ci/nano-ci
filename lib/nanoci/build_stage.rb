@@ -30,7 +30,7 @@ module Nanoci
     def memento
       {
         tag: tag,
-        jobs: jobs.map { |j| [j.tag, j.memento] }.to_h,
+        jobs: jobs.to_h { |j| [j.tag, j.memento] },
         stage: Build::State.key(state)
       }
     end

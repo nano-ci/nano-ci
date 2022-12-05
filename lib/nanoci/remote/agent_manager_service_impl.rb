@@ -28,7 +28,7 @@ module Nanoci
       def report_agent_status(report_agent_status_request, _call)
         tag = report_agent_status_request.tag.to_sym
         status = report_agent_status_request.status
-        capabilities = report_agent_status_request.capabilities.map { |x| [x.to_sym, true] }.to_h
+        capabilities = report_agent_status_request.capabilities.to_h { |x| [x.to_sym, true] }
         agent = get_agent(tag) || add_agent(tag, capabilities)
         agent.status = Nanoci::AgentStatus.value(status)
         agent.capabilities = capabilities
@@ -60,8 +60,8 @@ module Nanoci
             stage_tag: build.current_stage.tag,
             job_tag: job.tag,
             project_definition: build.project.definition.to_yaml,
-            variables: build.variables.map { |k, v| [k.to_s, v.to_s] }.to_h,
-            commits: build.commits.map { |k, v| [k.to_s, v.to_s] }.to_h
+            variables: build.variables.to_h { |k, v| [k.to_s, v.to_s] },
+            commits: build.commits.to_h { |k, v| [k.to_s, v.to_s] }
           )
         end
         response

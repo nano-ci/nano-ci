@@ -25,7 +25,7 @@ module Nanoci
           when Hash then x.entries[0]
           end
         end
-        caps.map { |x| [x[0].to_sym, x[1]] }.to_h
+        caps.to_h { |x| [x[0].to_sym, x[1]] }
       end
 
       def report_status_interval

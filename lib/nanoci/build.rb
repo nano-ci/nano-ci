@@ -132,7 +132,7 @@ module Nanoci
         start_time: start_time,
         end_time: end_time,
         state: State.key(state),
-        stages: stages.map { |s| [s.tag, s.memento] }.to_h,
+        stages: stages.to_h { |s| [s.tag, s.memento] },
         current_stage: current_stage.tag,
         tests: tests.map(&:memento),
         commits: commits.clone,
