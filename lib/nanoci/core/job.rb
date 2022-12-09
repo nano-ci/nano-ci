@@ -20,13 +20,12 @@ module Nanoci
 
       attr_reader :state
 
-      # Gets status of the most recent job run
-      # @return [Boolean] true if job complete successfully; false otherwise
-      attr_reader :success
-
       # Gets outputs of the most recent success job run
       # @return [Hash{Symbol => String}]
       attr_reader :outputs
+
+      def active? = State::ACTIVE.include?(state)
+      def success? = state == State::SUCCESSFUL
 
       def state=(next_state)
         raise ArgumentError, "invalid state #{next_state}" unless State::VALUES.include? next_state
@@ -44,7 +43,7 @@ module Nanoci
         @work_dir = work_dir
         @body = body
         @env = env
-        @state = State::IDLE
+        @state = State::PENDING
         @outputs = {}
       end
 
@@ -59,11 +58,27 @@ module Nanoci
         raise ArgumentError, 'success is not a Boolean' unless [true, false].include? success
         raise ArgumentError, 'outputs is not a Hash' unless outputs.is_a? Hash
 
-        @success = success
-        @outputs = outputs if success
+        self.state = success ? State::SUCCESSFUL : State::FAILED
 
-        self.state = State::IDLE
+        @outputs = outputs if state == State::SUCCESSFUL
       end
+
+      def memento
+        {
+          tag: tag,
+          state: state,
+          outputs: outputs
+        }
+      end
+
+      def memento=(memento)
+        raise ArgumentError, "stage tag #{tag} does not match memento tag #{memento[:tag]}" unless tag == memento[:tag]
+
+        @state = memento.fetch(:state)
+        @outputs = memento.fetch(:outputs, {})
+      end
+
+      def to_s = "##{tag}"
     end
   end
 end

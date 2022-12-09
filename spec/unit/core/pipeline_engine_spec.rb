@@ -32,15 +32,17 @@ RSpec.describe Nanoci::Core::PipelineEngine do
 
   it '#run_job schedule job execution on job_executor' do
     job_executor = double(:job_executor)
+    job = double(:job)
+    allow(job).to receive(:state=)
     expect(job_executor).to receive(:schedule_job_execution).with(
       :project,
       :stage,
-      :job,
+      job,
       :inputs,
       :prev_inputs
     )
     eng = Nanoci::Core::PipelineEngine.new(job_executor, nil)
-    eng.run_job(:project, :stage, :job, :inputs, :prev_inputs)
+    eng.run_job(:project, :stage, job, :inputs, :prev_inputs)
   end
 
   it '#job_complete finalizes job and stage if all jobs are done' do

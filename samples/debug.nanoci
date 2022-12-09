@@ -21,8 +21,20 @@ project :'debug-sample', 'main nano-ci project' do
           stderr: result.stderr
         }
       end
+
+      job :do_or_fail do |inputs|
+        puts 'job\'s done'
+        { done: true }
+      end
     end
 
-    pipe :'trigger.pipeline_trigger' >> :debug
+    stage :report do
+      job :print_report do |inputs|
+        puts 'pipeline complete'
+        { done: true }
+      end
+    end
+
+    pipe :'trigger.pipeline_trigger' >> :debug >> :report
   end
 end

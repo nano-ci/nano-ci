@@ -64,6 +64,10 @@ module Nanoci
         @src = value[:src]
       end
 
+      def to_s
+        "##{tag}"
+      end
+
       private
 
       def validate_tag
