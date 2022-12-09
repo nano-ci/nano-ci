@@ -1,3 +1,5 @@
+![RSpec](https://github.com/nano-ci/nano-ci/actions/workflows/ruby.yml/badge.svg?branch=main)
+
 # nano-ci v0.1.0
 
 nano-ci is a minimalistic CI/CD system developed with Ruby. The main goal is to
