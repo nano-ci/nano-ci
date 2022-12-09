@@ -16,9 +16,9 @@ RSpec.describe Nanoci::Core::Job do
     expect(job.work_dir).to eq 'local'
   end
 
-  it '#initialize sets initial state to IDLE' do
+  it '#initialize sets initial state to PENDING' do
     job = Nanoci::Core::Job.new(tag: 'build-job', body: nil, work_dir: 'local')
-    expect(job.state).to eq Nanoci::Core::Job::State::IDLE
+    expect(job.state).to eq Nanoci::Core::Job::State::PENDING
   end
 
   it '#validate raises error if tag is nil' do
@@ -62,11 +62,11 @@ RSpec.describe Nanoci::Core::Job do
     expect { job.finalize(true, nil) }.to raise_error ArgumentError
   end
 
-  [true, false].each do |v|
+  [[true, :successful], [false, :failed]].each do |v, s|
     it "#finalize sets #success to passed value #{v}" do
       job = Nanoci::Core::Job.new(tag: 'build-job', body: 'abc', work_dir: nil)
       job.finalize(v, {})
-      expect(job.success).to be v
+      expect(job.state).to be s
     end
   end
 

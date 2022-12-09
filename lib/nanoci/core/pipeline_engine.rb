@@ -54,6 +54,7 @@ module Nanoci
 
       def run_stage(project, stage, next_inputs)
         jobs = stage.run(next_inputs)
+        prepare_jobs_to_run(jobs)
         @project_repository.save_stage(project, stage)
         run_jobs(jobs, project, stage, stage.inputs, stage.prev_inputs) unless jobs.nil?
       end
@@ -64,6 +65,12 @@ module Nanoci
         end
       end
 
+      def prepare_jobs_to_run(jobs)
+        jobs.each do |x|
+          x.state = Job::State::SCHEDULED
+        end
+      end
+
       # Schedules execution of the job
       # @param project [Nanoci::Project]
       # @param stage [Nanoci::Stage]
@@ -71,6 +78,7 @@ module Nanoci
       # @param inputs [Hash{Symbol => String}]
       # @param prev_inputs [Hash{Symbol => String}]
       def run_job(project, stage, job, inputs, prev_inputs)
+        job.state = Job::State::RUNNING
         @job_executor.schedule_job_execution(project, stage, job, inputs, prev_inputs)
       end
 

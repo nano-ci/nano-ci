@@ -88,13 +88,12 @@ module Nanoci
         log.info "stage <#{tag}> is completed with outputs #{outputs}"
       end
 
-      def jobs_idle? = jobs.none? { |j| j.state == Job::State::RUNNING }
+      def jobs_idle? = jobs.none?(&:active?)
 
-      def success? = jobs.all?(&:success)
+      def success? = jobs.all?(&:success?)
 
       def validate
-        raise ArgumentError, 'tag is nil' if tag.nil?
-        raise ArgumentError, 'tag is not a Symbol' unless tag.is_a? Symbol
+        raise ArgumentError, 'tag must be a Symbol' if tag.nil? || !tag.is_a?(Symbol)
 
         validate_triggering_inputs
         validate_jobs
@@ -104,6 +103,7 @@ module Nanoci
         {
           tag: tag,
           state: state,
+          jobs: @jobs.to_h { |j| [j.tag, j.memento] },
           inputs: @inputs,
           outputs: @outputs,
           pending_outputs: @pending_outputs
@@ -111,12 +111,9 @@ module Nanoci
       end
 
       STAGE_HOOKS.each do |hook|
-        code = <<-CODE
-          def hook_#{hook}
-            @hooks.fetch(:#{hook}, nil)
-          end
+        class_eval <<-CODE, __FILE__, __LINE__ + 1
+          def hook_#{hook} = @hooks.fetch(:#{hook}, nil)    # def hook_after_failure = @hooks.fetch(:after_failure, nil)
         CODE
-        class_eval(code)
       end
 
       def memento=(memento)
@@ -126,7 +123,12 @@ module Nanoci
         @inputs = memento.fetch(:inputs, {})
         @outputs = memento.fetch(:outputs, {})
         @pending_outputs = memento.fetch(:pending_outputs, {})
+        memento.fetch(:jobs, {}).each do |tag, job_memento|
+          find_job(tag.to_sym)&.memento = job_memento
+        end
       end
+
+      def to_s = "##{tag}"
 
       private
 
@@ -145,10 +147,7 @@ module Nanoci
         case transition
         in [State::IDLE, State::RUNNING] then @pending_outputs = {}
         in [State::RUNNING, State::IDLE]
-          if success?
-            @outputs = @pending_outputs
-            @outputs.merge!(@inputs)
-          end
+          @outputs = @pending_outputs.merge(@inputs) if success?
           @pending_outputs = {}
         end
       end

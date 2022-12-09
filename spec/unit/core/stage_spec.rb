@@ -133,9 +133,10 @@ RSpec.describe Nanoci::Core::Stage do
 
   it '#finalize merges #pending_outputs to #outputs if stage is successful' do
     job = double(:job)
-    allow(job).to receive(:success).and_return(true)
+    allow(job).to receive(:success?).and_return(true)
+    allow(job).to receive(:active?).and_return(false)
     allow(job).to receive(:outputs).and_return({ def: 321 })
-    allow(job).to receive(:state).and_return(Nanoci::Core::Job::State::IDLE)
+    allow(job).to receive(:state).and_return(Nanoci::Core::Job::State::SUCCESSFUL)
     stage = Nanoci::Core::Stage.new(tag: :'stage-tag', inputs: [], jobs: [job], hooks: {})
     stage.run({ abc: 1 })
 
@@ -148,16 +149,19 @@ RSpec.describe Nanoci::Core::Stage do
 
   it '#jobs_idle? returns true if all jobs are not running' do
     job = double(:job)
-    allow(job).to receive(:state).and_return(Nanoci::Core::Job::State::IDLE)
+    allow(job).to receive(:state).and_return(Nanoci::Core::Job::State::PENDING)
+    allow(job).to receive(:active?).and_return(false)
     stage = Nanoci::Core::Stage.new(tag: :'stage-tag', inputs: [:abc], jobs: [job], hooks: {})
     expect(stage.jobs_idle?).to be true
   end
 
   it '#jobs_idle? returns false if some jobs are running' do
     job1 = double(:job)
-    allow(job1).to receive(:state).and_return(Nanoci::Core::Job::State::IDLE)
+    allow(job1).to receive(:state).and_return(Nanoci::Core::Job::State::PENDING)
+    allow(job1).to receive(:active?).and_return(false)
     job2 = double(:job)
     allow(job2).to receive(:state).and_return(Nanoci::Core::Job::State::RUNNING)
+    allow(job2).to receive(:active?).and_return(true)
     stage = Nanoci::Core::Stage.new(tag: :'stage-tag', inputs: [:abc], jobs: [job1, job2], hooks: {})
     expect(stage.jobs_idle?).to be false
   end
