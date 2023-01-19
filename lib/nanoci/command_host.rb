@@ -4,7 +4,8 @@ require 'nanoci/commands/shell'
 require 'nanoci/commands/command_output'
 require 'nanoci/core/project_repo_locator'
 require 'nanoci/mixins/logger'
-require 'nanoci/tool_process'
+
+require_relative 'shell_cmd'
 
 module Nanoci
   # [CommandHost] is a class that executes Job's commands.
@@ -50,9 +51,10 @@ module Nanoci
       job_env = env(@job)
       log.debug { "shell: \"#{line}\" at \"#{job_work_dir}\"" }
       FileUtils.mkpath job_work_dir
-      tool = ToolProcess.run("sh -c \"#{line}\"", chdir: job_work_dir, env: job_env).wait
-      log.debug { "shell: exit code - #{tool.status_code}" }
-      Commands::CommandOutput.new(tool.status_code, tool.output, tool.error)
+      tool = ShellCmd.new(line, cwd: job_work_dir, env: job_env)
+      tool.run
+      log.debug { "shell: exit code - #{tool.status}" }
+      Commands::CommandOutput.new(tool.status, tool.stdout, tool.stderr)
     end
 
     def method_missing(method_name, *args, &block)
