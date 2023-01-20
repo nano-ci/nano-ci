@@ -46,9 +46,10 @@ module Nanoci
     end
 
     # Executes passed command line
-    def execute_shell(line)
+    def execute_shell(line, env: nil)
       job_work_dir = work_dir(@stage, @job)
-      job_env = env(@job)
+      job_env = build_job_env(@job)
+      job_env.merge!(env) if env
       log.debug { "shell: \"#{line}\" at \"#{job_work_dir}\"" }
       FileUtils.mkpath job_work_dir
       tool = ShellCmd.new(line, cwd: job_work_dir, env: job_env)
@@ -86,11 +87,11 @@ module Nanoci
       File.join(@root_work_dir, stage.tag.to_s, job.tag.to_s, job.work_dir)
     end
 
-    def env(job)
+    def build_job_env(job)
       job_env = job.env
 
       job_env = case job_env
-                when nil then nil
+                when nil then {}
                 when Hash then job_env
                 when Proc then job_env.call
                 end

@@ -28,7 +28,7 @@ module Nanoci
       @live_stderr = opts[:live_stderr]
       @input = @live_stdin.nil? ? opts[:input] : nil
       @cwd = opts[:cwd]
-      @env = (opts[:env] || {}).transform_keys!(&:to_s)
+      @env = (opts[:env] || {})&.transform_keys!(&:to_s)&.transform_values(&:to_s)
 
       @stdout = StringIO.new
       @stderr = StringIO.new
