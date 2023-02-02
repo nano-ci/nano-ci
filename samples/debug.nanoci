@@ -3,10 +3,9 @@ project :'debug-sample', 'main nano-ci project' do
 
   repo :sample do
     type :git
-    uri 'https://github.com/nano-ci/sample-private.git'
+    uri 'git@github.com:nano-ci/sample-private.git'
     auth({
-      username: 'abc-user-name',
-      password: 'abc-user-pass'
+      ssh_key: '/var/abc/id_rsa_sample'
     })
   end
 
@@ -17,7 +16,7 @@ project :'debug-sample', 'main nano-ci project' do
 
     stage :debug do
       job :build_job, work_dir: 'test' do |inputs|
-        shell.run 'rm -Rf ./* -i'
+        shell.run 'rm -Rf ./*'
         result = git(repos.sample).clone
         {
           code: result.exit_code,

@@ -106,6 +106,7 @@ module Nanoci
         def run_git(command, args = '')
           env = { 'GIT_TERMINAL_PROMPT' => 0 }
           setup_https_auth(repo, env) if repo.auth&.key?(:username) && repo.auth&.key?(:password)
+          setup_ssh_auth(repo, env) if repo.auth&.key?(:ssh_key)
           @command_host.execute_shell("git #{command} #{args}", env: env)
         end
 
@@ -117,6 +118,10 @@ module Nanoci
           env['GIT_ASKPASS'] = git_askpass_tmp.path
           env['NANOCI_GIT_USERNAME'] = repo.auth[:username]
           env['NANOCI_GIT_PASSWORD'] = repo.auth[:password]
+        end
+
+        def setup_ssh_auth(repo, env)
+          env['GIT_SSH_COMMAND'] = "SSH_ASKPASS=false SSH_ASKPASS_REQUIRE=force ssh -i #{repo.auth[:ssh_key]}"
         end
       end
     end
