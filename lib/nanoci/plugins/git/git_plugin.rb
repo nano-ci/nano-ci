@@ -17,8 +17,8 @@ module Nanoci
         private
 
         # Gets an instance of git command configured for the specified repo.
-        def git(command_host, project)
-          GitCommand.new(command_host, project)
+        def git(command_host, project, repo)
+          GitCommand.new(command_host, project, repo)
         end
       end
     end

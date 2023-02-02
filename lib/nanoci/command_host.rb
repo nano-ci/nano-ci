@@ -4,7 +4,8 @@ require 'nanoci/commands/shell'
 require 'nanoci/commands/command_output'
 require 'nanoci/core/project_repo_locator'
 require 'nanoci/mixins/logger'
-require 'nanoci/tool_process'
+
+require_relative 'shell_cmd'
 
 module Nanoci
   # [CommandHost] is a class that executes Job's commands.
@@ -45,14 +46,16 @@ module Nanoci
     end
 
     # Executes passed command line
-    def execute_shell(line)
+    def execute_shell(line, env: nil)
       job_work_dir = work_dir(@stage, @job)
-      job_env = env(@job)
+      job_env = build_job_env(@job)
+      job_env.merge!(env) if env
       log.debug { "shell: \"#{line}\" at \"#{job_work_dir}\"" }
       FileUtils.mkpath job_work_dir
-      tool = ToolProcess.run("sh -c \"#{line}\"", chdir: job_work_dir, env: job_env).wait
-      log.debug { "shell: exit code - #{tool.status_code}" }
-      Commands::CommandOutput.new(tool.status_code, tool.output, tool.error)
+      tool = ShellCmd.new(line, cwd: job_work_dir, env: job_env)
+      tool.run
+      log.debug { "shell: exit code - #{tool.status}" }
+      Commands::CommandOutput.new(tool.status, tool.stdout, tool.stderr)
     end
 
     def method_missing(method_name, *args, &block)
@@ -84,11 +87,11 @@ module Nanoci
       File.join(@root_work_dir, stage.tag.to_s, job.tag.to_s, job.work_dir)
     end
 
-    def env(job)
+    def build_job_env(job)
       job_env = job.env
 
       job_env = case job_env
-                when nil then nil
+                when nil then {}
                 when Hash then job_env
                 when Proc then job_env.call
                 end
