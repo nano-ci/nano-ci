@@ -5,22 +5,21 @@ require 'nanoci/mixins/logger'
 require 'nanoci/not_implemented_error'
 require 'nanoci/system/event'
 
+require_relative 'messages/job_complete_message'
+require_relative '../messaging/topic'
+
 module Nanoci
   module Core
     # Executes jobs
     class JobExecutor
       include Nanoci::Mixins::Logger
 
-      # Job complete event
-      # @return [Nanoci::System::Event]
-      attr_accessor :job_complete
-
       # Initializes new instance of [Nanoci::Core::JobExecutor]
       # @param plugin_host [Nanoci::PluginHost]
-      def initialize(plugin_host)
+      def initialize(plugin_host, job_complete_topic)
         @observers = []
         @plugin_host = plugin_host
-        @job_complete = System::Event.new
+        @job_complete_topic = job_complete_topic
       end
 
       # Scheduled execution of a job
@@ -40,7 +39,8 @@ module Nanoci
       protected
 
       def job_succeeded(project, stage, job, outputs)
-        @job_complete.invoke(self, JobCompleteEventArgs.new(project.tag, stage.tag, job.tag, outputs))
+        m = Messages::JobCompleteMessage.new(project.tag, stage.tag, job.tag, outputs)
+        @job_complete_topic.publish(m)
       end
 
       # Job failure handler

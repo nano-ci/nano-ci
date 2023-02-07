@@ -3,17 +3,19 @@
 require 'nanoci/components/sync_job_executor'
 require 'nanoci/config/ucs'
 require 'nanoci/core/pipeline_engine'
+require 'nanoci/dsl/script_dsl'
 require 'nanoci/log'
+require_relative '../messaging/topic'
 require 'nanoci/mixins/logger'
 require 'nanoci/plugin_host'
 require 'nanoci/project_repository'
-require 'nanoci/dsl/script_dsl'
 require 'nanoci/triggers/interval_trigger_dsl'
 
-require_relative '../trigger_repository'
-require_relative '../components/single_thread_trigger_engine'
+require_relative '../components/single_thread_ticker'
+require_relative '../core/trigger_engine'
 require_relative '../db/db_provider_factory'
 require_relative '../system/cancellation_token_source'
+require_relative '../trigger_repository'
 
 module Nanoci
   module Application
@@ -46,9 +48,15 @@ module Nanoci
         setup_db
 
         @plugin_host = load_plugins(File.expand_path(ucs.plugins_path))
+        setup_messaging
         setup_job_executor
-        @pipeline_engine = Core::PipelineEngine.new(@job_executor, @project_repository)
-        @trigger_engine = Components::SingleThreadTriggerEngine.new(@trigger_repository, @pipeline_engine)
+        setup_pipeline_engine
+        @trigger_engine = Core::TriggerEngine.new(@trigger_repository, @stage_complete_topic)
+      end
+
+      def setup_messaging
+        @stage_complete_topic = Messaging::Topic.new('stage_complete')
+        @job_complete_topic = Messaging::Topic.new('job_complete')
       end
 
       def setup_db
@@ -58,11 +66,17 @@ module Nanoci
         @trigger_repository = @db_provider.trigger_repository
       end
 
+      def setup_pipeline_engine
+        @pipeline_engine = Core::PipelineEngine.new(
+          @job_executor,
+          @project_repository,
+          @stage_complete_topic,
+          @job_complete_topic
+        )
+      end
+
       def setup_job_executor
-        @job_executor = Components::SyncJobExecutor.new(@plugin_host)
-        @job_executor.job_complete.attach do |_, e|
-          @pipeline_engine.job_complete(e.project_tag, e.stage_tag, e.job_tag, e.outputs)
-        end
+        @job_executor = Components::SyncJobExecutor.new(@plugin_host, @job_complete_topic)
       end
 
       # runs a nano-ci main service
@@ -79,7 +93,9 @@ module Nanoci
           cancellation_token_source.request_cancellation
         end
 
-        @trigger_engine.run cancellation_token_source.token
+        @single_thread_ticker = Components::SingleThreadTicker.new
+        @single_thread_ticker.add_tickable(@trigger_engine, @pipeline_engine)
+        @single_thread_ticker.run(cancellation_token_source.token)
       end
 
       def load_plugins(plugins_path)
