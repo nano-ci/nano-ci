@@ -2,7 +2,6 @@
 
 require 'set'
 
-require_relative 'trigger_pulse_event_args'
 require_relative '../system/event'
 
 module Nanoci
