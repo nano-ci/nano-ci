@@ -2,7 +2,8 @@
 
 require 'set'
 
-require_relative 'trigger_pulse_event_args'
+require_relative 'messages/stage_complete_message'
+require_relative '../messaging/topic'
 require_relative '../system/event'
 
 module Nanoci
@@ -11,10 +12,10 @@ module Nanoci
     class TriggerEngine
       # Initializes new instance of [Nanoci::Core::TriggerEngine]
       # @param trigger_repository [Nanoci::TriggerRepository]
-      # @param pipeline_engine [Nanoci::Core::PipelineEngine]
-      def initialize(trigger_repository, pipeline_engine)
+      # @param stage_complete_topic [Nanoci::Messaging::Topic]
+      def initialize(trigger_repository, stage_complete_topic)
         @trigger_repository = trigger_repository
-        @pipeline_engine = pipeline_engine
+        @stage_complete_topic = stage_complete_topic
         @enabled_projects = Set.new
       end
 
@@ -27,6 +28,13 @@ module Nanoci
       # Disables execution of project's triggers on this trigger engine
       def disable_project(project_tag:)
         @enabled_projects.delete project_tag
+      end
+
+      def tick(cancellation_token)
+        return if cancellation_token.cancellation_requested?
+
+        trigger = read_and_lock_next_due_trigger
+        process_trigger(trigger) unless trigger.nil?
       end
 
       protected
@@ -43,18 +51,10 @@ module Nanoci
         @trigger_repository.due_triggers?(due_ts: Time.now.utc, projects: @enabled_projects.to_a)
       end
 
-      def run_cycle(cancellation_token)
-        while due_triggers? && !cancellation_token.cancellation_requested?
-          trigger = read_and_lock_next_due_trigger
-          next if trigger.nil?
-
-          process_trigger trigger
-        end
-      end
-
       def process_trigger(trigger)
         outputs = trigger.pulse
-        @pipeline_engine.stage_complete(trigger.project_tag, trigger.full_tag, outputs)
+        message = Messages::StageCompleteMessage.new(trigger.project_tag, trigger.full_tag, outputs)
+        @stage_complete_topic.publish(message)
       ensure
         store_and_release_trigger trigger
       end

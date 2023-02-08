@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'concurrent'
-
 require 'nanoci/messaging/message_lease'
 require 'nanoci/messaging/message_receipt'
 
@@ -19,8 +17,8 @@ module Nanoci
       # @param name [String,Symbol]
       def initialize(name)
         @name = name.to_sym
-        # @type [Concurrent::Array]
-        @message_queue = Concurrent::Array.new
+        # @type [Array]
+        @message_queue = []
       end
 
       # Pushes a new message to the subscription

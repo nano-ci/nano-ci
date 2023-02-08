@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require_relative '../messaging/topic'
+require_relative '../messaging/subscription'
+require_relative 'messages/stage_complete_message'
 require 'nanoci/mixins/logger'
 
 module Nanoci
@@ -11,14 +14,26 @@ module Nanoci
       # Initializes new instance of [Nanoci::Core::PipelineEngine]
       # @param job_executor [Nanoci::Core::JobExecutor]
       # @param project_repository [Nanoci::ProjectRepository]
-      def initialize(job_executor, project_repository)
+      # @param stage_complete_topic [Nanoci::Messaging::Topic]
+      # @param job_complete_topic [Nanoci::Messaging::Topic]
+      def initialize(job_executor, project_repository, stage_complete_topic, job_complete_topic)
         # @type [Hash{Symbol => Array<Symbol>}]
         @job_executor = job_executor
         @project_repository = project_repository
+        @stage_complete_topic = stage_complete_topic
+        @job_complete_topic = job_complete_topic
+        @running = false
       end
 
       def start
         log.info 'starting the pipeline engine...'
+
+        @stage_complete_sub = Messaging::Subscription.new('pipeline_engine_stage_complete_sub')
+        @stage_complete_topic.attach(@stage_complete_sub)
+        @job_complete_sub = Messaging::Subscription.new('pipeline_engine_job_complete_sub')
+        @job_complete_topic.attach(@job_complete_sub)
+
+        @running = true
 
         log.info 'the pipeline engine is running'
       end
@@ -26,7 +41,19 @@ module Nanoci
       def stop
         log.info 'stopping the pipeline engine...'
 
+        @running = false
+
+        @stage_complete_topic.detach(@stage_complete_sub)
+        @job_complete_topic.detach(@job_complete_sub)
+
         log.info 'the pipeline engine is stopped'
+      end
+
+      def tick(cancellation_token)
+        return if cancellation_token.cancellation_requested?
+
+        tick_job_complete_queue
+        tick_stage_complete_queue
       end
 
       # Runs the pipeline on the pipeline engine
@@ -91,7 +118,34 @@ module Nanoci
 
         @project_repository.save_stage(project, stage)
 
-        stage_complete(project_tag, stage_tag, stage.outputs) if stage.jobs_idle?
+        return unless stage.jobs_idle?
+
+        message = Messages::StageCompleteMessage.new(project_tag, stage_tag, stage.outputs)
+        @stage_complete_topic.publish(message)
+      end
+
+      private
+
+      def tick_job_complete_queue
+        # @type [Nanoci::Messaging::MessageReceipt]
+        jcm = @job_complete_sub.pull
+        return if jcm.nil?
+
+        # @type [Nanoci::Core::Messages::JobCompleteMessage]
+        message = jcm.message
+        job_complete(message.project_tag, message.stage_tag, message.job_tag, message.outputs)
+        jcm.ack
+      end
+
+      def tick_stage_complete_queue
+        # @type [Nanoci::Messaging::MessageReceipt]
+        scm = @stage_complete_sub.pull
+        return if scm.nil?
+
+        # @type [Nanoci::Core::Messages::StageCompleteMessage]
+        message = scm.message
+        stage_complete(message.project_tag, message.stage_tag, message.outputs)
+        scm.ack
       end
     end
   end

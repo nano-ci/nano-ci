@@ -38,6 +38,12 @@ module Nanoci
         @attributes = {}
       end
 
+      protected
+
+      def payload_raw=(value)
+        @payload = value
+      end
+
       private
 
       def byte?(value)

@@ -19,7 +19,6 @@ project :'debug-sample', 'main nano-ci project' do
         shell.run 'rm -Rf ./*'
         result = git(repos.sample).clone
         {
-          code: result.exit_code,
           stdout: result.stdout,
           stderr: result.stderr
         }
