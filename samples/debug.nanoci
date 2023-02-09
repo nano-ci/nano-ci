@@ -1,3 +1,7 @@
+# frozen_string_literal: true
+
+# rubocop:disable Metrics/BlockLength
+
 project :'debug-sample', 'main nano-ci project' do
   plugin :'command.git', '0.1.0'
 
@@ -5,13 +9,14 @@ project :'debug-sample', 'main nano-ci project' do
     type :git
     uri 'git@github.com:nano-ci/sample-private.git'
     auth({
-      ssh_key: '/var/abc/id_rsa_sample'
-    })
+           ssh_key: '/var/abc/id_rsa_sample'
+         })
   end
 
   pipeline :pipeline, 'web service pipeline' do
     trigger :pipeline_trigger, :interval do
       interval 5
+      trigger_rule
     end
 
     stage :debug do
@@ -40,3 +45,5 @@ project :'debug-sample', 'main nano-ci project' do
     pipe :'trigger.pipeline_trigger' >> :debug >> :report
   end
 end
+
+# rubocop:enable Metrics/BlockLength
