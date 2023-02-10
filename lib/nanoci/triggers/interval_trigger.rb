@@ -24,9 +24,10 @@ module Nanoci
       # Initializes new instance of IntervalTrigger
       # @param tag [Symbol] Trigger tag
       # @param project_tag [Symbol] Project tag
-      def initialize(tag:, project_tag:)
-        super(tag: tag, project_tag: project_tag)
-        @interval = interval
+      # @param args [Hash] Optional args
+      def initialize(tag:, project_tag:, options:)
+        super(tag: tag, project_tag: project_tag, options: options)
+        @interval = options[:interval]
         @previous_run_time = nil
         @next_run_time = Time.now.utc
       end

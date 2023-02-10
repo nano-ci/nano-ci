@@ -2,8 +2,12 @@
 
 require_relative '../messaging/topic'
 require_relative '../messaging/subscription'
+require_relative 'downstream_trigger_rule'
+require_relative 'messages/run_stage_message'
 require_relative 'messages/stage_complete_message'
 require 'nanoci/mixins/logger'
+
+# rubocop:disable Metrics/ClassLength
 
 module Nanoci
   module Core
@@ -14,14 +18,17 @@ module Nanoci
       # Initializes new instance of [Nanoci::Core::PipelineEngine]
       # @param job_executor [Nanoci::Core::JobExecutor]
       # @param project_repository [Nanoci::ProjectRepository]
-      # @param stage_complete_topic [Nanoci::Messaging::Topic]
-      # @param job_complete_topic [Nanoci::Messaging::Topic]
-      def initialize(job_executor, project_repository, stage_complete_topic, job_complete_topic)
+      # @param topics [Hash{Symbol=>Nanoci::Messaging::Topic}]
+      def initialize(job_executor, project_repository, topics)
         # @type [Hash{Symbol => Array<Symbol>}]
         @job_executor = job_executor
         @project_repository = project_repository
-        @stage_complete_topic = stage_complete_topic
-        @job_complete_topic = job_complete_topic
+        # @type [Nanoci::Messaging::Topic]
+        @run_stage_topic = topics.fetch(:run_stage_topic)
+        # @type [Nanoci::Messaging::Topic]
+        @stage_complete_topic = topics.fetch(:stage_complete_topic)
+        # @type [Nanoci::Messaging::Topic]
+        @job_complete_topic = topics.fetch(:job_complete_topic)
         @running = false
       end
 
@@ -32,6 +39,8 @@ module Nanoci
         @stage_complete_topic.attach(@stage_complete_sub)
         @job_complete_sub = Messaging::Subscription.new('pipeline_engine_job_complete_sub')
         @job_complete_topic.attach(@job_complete_sub)
+        @run_stage_sub = Messaging::Subscription.new('pipeline_engine_run_stage_sub')
+        @run_stage_topic.attach(@run_stage_sub)
 
         @running = true
 
@@ -45,6 +54,7 @@ module Nanoci
 
         @stage_complete_topic.detach(@stage_complete_sub)
         @job_complete_topic.detach(@job_complete_sub)
+        @run_stage_topic.detach(@run_stage_sub)
 
         log.info 'the pipeline engine is stopped'
       end
@@ -54,6 +64,7 @@ module Nanoci
 
         tick_job_complete_queue
         tick_stage_complete_queue
+        tick_run_stage_queue
       end
 
       # Runs the pipeline on the pipeline engine
@@ -70,12 +81,12 @@ module Nanoci
       # @param project_tag [Symbol]
       # @param stage_tag [Symbol] stage
       # @param outputs [Hash{Symbol => String}] stage outputs
-      def stage_complete(project_tag, stage_tag, outputs)
+      def stage_complete(project_tag, stage_tag, outputs, trigger_rule)
         log.info "pulse signal of completion <#{stage_tag}>"
         project = @project_repository.find_by_tag(project_tag)
         project.pipeline.pipes.fetch(stage_tag, []).each do |next_stage_tag|
-          next_stage = project.pipeline.find_stage(next_stage_tag)
-          run_stage(project, next_stage, outputs)
+          m = Messages::RunStageMessage.new(project_tag, next_stage_tag, outputs, trigger_rule)
+          @run_stage_topic.publish(m)
         end
       end
 
@@ -120,8 +131,8 @@ module Nanoci
 
         return unless stage.jobs_idle?
 
-        message = Messages::StageCompleteMessage.new(project_tag, stage_tag, stage.outputs)
-        @stage_complete_topic.publish(message)
+        m = Messages::StageCompleteMessage.new(project_tag, stage_tag, stage.outputs, stage.downstream_trigger_rule)
+        @stage_complete_topic.publish(m)
       end
 
       private
@@ -144,9 +155,30 @@ module Nanoci
 
         # @type [Nanoci::Core::Messages::StageCompleteMessage]
         message = scm.message
-        stage_complete(message.project_tag, message.stage_tag, message.outputs)
+        stage_complete(message.project_tag, message.stage_tag, message.outputs, message.downstream_trigger_rule)
         scm.ack
+      end
+
+      def tick_run_stage_queue
+        # @type [Nanoci::Messaging::MessageReceipt]
+        m = @run_stage_sub.pull
+        return if m.nil?
+
+        # @type [Nanoci::Core::Messages::RunStageMessage]
+        mp = m.message
+        project = @project_repository.find_by_tag(mp.project_tag)
+        stage = project.pipeline.find_stage(mp.stage_tag)
+        if stage.state == Stage::State::IDLE
+          run_stage(project, stage, mp.next_inputs)
+        else
+          case mp.trigger_rule
+          when DownstreamTriggerRule.ignore_if_running then m.ack
+          else m.nack
+          end
+        end
       end
     end
   end
 end
+
+# rubocop:enable Metrics/ClassLength

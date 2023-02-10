@@ -97,7 +97,7 @@ module Nanoci
 
     def hydrate_trigger(memento)
       trigger_clazz = Nanoci::Core::Trigger.find_trigger_type memento[FIELD_TRIGGER_TYPE]
-      trigger = trigger_clazz.new(tag: memento[:tag], project_tag: memento[:project_tag])
+      trigger = trigger_clazz.new(tag: memento[:tag], project_tag: memento[:project_tag], options: memento[:options])
       trigger.memento = memento
       trigger
     end

@@ -33,6 +33,9 @@ module Nanoci
       # @return [Array<Nanoci::Job>]
       attr_reader :jobs
 
+      # @return [Symbol]
+      attr_reader :downstream_trigger_rule
+
       attr_reader :state
 
       # Initializes new instance of [Stage]
@@ -40,10 +43,11 @@ module Nanoci
       # @param inputs [Array<Symbol>] Array of triggering inputs
       # @param jobs [Array<Job>] Array of stage jobs
       # @return [Stage]
-      def initialize(tag:, inputs:, jobs:, hooks:)
+      def initialize(tag:, inputs:, jobs:, hooks:, downstream_trigger_rule:)
         @tag = tag
         @triggering_inputs = inputs
         @jobs = jobs
+        @downstream_trigger_rule = downstream_trigger_rule || DownstreamTriggerRule.queue
         @hooks = hooks
         @inputs = {}
         @prev_inputs = {}
@@ -103,6 +107,7 @@ module Nanoci
         {
           tag: tag,
           state: state,
+          downstream_trigger_rule: @downstream_trigger_rule,
           jobs: @jobs.to_h { |j| [j.tag, j.memento] },
           inputs: @inputs,
           outputs: @outputs,
@@ -120,6 +125,7 @@ module Nanoci
         raise ArgumentError, "stage tag #{tag} does not match memento tag #{memento[:tag]}" unless tag == memento[:tag]
 
         @state = memento.fetch(:state)
+        @downstream_trigger_rule = memento.fetch(:downstream_trigger_rule)
         @inputs = memento.fetch(:inputs, {})
         @outputs = memento.fetch(:outputs, {})
         @pending_outputs = memento.fetch(:pending_outputs, {})

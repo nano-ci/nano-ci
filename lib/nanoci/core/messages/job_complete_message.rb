@@ -31,10 +31,10 @@ module Nanoci
           super
 
           hash = YAML.safe_load(payload_str)
-          @project_tag = hash.get(:project_tag)
-          @stage_tag = hash.get(:stage_tag)
-          @stage_tag = hash.get(:job_tag)
-          @outputs = hash.get(:outputs)
+          @project_tag = hash.fetch(:project_tag)
+          @stage_tag = hash.fetch(:stage_tag)
+          @stage_tag = hash.fetch(:job_tag)
+          @outputs = hash.fetch(:outputs)
         end
 
         private

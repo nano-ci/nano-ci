@@ -57,6 +57,7 @@ module Nanoci
       def setup_messaging
         @stage_complete_topic = Messaging::Topic.new('stage_complete')
         @job_complete_topic = Messaging::Topic.new('job_complete')
+        @run_stage_topic = Messaging::Topic.new('run_stage')
       end
 
       def setup_db
@@ -70,8 +71,11 @@ module Nanoci
         @pipeline_engine = Core::PipelineEngine.new(
           @job_executor,
           @project_repository,
-          @stage_complete_topic,
-          @job_complete_topic
+          {
+            stage_complete_topic: @stage_complete_topic,
+            job_complete_topic: @job_complete_topic,
+            run_stage_topic: @run_stage_topic
+          }
         )
       end
 
