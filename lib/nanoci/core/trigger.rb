@@ -4,6 +4,8 @@ require 'nanoci/mixins/logger'
 require 'nanoci/mixins/provides'
 require 'nanoci/system/event'
 
+require_relative 'downstream_trigger_rule'
+
 module Nanoci
   module Core
     # Base class for nano-ci triggers
@@ -38,6 +40,9 @@ module Nanoci
       # @return [Symbol]
       attr_reader :project_tag
 
+      # @return [Symbol]
+      attr_reader :downstream_trigger_rule
+
       # Gets the fully formatted tag for pipeline pipes
       # @return [Symbol]
       def full_tag
@@ -65,10 +70,14 @@ module Nanoci
       attr_reader :next_run_time
 
       # Initializes new instance of [Trigger]
-      # @param definition [Hash]
-      def initialize(tag:, project_tag:)
+      # @param tag [Symbol] trigger tag
+      # @param project_tag [Symbol] project tag
+      # @param options [Hahs] optional args
+      def initialize(tag:, project_tag:, options: {})
         @tag = tag
         @project_tag = project_tag
+        @options = options || {}
+        @downstream_trigger_rule = @options.fetch(:downstream_trigger_rule, Nanoci::Core::DownstreamTriggerRule.queue)
         @start_time = nil
         @end_time = nil
         @previous_run_time = nil
@@ -105,6 +114,7 @@ module Nanoci
           id: id,
           tag: tag,
           project_tag: project_tag,
+          options: @options,
           start_time: start_time,
           end_time: end_time,
           previous_run_time: previous_run_time,

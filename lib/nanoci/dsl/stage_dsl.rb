@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-require 'nanoci/core/stage'
+require_relative '../core/downstream_trigger_rule'
+require_relative '../core/stage'
 require 'nanoci/dsl/job_dsl'
 
 module Nanoci
@@ -12,7 +13,14 @@ module Nanoci
         @tag = tag
         @inputs = inputs
         @jobs = []
+        @downstream_trigger_rule = Core::DownstreamTriggerRule.queue
         @hooks = {}
+      end
+
+      def downstream_trigger_rule(rule)
+        raise "invalid downstream_trigger_rule value: #{rule}" unless Core::DownstreamTriggerRule.key?(rule)
+
+        @downstream_trigger_rule = rule
       end
 
       def job(tag, **params, &block)
@@ -40,6 +48,7 @@ module Nanoci
           tag: @tag,
           inputs: @inputs,
           jobs: @jobs.collect(&:build),
+          downstream_trigger_rule: @downstream_trigger_rule,
           hooks: pipeline_hooks.select { |k, _| Core::Stage::STAGE_HOOKS.include? k }.merge(@hooks)
         )
       end

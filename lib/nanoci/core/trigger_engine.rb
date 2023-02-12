@@ -51,9 +51,13 @@ module Nanoci
         @trigger_repository.due_triggers?(due_ts: Time.now.utc, projects: @enabled_projects.to_a)
       end
 
+      # @param trigger [Nanoci::Core::trigger]
       def process_trigger(trigger)
+        project_tag = trigger.project_tag
+        trigger_tag = trigger.full_tag
         outputs = trigger.pulse
-        message = Messages::StageCompleteMessage.new(trigger.project_tag, trigger.full_tag, outputs)
+        dtr = trigger.downstream_trigger_rule
+        message = Messages::StageCompleteMessage.new(project_tag, trigger_tag, outputs, dtr)
         @stage_complete_topic.publish(message)
       ensure
         store_and_release_trigger trigger

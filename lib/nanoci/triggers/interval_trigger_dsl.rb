@@ -9,14 +9,12 @@ module Nanoci
     # Extends TriggerDSL to support properties for IntervalTrigger
     class IntervalTriggerDSL < Nanoci::DSL::TriggerDSL
       def interval(value)
-        @interval = value
+        @options[:interval] = value
       end
 
-      def build
-        trigger = IntervalTrigger.new(tag: @tag, project_tag: @project_tag)
-        trigger.interval = @interval
-        trigger
-      end
+      protected
+
+      def clazz = IntervalTrigger
     end
 
     Nanoci::DSL::PipelineDSL.add_dsl_type(:interval, Nanoci::Triggers::IntervalTriggerDSL)

@@ -166,14 +166,12 @@ RSpec.describe Nanoci::Core::Stage do
     expect(stage.jobs_idle?).to be false
   end
 
-  it '#validate raises ArgumentError if #tag is nil' do
-    stage = Nanoci::Core::Stage.new(tag: nil, inputs: [], jobs: [], hooks: {})
-    expect { stage.validate }.to raise_error ArgumentError
+  it '#initialize raises ArgumentError if #tag is nil' do
+    expect { Nanoci::Core::Stage.new(tag: nil, inputs: [], jobs: [], hooks: {}) }.to raise_error ArgumentError
   end
 
-  it '#validate raises ArgumentError if #tag is not a Symbol' do
-    stage = Nanoci::Core::Stage.new(tag: 123, inputs: [], jobs: [], hooks: {})
-    expect { stage.validate }.to raise_error ArgumentError
+  it '#initialize raises ArgumentError if #tag is not a Symbol' do
+    expect { Nanoci::Core::Stage.new(tag: 123, inputs: [], jobs: [], hooks: {}) }.to raise_error ArgumentError
   end
 
   it '#validate raises ArgumentError if #triggering_inputs is nil' do
