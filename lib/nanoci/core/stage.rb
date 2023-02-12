@@ -43,7 +43,9 @@ module Nanoci
       # @param inputs [Array<Symbol>] Array of triggering inputs
       # @param jobs [Array<Job>] Array of stage jobs
       # @return [Stage]
-      def initialize(tag:, inputs:, jobs:, hooks:, downstream_trigger_rule:)
+      def initialize(tag:, inputs:, jobs:, hooks:, downstream_trigger_rule: DownstreamTriggerRule.queue)
+        raise ArgumentError, 'tag is not a Symbol' unless tag.is_a? Symbol
+
         @tag = tag.to_sym
         @triggering_inputs = inputs
         @jobs = jobs
@@ -97,8 +99,6 @@ module Nanoci
       def success? = jobs.all?(&:success?)
 
       def validate
-        raise ArgumentError, 'tag must be a Symbol' if tag.nil? || !tag.is_a?(Symbol)
-
         validate_triggering_inputs
         validate_jobs
       end
@@ -121,16 +121,18 @@ module Nanoci
         CODE
       end
 
+      # rubocop:disable Metrics:ABCSize
       def memento=(memento)
         raise ArgumentError, "stage tag #{tag} does not match memento tag #{memento[:tag]}" unless tag == memento[:tag]
 
         @state = memento.fetch(:state)
-        @downstream_trigger_rule = memento.fetch(:downstream_trigger_rule)
+        @downstream_trigger_rule = memento.fetch(:downstream_trigger_rule, DownstreamTriggerRule.queue)
         @inputs = memento.fetch(:inputs, {})
         @outputs = memento.fetch(:outputs, {})
         @pending_outputs = memento.fetch(:pending_outputs, {})
         memento.fetch(:jobs, {}).each { |tag, job_memento| find_job(tag)&.memento = job_memento }
       end
+      # rubocop:enable Metrics:ABCSize
 
       def to_s = "##{tag}"
 

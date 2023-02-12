@@ -26,7 +26,12 @@ RSpec.describe Nanoci::Core::PipelineEngine do
     )
     expect(pipeline).to receive(:validate)
     project = Nanoci::Core::Project.new(name: 'abc', tag: :def, pipeline: pipeline)
-    eng = Nanoci::Core::PipelineEngine.new(nil, nil, nil, nil)
+    topics = {
+      stage_complete_topic: double(:stage_complete_topic),
+      job_complete_topic: double(:job_complete_topic),
+      run_stage_topic: double(:run_stage_topic)
+    }
+    eng = Nanoci::Core::PipelineEngine.new(nil, nil, topics)
     eng.run_project project
   end
 
@@ -41,7 +46,12 @@ RSpec.describe Nanoci::Core::PipelineEngine do
       :inputs,
       :prev_inputs
     )
-    eng = Nanoci::Core::PipelineEngine.new(job_executor, nil, nil, nil)
+    topics = {
+      stage_complete_topic: double(:stage_complete_topic),
+      job_complete_topic: double(:job_complete_topic),
+      run_stage_topic: double(:run_stage_topic)
+    }
+    eng = Nanoci::Core::PipelineEngine.new(job_executor, nil, topics)
     eng.run_job(:project, :stage, job, :inputs, :prev_inputs)
   end
 
@@ -71,8 +81,14 @@ RSpec.describe Nanoci::Core::PipelineEngine do
     stage_complete_topic = double(:stage_complete_topic)
     allow(stage_complete_topic).to receive(:publish)
     job_complete_topic = double(:job_complete_topic)
+    run_stage_topic = double(:run_stage_topic)
+    topics = {
+      stage_complete_topic: stage_complete_topic,
+      job_complete_topic: job_complete_topic,
+      run_stage_topic: run_stage_topic
+    }
 
-    eng = Nanoci::Core::PipelineEngine.new(nil, project_repository, stage_complete_topic, job_complete_topic)
+    eng = Nanoci::Core::PipelineEngine.new(nil, project_repository, topics)
     eng.run_project(project)
 
     pipeline_engine = double(:pipeline_engine)
@@ -110,7 +126,12 @@ RSpec.describe Nanoci::Core::PipelineEngine do
     allow(project_repository).to receive(:find_by_tag).and_return(project)
     expect(project_repository).to receive(:save_stage)
 
-    eng = Nanoci::Core::PipelineEngine.new(nil, project_repository, nil, nil)
+    topics = {
+      stage_complete_topic: double(:stage_complete_topic),
+      job_complete_topic: double(:job_complete_topic),
+      run_stage_topic: double(:run_stage_topic)
+    }
+    eng = Nanoci::Core::PipelineEngine.new(nil, project_repository, topics)
     eng.run_project(project)
     job_b.state = Nanoci::Core::Job::State::RUNNING
 
@@ -127,7 +148,6 @@ RSpec.describe Nanoci::Core::PipelineEngine do
     allow(stage).to receive(:tag).and_return(:stage_tag)
     allow(stage).to receive(:inputs).and_return({ abc: 123 })
     allow(stage).to receive(:prev_inputs).and_return({ abc: 12 })
-    expect(stage).to receive(:run).and_return([])
     pipeline = Nanoci::Core::Pipeline.new(
       tag: :pipeline_tag,
       name: 'pipeline name',
@@ -141,11 +161,18 @@ RSpec.describe Nanoci::Core::PipelineEngine do
 
     project_repository = double(:project_repository)
     allow(project_repository).to receive(:find_by_tag).and_return(project)
-    expect(project_repository).to receive(:save_stage)
 
-    eng = Nanoci::Core::PipelineEngine.new(nil, project_repository, nil, nil)
+    topics = {
+      stage_complete_topic: double(:stage_complete_topic),
+      job_complete_topic: double(:job_complete_topic),
+      run_stage_topic: double(:run_stage_topic)
+    }
+
+    expect(topics[:run_stage_topic]).to receive :publish
+
+    eng = Nanoci::Core::PipelineEngine.new(nil, project_repository, topics)
     eng.run_project(project)
     outputs = trigger.trigger_pulse
-    eng.stage_complete(trigger.project_tag, trigger.full_tag, outputs)
+    eng.stage_complete(trigger.project_tag, trigger.full_tag, outputs, Nanoci::Core::DownstreamTriggerRule.queue)
   end
 end

@@ -73,7 +73,7 @@ module Nanoci
       # @param tag [Symbol] trigger tag
       # @param project_tag [Symbol] project tag
       # @param options [Hahs] optional args
-      def initialize(tag:, project_tag:, options:)
+      def initialize(tag:, project_tag:, options: {})
         @tag = tag
         @project_tag = project_tag
         @options = options || {}
