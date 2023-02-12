@@ -44,7 +44,7 @@ module Nanoci
       # @param jobs [Array<Job>] Array of stage jobs
       # @return [Stage]
       def initialize(tag:, inputs:, jobs:, hooks:, downstream_trigger_rule:)
-        @tag = tag
+        @tag = tag.to_sym
         @triggering_inputs = inputs
         @jobs = jobs
         @downstream_trigger_rule = downstream_trigger_rule || DownstreamTriggerRule.queue
@@ -129,9 +129,7 @@ module Nanoci
         @inputs = memento.fetch(:inputs, {})
         @outputs = memento.fetch(:outputs, {})
         @pending_outputs = memento.fetch(:pending_outputs, {})
-        memento.fetch(:jobs, {}).each do |tag, job_memento|
-          find_job(tag.to_sym)&.memento = job_memento
-        end
+        memento.fetch(:jobs, {}).each { |tag, job_memento| find_job(tag)&.memento = job_memento }
       end
 
       def to_s = "##{tag}"

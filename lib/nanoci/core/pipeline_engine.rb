@@ -164,18 +164,23 @@ module Nanoci
         m = @run_stage_sub.pull
         return if m.nil?
 
-        # @type [Nanoci::Core::Messages::RunStageMessage]
-        mp = m.message
-        project = @project_repository.find_by_tag(mp.project_tag)
-        stage = project.pipeline.find_stage(mp.stage_tag)
-        if stage.state == Stage::State::IDLE
-          run_stage(project, stage, mp.next_inputs)
+        if trigger_stage(m.message.project_tag, m.message.stage_tag, m.message.next_inputs)
+          m.ack
         else
           case mp.trigger_rule
           when DownstreamTriggerRule.ignore_if_running then m.ack
           else m.nack
           end
         end
+      end
+
+      def trigger_stage(project_tag, stage_tag, inputs)
+        project = @project_repository.find_by_tag(project_tag)
+        stage = project.pipeline.find_stage(stage_tag)
+        return false if stage.state != Stage::State::IDLE
+
+        run_stage(project, stage, inputs)
+        true
       end
     end
   end
