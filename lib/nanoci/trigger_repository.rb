@@ -62,7 +62,7 @@ module Nanoci
       memento = doc.clone
       memento[:id] = memento[:_id]
       memento.delete :_id
-      memento
+      memento.symbolize_keys
     end
 
     def find_by_tag(project_tag, tag)

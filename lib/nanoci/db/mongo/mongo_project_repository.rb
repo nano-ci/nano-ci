@@ -101,7 +101,7 @@ module Nanoci
           memento[:tag] = doc[:tag]
           memento[:src] = doc[:src]
           memento[:pipeline] = doc[:pipeline] if doc.key? :pipeline
-          memento
+          memento.symbolize_keys
         end
       end
     end

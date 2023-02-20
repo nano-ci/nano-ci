@@ -167,7 +167,7 @@ module Nanoci
         if trigger_stage(m.message.project_tag, m.message.stage_tag, m.message.next_inputs)
           m.ack
         else
-          case mp.trigger_rule
+          case m.message.trigger_rule
           when DownstreamTriggerRule.ignore_if_running then m.ack
           else m.nack
           end
