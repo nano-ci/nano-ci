@@ -7,23 +7,27 @@ module Nanoci
     module Mongo
       # Implements TriggerRepository. Stores data in MongoDB
       class MongoTriggerRepository < TriggerRepository
-        TRIGGERS_COLLECTION = :triggers
-
-        def initialize(client)
+        def initialize(client, klass, collecion_name)
           super()
           @client = client
+          @class = klass
+          @collecion_name = collecion_name
         end
 
         def due_triggers?(due_ts:, projects:)
           query = build_due_triggers_query(due_ts: due_ts, projects: projects, state: LOCK_WAITING)
-          @client[TRIGGERS_COLLECTION].find(query).count.positive?
+          collection.find(query).count.positive?
         end
 
         protected
 
+        def collection
+          @client[@collecion_name]
+        end
+
         def find_by_tag(project_tag, tag)
           docs = []
-          @client[TRIGGERS_COLLECTION].find(project_tag: project_tag, tag: tag).each do |d|
+          collection.find(project_tag: project_tag, tag: tag).each do |d|
             docs.push(d)
           end
 
@@ -40,7 +44,7 @@ module Nanoci
               FIELD_LOCK_EXPIRES => Time.now.utc + LOCK_TIMEOUT
             }
           }
-          @client[TRIGGERS_COLLECTION].find_one_and_update(query, update, return_document: :after)
+          collection.find_one_and_update(query, update, return_document: :after)
         end
 
         def update_and_release_doc(id, doc)
@@ -51,11 +55,11 @@ module Nanoci
                                 FIELD_LOCK_EXPIRES => nil
                               })
           }
-          @client[TRIGGERS_COLLECTION].find_one_and_update(query, update, return_document: :after)
+          collection.find_one_and_update(query, update, return_document: :after)
         end
 
         def insert_doc(doc)
-          result = @client[TRIGGERS_COLLECTION].insert_one(doc)
+          result = collection.insert_one(doc)
           doc[:_id] = result.inserted_id if result.successful?
           doc
         end

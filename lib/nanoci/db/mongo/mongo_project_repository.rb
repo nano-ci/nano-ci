@@ -9,10 +9,10 @@ module Nanoci
     module Mongo
       # Implements ProjectRepositry. Stores data in MongoDB
       class MongoProjectRepository
-        PROJECTS_COLLECTION = :projects
-
-        def initialize(client)
+        def initialize(client, klass, collection_name)
           @client = client
+          @klass = klass
+          @collection_name = collection_name
         end
 
         # Adds a project to the repository
@@ -53,9 +53,13 @@ module Nanoci
 
         private
 
+        def collection
+          @client[@collection_name]
+        end
+
         def find_one(query)
           docs = []
-          @client[PROJECTS_COLLECTION].find(query).each do |d|
+          collection.find(query).each do |d|
             docs.push(d)
           end
 
@@ -66,14 +70,14 @@ module Nanoci
 
         def insert_project(memento)
           doc = map_memento_to_doc(memento)
-          result = @client[PROJECTS_COLLECTION].insert_one(doc)
+          result = collection.insert_one(doc)
           memento[:id] = result.inserted_id if result.successful?
           memento
         end
 
         def update_project(memento)
           doc = map_memento_to_doc(memento)
-          @client[PROJECTS_COLLECTION].find_one_and_update({ _id: doc[:_id] }, doc)
+          collection.find_one_and_update({ _id: doc[:_id] }, doc)
         end
 
         def update_stage(project_id, stage_tag, memento)
@@ -83,7 +87,7 @@ module Nanoci
             },
             '$currentDate': { last_modified_ts: true }
           }
-          @client[PROJECTS_COLLECTION].find_one_and_update({ _id: project_id }, update_doc)
+          collection.find_one_and_update({ _id: project_id }, update_doc)
         end
 
         def map_memento_to_doc(memento)
