@@ -30,8 +30,16 @@ module Nanoci
         private
 
         TYPE_MAP = {
-          Nanoci::Core::Project => :projects,
-          Nanoci::Core::Trigger => :triggers
+          Nanoci::Core::Project => {
+            collection: :projects,
+            to_doc_mapper: MongoDocMappers::MEMENTO_TO_DOC,
+            from_doc_mapper: MongoDocMappers::DOC_TO_MEMENTO
+          },
+          Nanoci::Core::Trigger => {
+            collection: :triggers,
+            to_doc_mapper: MongoDocMappers::MEMENTO_TO_DOC,
+            from_doc_mapper: MongoDocMappers::DOC_TO_MEMENTO
+          }
         }.freeze
 
         CLIENT_OPTIONS = %i[app_name].freeze

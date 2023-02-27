@@ -7,11 +7,13 @@ module Nanoci
     module Mongo
       # Implements TriggerRepository. Stores data in MongoDB
       class MongoTriggerRepository < TriggerRepository
-        def initialize(client, klass, collecion_name)
+        def initialize(client, klass, type_map)
           super()
           @client = client
           @class = klass
-          @collecion_name = collecion_name
+          @collecion_name = type_map[:collection]
+          @from_doc_mapper = type_map[:from_doc_mapper]
+          @to_doc_mapper = type_map[:to_doc_mapper]
         end
 
         def due_triggers?(due_ts:, projects:)
