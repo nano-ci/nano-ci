@@ -10,7 +10,9 @@ module Nanoci
       # Tracks changes done to domain objects
       class MongoUnitOfWork
         def initialize(client, type_map)
+          # @type [Mongo::Client]
           @client = client
+          @session = @client.start_session
           @type_map = type_map
           # @type [Hash]
           @identity_map = {}
@@ -20,19 +22,22 @@ module Nanoci
           @deleted_set = Set.new
         end
 
+        def closed? = @session.ended?
+
         def find(id)
           @identity_map[id]&.entity
         end
 
         def register_new(entity)
+          raise 'unit of work is closed' if closed?
           raise ArgumentError, '#id is not nil, the entity is not new' unless entity.id.nil?
 
-          identity = EntityTracker.new(entity)
-          @new_set.add(identity)
+          @new_set.add(EntityTracker.new(entity))
           nil
         end
 
         def register(entity)
+          raise 'unit of work is closed' if closed?
           raise ArgumentError, '#id is nil, the entity is new' if entity.id.nil?
 
           identity = EntityTracker.new(entity)
@@ -42,6 +47,7 @@ module Nanoci
         end
 
         def register_deleted(entity)
+          raise 'unit of work is closed' if closed?
           raise ArgumentError, '#id is nil, the entity is new' if entity.id.nil?
 
           identity = EntityTracker.new(entity)
@@ -51,22 +57,26 @@ module Nanoci
         end
 
         def commit
+          raise 'unit of work is closed' if closed?
+
+          @session.start_transaction
           persist_updates
           persist_deleted
           persist_new
+          @session.commit_transaction
+          @session.end_session
         end
 
         private
 
         def persist_updates
           identity_map.each do |id, t|
-            memento = t.entity.memento
-            next if t.memento == memento
+            next if t.memento == t.entity.memento
 
-            actions = build_update_actions(Hashdiff(t.memento, memento))
+            actions = build_update_actions(Hashdiff(t.memento, t.entity.memento))
 
             filter = { _id: id }
-            collection(t.entity).update_one(filter, actions)
+            collection(t.entity).update_one(filter, actions, session: @session)
           end
           identity_map.each_value(&:reset)
         end
@@ -89,11 +99,11 @@ module Nanoci
           @new_set.each do |tracker|
             entity = tracker.entity
             doc = entity_to_doc(entity)
-            result = collection(entity).insert_one(doc)
+            result = collection(entity).insert_one(doc, session: @session)
             next unless result.successful?
 
             doc[:_id] = result.inserted_id
-            entity.memento = from_doc_mapper(entity).map(doc, {})
+            doc_to_entity(entity, doc)
             inserted.push(tracker)
           end
 
@@ -106,7 +116,7 @@ module Nanoci
           trackers_by_class.each do |klass, trackers|
             ids = trackers.map(&:id)
             collection = @client[@type_map.fetch(klass)[:collection]]
-            collection.delete_many(_id: { '$in': ids })
+            collection.delete_many(_id: { '$in': ids }, session: @session)
             @deleted_set.subtract(trackers)
           end
         end
@@ -125,11 +135,11 @@ module Nanoci
         end
 
         def entity_to_doc(entity)
-          @type_map.fetch(entity.class)[:to_doc_mapper].map(tracker.entity.memento, {})
+          @type_map.fetch(entity.class)[:to_doc_mapper].map(entity.memento, {})
         end
 
-        def from_doc_mapper(entity)
-          @type_map.fetch(entity.class)[:from_doc_mapper]
+        def doc_to_entity(doc, entity)
+          entity.memento = @type_map.fetch(entity.class)[:from_doc_mapper].map(doc)
         end
       end
     end
