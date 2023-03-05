@@ -9,10 +9,12 @@ module Nanoci
     module Mongo
       # Implements ProjectRepositry. Stores data in MongoDB
       class MongoProjectRepository
-        PROJECTS_COLLECTION = :projects
-
-        def initialize(client)
+        def initialize(client, klass, type_map)
           @client = client
+          @klass = klass
+          @collection_name = type_map[:collection]
+          @to_doc_mapper = type_map[:to_doc_mapper]
+          @from_doc_mapper = type_map[:from_doc_mapper]
         end
 
         # Adds a project to the repository
@@ -25,7 +27,7 @@ module Nanoci
 
           doc = find_one(tag: project.tag)
 
-          project.memento = doc.nil? ? insert_project(project.memento) : map_doc_to_memento(doc.symbolize_keys)
+          project.memento = @from_doc_mapper.map(doc.nil? ? insert_project(project.memento) : doc.symbolize_keys, {})
 
           project
         end
@@ -43,7 +45,7 @@ module Nanoci
 
           return nil if doc.nil?
 
-          memento = map_doc_to_memento(doc)
+          memento = @from_doc_mapper.map(doc.symbolize_keys, {})
           script_dsl = DSL::ScriptDSL.from_string(memento[:src])
           project_dsl = script_dsl.projects[0]
           project = project_dsl.build
@@ -53,9 +55,13 @@ module Nanoci
 
         private
 
+        def collection
+          @client[@collection_name]
+        end
+
         def find_one(query)
           docs = []
-          @client[PROJECTS_COLLECTION].find(query).each do |d|
+          collection.find(query).each do |d|
             docs.push(d)
           end
 
@@ -65,15 +71,15 @@ module Nanoci
         end
 
         def insert_project(memento)
-          doc = map_memento_to_doc(memento)
-          result = @client[PROJECTS_COLLECTION].insert_one(doc)
-          memento[:id] = result.inserted_id if result.successful?
-          memento
+          doc = @to_doc_mapper.map(memento, {})
+          result = collection.insert_one(doc)
+          doc[:_id] = result.inserted_id if result.successful?
+          doc
         end
 
         def update_project(memento)
-          doc = map_memento_to_doc(memento)
-          @client[PROJECTS_COLLECTION].find_one_and_update({ _id: doc[:_id] }, doc)
+          doc = @to_doc_mapper.map(memento, {})
+          collection.find_one_and_update({ _id: doc[:_id] }, doc)
         end
 
         def update_stage(project_id, stage_tag, memento)
@@ -83,25 +89,7 @@ module Nanoci
             },
             '$currentDate': { last_modified_ts: true }
           }
-          @client[PROJECTS_COLLECTION].find_one_and_update({ _id: project_id }, update_doc)
-        end
-
-        def map_memento_to_doc(memento)
-          doc = {}
-          doc[:_id] = memento[:id] if memento.key? :id
-          doc[:tag] = memento[:tag]
-          doc[:src] = memento[:src]
-          doc[:pipeline] = memento[:pipeline] if memento.key? :pipeline
-          doc
-        end
-
-        def map_doc_to_memento(doc)
-          memento = {}
-          memento[:id] = doc[:_id]
-          memento[:tag] = doc[:tag]
-          memento[:src] = doc[:src]
-          memento[:pipeline] = doc[:pipeline] if doc.key? :pipeline
-          memento.symbolize_keys
+          collection.find_one_and_update({ _id: project_id }, update_doc)
         end
       end
     end
