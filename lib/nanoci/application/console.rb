@@ -51,11 +51,10 @@ module Nanoci
         setup_messaging
         setup_job_executor
         setup_pipeline_engine
-        @trigger_engine = Core::TriggerEngine.new(@trigger_repository, @stage_complete_topic)
+        @trigger_engine = Core::TriggerEngine.new(@trigger_repository, @pipeline_engine)
       end
 
       def setup_messaging
-        @stage_complete_topic = Messaging::Topic.new('stage_complete')
         @job_complete_topic = Messaging::Topic.new('job_complete')
         @run_stage_topic = Messaging::Topic.new('run_stage')
       end
@@ -72,7 +71,6 @@ module Nanoci
           @job_executor,
           @project_repository,
           {
-            stage_complete_topic: @stage_complete_topic,
             job_complete_topic: @job_complete_topic,
             run_stage_topic: @run_stage_topic
           }

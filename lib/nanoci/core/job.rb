@@ -2,6 +2,8 @@
 
 require 'nanoci/core/job_state'
 
+require_relative 'domain_events'
+
 module Nanoci
   module Core
     # A job is a collection of tasks to run actions and produce artifacts
@@ -35,11 +37,15 @@ module Nanoci
 
       # Initializes new instance of [Job]
       # @param tag [Symbol] The job tag
+      # @param stage_tag [Symbol] The stage tag
+      # @param project_tag [Symbol] The project tag
       # @param body [Block] The job body block
       # @param work_dir [String] The job work dir relative to build path
       # @param env [Hash|Proc] Job environment variables. Can be either a hash or proc that returns a hash
-      def initialize(tag:, body:, work_dir: '.', env: nil)
-        @tag = tag&.to_sym
+      def initialize(tag:, stage_tag:, project_tag:, body:, work_dir: '.', env: nil)
+        @tag = tag.to_sym
+        @stage_tag = stage_tag
+        @project_tag = project_tag
         @work_dir = work_dir
         @body = body
         @env = env
@@ -52,6 +58,11 @@ module Nanoci
 
         raise ArgumentError, 'body is nil' if body.nil?
         raise ArgumentError, 'body is not a Proc' unless body.is_a? Proc
+      end
+
+      def schedule
+        self.state = Job::State::SCHEDULED
+        DomainEvents.instance.push(JobScheduledEvent.new(@project_tag, @stage_tag, tag))
       end
 
       def finalize(success, outputs)

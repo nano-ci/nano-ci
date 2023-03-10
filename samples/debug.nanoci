@@ -16,7 +16,6 @@ project :'debug-sample', 'main nano-ci project' do
   pipeline :pipeline, 'web service pipeline' do
     trigger :pipeline_trigger, :interval do
       interval 5
-      downstream_trigger_rule :ignore_if_running
     end
 
     stage :debug do
@@ -33,8 +32,6 @@ project :'debug-sample', 'main nano-ci project' do
         puts 'job\'s done'
         { done: true }
       end
-
-      downstream_trigger_rule :queue
     end
 
     stage :report do

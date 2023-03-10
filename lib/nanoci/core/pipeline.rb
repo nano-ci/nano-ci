@@ -7,6 +7,7 @@ require 'nanoci/mixins/logger'
 module Nanoci
   module Core
     # Pipeline is the  class that organizes data flow between project stages.
+    # rubocop:disable Metrics:ClassLength
     class Pipeline
       include Mixins::Logger
 
@@ -31,6 +32,10 @@ module Nanoci
       # @return [Hash{Symbol => Proc}]
       attr_reader :hooks
 
+      def events
+        @stages.map(&:events).flat_map { |x| x } + @events
+      end
+
       # Initializes new instance of Pipeline
       # @param tag [Symbol] Pipeline tag
       # @param name [String] Pipeline name
@@ -45,6 +50,7 @@ module Nanoci
         @stages = stages
         @pipes = pipes
         @hooks = hooks
+        @events = []
 
         validate
       end
@@ -71,6 +77,21 @@ module Nanoci
         triggers.select { |t| t.full_tag == tag }.first
       end
 
+      def job_complete(stage_tag, job_tag, outputs)
+        stage = find_stage(stage_tag)
+        stage.job_complete(job_tag, outputs)
+        on_stage_complete(stage) if stage.success?
+      end
+
+      def trigger_fired(trigger_tag, outputs)
+        trigger = find_trigger(trigger_tag)
+        trigger_downstream(trigger.full_tag, outputs)
+      end
+
+      def on_stage_complete(stage)
+        trigger_downstream(stage.tag, stage.outputs)
+      end
+
       def memento
         {
           stages: @stages.to_h { |s| [s.tag, s.memento] }
@@ -85,6 +106,13 @@ module Nanoci
       end
 
       private
+
+      def trigger_downstream(upstream_stage_tag, outputs)
+        pipes.fetch(upstream_stage_tag, []).each do |next_stage_tag|
+          next_stage = find_stage(next_stage_tag)
+          next_stage.trigger(outputs)
+        end
+      end
 
       def validate_triggers
         raise ArgumentError, 'triggers is nil' if triggers.nil?

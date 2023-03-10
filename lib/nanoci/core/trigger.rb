@@ -40,9 +40,6 @@ module Nanoci
       # @return [Symbol]
       attr_reader :project_tag
 
-      # @return [Symbol]
-      attr_reader :downstream_trigger_rule
-
       # Gets the fully formatted tag for pipeline pipes
       # @return [Symbol]
       def full_tag
@@ -77,7 +74,6 @@ module Nanoci
         @tag = tag
         @project_tag = project_tag
         @options = options || {}
-        @downstream_trigger_rule = @options.fetch(:downstream_trigger_rule, Nanoci::Core::DownstreamTriggerRule.queue)
         @start_time = nil
         @end_time = nil
         @previous_run_time = nil

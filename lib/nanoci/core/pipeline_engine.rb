@@ -2,12 +2,11 @@
 
 require_relative '../messaging/topic'
 require_relative '../messaging/subscription'
+require_relative 'domain_events'
 require_relative 'downstream_trigger_rule'
 require_relative 'messages/run_stage_message'
 require_relative 'messages/stage_complete_message'
 require 'nanoci/mixins/logger'
-
-# rubocop:disable Metrics/ClassLength
 
 module Nanoci
   module Core
@@ -26,17 +25,16 @@ module Nanoci
         # @type [Nanoci::Messaging::Topic]
         @run_stage_topic = topics.fetch(:run_stage_topic)
         # @type [Nanoci::Messaging::Topic]
-        @stage_complete_topic = topics.fetch(:stage_complete_topic)
-        # @type [Nanoci::Messaging::Topic]
         @job_complete_topic = topics.fetch(:job_complete_topic)
         @running = false
+        @domain_events_map = {
+          JobScheduledEvent => [method(:on_job_scheduled_event)]
+        }
       end
 
       def start
         log.info 'starting the pipeline engine...'
 
-        @stage_complete_sub = Messaging::Subscription.new('pipeline_engine_stage_complete_sub')
-        @stage_complete_topic.attach(@stage_complete_sub)
         @job_complete_sub = Messaging::Subscription.new('pipeline_engine_job_complete_sub')
         @job_complete_topic.attach(@job_complete_sub)
         @run_stage_sub = Messaging::Subscription.new('pipeline_engine_run_stage_sub')
@@ -52,7 +50,6 @@ module Nanoci
 
         @running = false
 
-        @stage_complete_topic.detach(@stage_complete_sub)
         @job_complete_topic.detach(@job_complete_sub)
         @run_stage_topic.detach(@run_stage_sub)
 
@@ -63,8 +60,6 @@ module Nanoci
         return if cancellation_token.cancellation_requested?
 
         tick_job_complete_queue
-        tick_stage_complete_queue
-        tick_run_stage_queue
       end
 
       # Runs the pipeline on the pipeline engine
@@ -75,38 +70,6 @@ module Nanoci
         log.info "adding pipeline <#{pipeline.tag}> to pipeline engine"
 
         log.info "pipeline <#{pipeline.tag}> is running"
-      end
-
-      # Signals engine that stage is complete
-      # @param project_tag [Symbol]
-      # @param stage_tag [Symbol] stage
-      # @param outputs [Hash{Symbol => String}] stage outputs
-      def stage_complete(project_tag, stage_tag, outputs, trigger_rule)
-        log.info "pulse signal of completion <#{stage_tag}>"
-        project = @project_repository.find_by_tag(project_tag)
-        project.pipeline.pipes.fetch(stage_tag, []).each do |next_stage_tag|
-          m = Messages::RunStageMessage.new(project_tag, next_stage_tag, outputs, trigger_rule)
-          @run_stage_topic.publish(m)
-        end
-      end
-
-      def run_stage(project, stage, next_inputs)
-        jobs = stage.run(next_inputs)
-        prepare_jobs_to_run(jobs)
-        @project_repository.save_stage(project, stage)
-        run_jobs(jobs, project, stage, stage.inputs, stage.prev_inputs) unless jobs.nil?
-      end
-
-      def run_jobs(jobs, project, stage, inputs, prev_inputs)
-        jobs.each do |x|
-          run_job(project, stage, x, inputs, prev_inputs)
-        end
-      end
-
-      def prepare_jobs_to_run(jobs)
-        jobs.each do |x|
-          x.state = Job::State::SCHEDULED
-        end
       end
 
       # Schedules execution of the job
@@ -122,20 +85,34 @@ module Nanoci
 
       def job_complete(project_tag, stage_tag, job_tag, outputs)
         project = @project_repository.find_by_tag(project_tag)
-        stage = project.pipeline.find_stage(stage_tag)
-        job = stage.find_job(job_tag)
-        job.finalize(true, outputs)
-        stage.job_complete(job)
+        project.job_complete(stage_tag, job_tag, outputs)
 
-        @project_repository.save_stage(project, stage)
+        @project_repository.save(project)
 
-        return unless stage.jobs_idle?
+        dispatch_domain_events
+      end
 
-        m = Messages::StageCompleteMessage.new(project_tag, stage_tag, stage.outputs, stage.downstream_trigger_rule)
-        @stage_complete_topic.publish(m)
+      def trigger_fired(project_tag, trigger_tag, outputs)
+        project = @project_repository.find_by_tag(project_tag)
+        project.trigger_fired(trigger_tag, outputs)
+
+        @project_repository.save(project)
+
+        dispatch_domain_events
       end
 
       private
+
+      def dispatch_domain_events
+        until DomainEvents.instance.empty?
+          e = DomainEvents.instance.shift
+          raise "unknown domain event class #{e.class}" unless @domain_events_map.key?(e.class)
+
+          @domain_events_map[e.class].each do |h|
+            h.call(e)
+          end
+        end
+      end
 
       def tick_job_complete_queue
         # @type [Nanoci::Messaging::MessageReceipt]
@@ -146,17 +123,6 @@ module Nanoci
         message = jcm.message
         job_complete(message.project_tag, message.stage_tag, message.job_tag, message.outputs)
         jcm.ack
-      end
-
-      def tick_stage_complete_queue
-        # @type [Nanoci::Messaging::MessageReceipt]
-        scm = @stage_complete_sub.pull
-        return if scm.nil?
-
-        # @type [Nanoci::Core::Messages::StageCompleteMessage]
-        message = scm.message
-        stage_complete(message.project_tag, message.stage_tag, message.outputs, message.downstream_trigger_rule)
-        scm.ack
       end
 
       def tick_run_stage_queue
@@ -182,8 +148,13 @@ module Nanoci
         run_stage(project, stage, inputs)
         true
       end
+
+      def on_job_scheduled_event(event)
+        project = @project_repository.find_by_tag(event.project_tag)
+        stage = project.pipeline.find_stage(event.stage_tag)
+        job = stage.find_job(event.job_tag)
+        run_job(project, stage, job, stage.inputs, stage.prev_inputs)
+      end
     end
   end
 end
-
-# rubocop:enable Metrics/ClassLength
