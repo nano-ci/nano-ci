@@ -23,8 +23,6 @@ module Nanoci
         @job_executor = job_executor
         @project_repository = project_repository
         # @type [Nanoci::Messaging::Topic]
-        @run_stage_topic = topics.fetch(:run_stage_topic)
-        # @type [Nanoci::Messaging::Topic]
         @job_complete_topic = topics.fetch(:job_complete_topic)
         @running = false
         @domain_events_map = {
@@ -37,8 +35,6 @@ module Nanoci
 
         @job_complete_sub = Messaging::Subscription.new('pipeline_engine_job_complete_sub')
         @job_complete_topic.attach(@job_complete_sub)
-        @run_stage_sub = Messaging::Subscription.new('pipeline_engine_run_stage_sub')
-        @run_stage_topic.attach(@run_stage_sub)
 
         @running = true
 
@@ -51,7 +47,6 @@ module Nanoci
         @running = false
 
         @job_complete_topic.detach(@job_complete_sub)
-        @run_stage_topic.detach(@run_stage_sub)
 
         log.info 'the pipeline engine is stopped'
       end
@@ -123,30 +118,6 @@ module Nanoci
         message = jcm.message
         job_complete(message.project_tag, message.stage_tag, message.job_tag, message.outputs)
         jcm.ack
-      end
-
-      def tick_run_stage_queue
-        # @type [Nanoci::Messaging::MessageReceipt]
-        m = @run_stage_sub.pull
-        return if m.nil?
-
-        if trigger_stage(m.message.project_tag, m.message.stage_tag, m.message.next_inputs)
-          m.ack
-        else
-          case m.message.trigger_rule
-          when DownstreamTriggerRule.ignore_if_running then m.ack
-          else m.nack
-          end
-        end
-      end
-
-      def trigger_stage(project_tag, stage_tag, inputs)
-        project = @project_repository.find_by_tag(project_tag)
-        stage = project.pipeline.find_stage(stage_tag)
-        return false if stage.state != Stage::State::IDLE
-
-        run_stage(project, stage, inputs)
-        true
       end
 
       def on_job_scheduled_event(event)
