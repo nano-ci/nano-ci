@@ -56,10 +56,12 @@ RSpec.describe Nanoci::Core::PipelineEngine do
   end
 
   it '#job_complete finalizes job and stage if all jobs are done' do
-    job = Nanoci::Core::Job.new(tag: :job_tab, body: -> {})
+    stage_a_tag = :stage_tag
+    job = Nanoci::Core::Job.new(tag: :job_tab, stage_tag: stage_a_tag, project_tag: :project, body: -> {})
 
     stage_a = Nanoci::Core::Stage.new(
-      tag: :stage_tag,
+      tag: stage_a_tag,
+      project_tag: :project,
       inputs: [],
       jobs: [job],
       hooks: {}
@@ -76,19 +78,21 @@ RSpec.describe Nanoci::Core::PipelineEngine do
 
     project_repository = double(:project_repository)
     allow(project_repository).to receive(:find_by_tag).and_return(project)
-    expect(project_repository).to receive(:save_stage)
+    expect(project_repository).to receive(:save)
 
     stage_complete_topic = double(:stage_complete_topic)
     allow(stage_complete_topic).to receive(:publish)
     job_complete_topic = double(:job_complete_topic)
     run_stage_topic = double(:run_stage_topic)
+    job_executor = double(:job_executor)
+    allow(job_executor).to receive(:schedule_job_execution)
     topics = {
       stage_complete_topic: stage_complete_topic,
       job_complete_topic: job_complete_topic,
       run_stage_topic: run_stage_topic
     }
 
-    eng = Nanoci::Core::PipelineEngine.new(nil, project_repository, topics)
+    eng = Nanoci::Core::PipelineEngine.new(job_executor, project_repository, topics)
     eng.run_project(project)
 
     pipeline_engine = double(:pipeline_engine)
@@ -103,11 +107,12 @@ RSpec.describe Nanoci::Core::PipelineEngine do
   end
 
   it '#job_complete does not finalizes job and stage if not all jobs are done' do
-    job_a = Nanoci::Core::Job.new(tag: :job_idle, body: -> {})
-    job_b = Nanoci::Core::Job.new(tag: :job_running, body: -> {})
+    job_a = Nanoci::Core::Job.new(tag: :job_idle, stage_tag: :stage, project_tag: :project, body: -> {})
+    job_b = Nanoci::Core::Job.new(tag: :job_running, stage_tag: :stage, project_tag: :project, body: -> {})
 
     stage_a = Nanoci::Core::Stage.new(
       tag: :stage_tag,
+      project_tag: :project,
       inputs: [],
       jobs: [job_a, job_b],
       hooks: {}
@@ -124,7 +129,7 @@ RSpec.describe Nanoci::Core::PipelineEngine do
 
     project_repository = double(:project_repository)
     allow(project_repository).to receive(:find_by_tag).and_return(project)
-    expect(project_repository).to receive(:save_stage)
+    expect(project_repository).to receive(:save)
 
     topics = {
       stage_complete_topic: double(:stage_complete_topic),
@@ -143,11 +148,17 @@ RSpec.describe Nanoci::Core::PipelineEngine do
 
   it 'pipeline engine runs the next stage when trigger pulses' do
     trigger = PipelineTestTrigger.new(tag: :test_trigger, project_tag: :project)
-    stage = double(:stage)
-    allow(stage).to receive(:should_trigger?).and_return(true)
-    allow(stage).to receive(:tag).and_return(:stage_tag)
-    allow(stage).to receive(:inputs).and_return({ abc: 123 })
-    allow(stage).to receive(:prev_inputs).and_return({ abc: 12 })
+    stage = Nanoci::Core::Stage.new(
+      tag: :stage_tag,
+      project_tag: :tag,
+      inputs: [],
+      jobs: [],
+      hooks: []
+    )
+    memento = stage.memento
+    memento[:inputs] = { abc: 123 }
+    memento[:prev_inputs] = { abc: 12 }
+    stage.memento = memento
     pipeline = Nanoci::Core::Pipeline.new(
       tag: :pipeline_tag,
       name: 'pipeline name',
@@ -161,18 +172,16 @@ RSpec.describe Nanoci::Core::PipelineEngine do
 
     project_repository = double(:project_repository)
     allow(project_repository).to receive(:find_by_tag).and_return(project)
+    allow(project_repository).to receive(:save)
 
     topics = {
-      stage_complete_topic: double(:stage_complete_topic),
-      job_complete_topic: double(:job_complete_topic),
-      run_stage_topic: double(:run_stage_topic)
+      job_complete_topic: double(:job_complete_topic)
     }
-
-    expect(topics[:run_stage_topic]).to receive :publish
 
     eng = Nanoci::Core::PipelineEngine.new(nil, project_repository, topics)
     eng.run_project(project)
-    outputs = trigger.trigger_pulse
-    eng.stage_complete(trigger.project_tag, trigger.full_tag, outputs, Nanoci::Core::DownstreamTriggerRule.queue)
+    outputs = trigger.pulse
+    eng.trigger_fired(trigger.project_tag, trigger.full_tag, outputs)
+    expect(stage.state).to eq(Nanoci::Core::Stage::State::RUNNING)
   end
 end

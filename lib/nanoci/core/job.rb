@@ -11,6 +11,12 @@ module Nanoci
       # @return [Symbol]
       attr_reader :tag
 
+      # @return [Symbol]
+      attr_reader :stage_tag
+
+      # @return [Symbol]
+      attr_reader :project_tag
+
       # @return [String] Relative path to directory where the job should execute
       attr_reader :work_dir
 
@@ -43,6 +49,8 @@ module Nanoci
       # @param work_dir [String] The job work dir relative to build path
       # @param env [Hash|Proc] Job environment variables. Can be either a hash or proc that returns a hash
       def initialize(tag:, stage_tag:, project_tag:, body:, work_dir: '.', env: nil)
+        raise ArgumentError, 'tag is nil' if tag.nil?
+
         @tag = tag.to_sym
         @stage_tag = stage_tag
         @project_tag = project_tag
