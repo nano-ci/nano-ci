@@ -60,7 +60,7 @@ module Nanoci
       def initialize(tag:, project_tag:, inputs:, jobs:, hooks:)
         raise ArgumentError, 'tag is not a Symbol' unless tag.is_a? Symbol
 
-        @tag = tag.to_sym
+        @tag = tag
         @project_tag = project_tag
         @triggering_inputs = inputs
         @jobs = jobs
@@ -117,7 +117,7 @@ module Nanoci
       end
 
       def finalize
-        @outputs = @jobs.map(&:outputs).reduce(:merge).merge(@inputs) if success?
+        @outputs = @inputs.merge(@jobs.map(&:outputs).reduce(:merge)) if success?
         log.info "stage <#{tag}> is completed with outputs #{outputs}"
         if @trigger_queue.empty?
           self.state = Stage::State::IDLE
