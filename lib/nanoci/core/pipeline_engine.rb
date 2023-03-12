@@ -19,7 +19,6 @@ module Nanoci
       # @param project_repository [Nanoci::ProjectRepository]
       # @param topics [Hash{Symbol=>Nanoci::Messaging::Topic}]
       def initialize(job_executor, project_repository, topics)
-        # @type [Hash{Symbol => Array<Symbol>}]
         @job_executor = job_executor
         @project_repository = project_repository
         # @type [Nanoci::Messaging::Topic]
@@ -60,11 +59,17 @@ module Nanoci
       # Runs the pipeline on the pipeline engine
       # @param pipeline [Nanoci::Core::Project]
       def run_project(project)
-        pipeline = project.pipeline
+        log.info "preparing to run the project #{project}"
 
-        log.info "adding pipeline <#{pipeline.tag}> to pipeline engine"
+        log.info 'checking for DNF jobs...'
 
-        log.info "pipeline <#{pipeline.tag}> is running"
+        cancel_dnf_jobs(project)
+
+        project.pipeline.stages.each(&:finalize)
+
+        @project_repository.save(project)
+
+        log.info "project #{project} is running"
       end
 
       # Schedules execution of the job
@@ -106,6 +111,21 @@ module Nanoci
           @domain_events_map[e.class].each do |h|
             h.call(e)
           end
+        end
+      end
+
+      def cancel_dnf_jobs(project)
+        project_tag = project.tag
+
+        project.pipeline.stages.flat_map(&:jobs).each do |job|
+          stage_tag = job.stage_tag
+          job_tag = job.tag
+          job_didnt_finish = job.running? && !@job_executor.job_running?(project_tag, stage_tag, job_tag)
+          next unless job_didnt_finish
+
+          log.info "job #{job} didn't finish, cancelling..."
+          project.job_canceled(stage_tag, job_tag)
+          log.info "job #{job} was canceled"
         end
       end
 

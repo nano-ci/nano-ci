@@ -33,6 +33,7 @@ module Nanoci
       attr_reader :outputs
 
       def active? = State::ACTIVE.include?(state)
+      def running? = state == State::RUNNING
       def success? = state == State::SUCCESSFUL
 
       def state=(next_state)
@@ -82,6 +83,10 @@ module Nanoci
         @outputs = outputs if state == State::SUCCESSFUL
       end
 
+      def canceled
+        self.state = State::CANCELED
+      end
+
       def memento
         {
           tag: tag,
@@ -97,7 +102,7 @@ module Nanoci
         @outputs = memento.fetch(:outputs, {})
       end
 
-      def to_s = "##{tag}"
+      def to_s = "<#{project_tag}.#{stage_tag}.#{tag}>"
     end
   end
 end

@@ -83,6 +83,11 @@ module Nanoci
         on_stage_complete(stage) if stage.success?
       end
 
+      def job_canceled(stage_tag, job_tag)
+        stage = find_stage(stage_tag)
+        stage.job_canceled(job_tag)
+      end
+
       def trigger_fired(trigger_tag, outputs)
         trigger = find_trigger(trigger_tag)
         trigger_downstream(trigger.full_tag, outputs)

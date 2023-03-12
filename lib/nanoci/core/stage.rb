@@ -116,15 +116,22 @@ module Nanoci
         finalize if jobs_idle?
       end
 
+      def job_canceled(job_tag)
+        job = find_job(job_tag)
+        job.canceled
+        finalize if jobs_idle?
+      end
+
       def finalize
+        return if state == State::IDLE
+
         @outputs = @inputs.merge(@jobs.map(&:outputs).reduce(:merge)) if success?
         log.info "stage <#{tag}> is completed with outputs #{outputs}"
-        if @trigger_queue.empty?
-          self.state = Stage::State::IDLE
-        else
-          next_inputs = @trigger_queue.unshift
-          run(next_inputs)
-        end
+        self.state = Stage::State::IDLE
+        return if @trigger_queue.empty?
+
+        next_inputs = @trigger_queue.shift
+        run(next_inputs)
       end
 
       def validate

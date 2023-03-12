@@ -14,8 +14,10 @@ module Nanoci
         SUCCESSFUL = :successful
         # Last job run failed
         FAILED = :failed
+        # Last job canceled or didn't finish
+        CANCELED = :canceled
 
-        VALUES = [PENDING, SCHEDULED, RUNNING, SUCCESSFUL, FAILED].freeze
+        VALUES = [PENDING, SCHEDULED, RUNNING, SUCCESSFUL, FAILED, CANCELED].freeze
         ACTIVE = [SCHEDULED, RUNNING].freeze
       end
     end

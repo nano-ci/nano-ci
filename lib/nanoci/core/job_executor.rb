@@ -10,6 +10,8 @@ require_relative '../messaging/topic'
 
 module Nanoci
   module Core
+    JobIdentity = Struct.new('JobIdentity', :project_tag, :stage_tag, :job_tag)
+
     # Executes jobs
     class JobExecutor
       include Nanoci::Mixins::Logger
@@ -20,6 +22,8 @@ module Nanoci
         @observers = []
         @plugin_host = plugin_host
         @job_complete_topic = job_complete_topic
+        # @type [Set]
+        @running_jobs = Set[]
       end
 
       # Scheduled execution of a job
@@ -28,17 +32,29 @@ module Nanoci
       # @param job [Nanoci::Core::Job]
       # @param inputs [Hash]
       # @param prev_inputs [Hash]
-      def schedule_job_execution(_project, _stage, _job, _inputs, _prev_inputs)
-        raise 'method #schedule_job_execution should be implemented in subclass'
+      def schedule_job_execution(project, stage, job, _inputs, _prev_inputs)
+        raise ArgumentError, "job #{job} is already running" if job_running?(project.tag, stage.tag, job.tag)
+
+        identity = JobIdentity.new(project.tag, stage.tag, job.tag)
+        @running_jobs.add(identity)
+        nil
       end
 
       def schedule_hook_execution(_project, _stage, _job, _inputs, _prev_inputs)
-        raise 'method #schedule_hook_execution should be implemented in subclass'
+        nil
+      end
+
+      def job_running?(project_tag, stage_tag, job_tag)
+        identity = JobIdentity.new(project_tag, stage_tag, job_tag)
+        @running_jobs.include? identity
       end
 
       protected
 
       def job_succeeded(project, stage, job, outputs)
+        identity = JobIdentity.new(project.tag, stage.tag, job.tag)
+        @running_jobs.delete(identity)
+
         m = Messages::JobCompleteMessage.new(project.tag, stage.tag, job.tag, outputs)
         @job_complete_topic.publish(m)
       end
