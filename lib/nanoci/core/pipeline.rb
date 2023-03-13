@@ -7,7 +7,6 @@ require 'nanoci/mixins/logger'
 module Nanoci
   module Core
     # Pipeline is the  class that organizes data flow between project stages.
-    # rubocop:disable Metrics:ClassLength
     class Pipeline
       include Mixins::Logger
 
@@ -32,10 +31,6 @@ module Nanoci
       # @return [Hash{Symbol => Proc}]
       attr_reader :hooks
 
-      def events
-        @stages.map(&:events).flat_map { |x| x } + @events
-      end
-
       # Initializes new instance of Pipeline
       # @param tag [Symbol] Pipeline tag
       # @param name [String] Pipeline name
@@ -50,18 +45,14 @@ module Nanoci
         @stages = stages
         @pipes = pipes
         @hooks = hooks
-        @events = []
 
         validate
       end
 
       # Validates the pipeline. Raises ArgumentError if there pipeline is invalid
       def validate
-        raise ArgumentError, 'tag is nil' if tag.nil?
-        raise ArgumentError, 'tag is not a Symbol' unless tag.is_a? Symbol
-
-        raise ArgumentError, 'name is nil' if name.nil?
-        raise ArgumentError, 'name is not a String' unless name.is_a? String
+        raise ArgumentError, 'tag is not a Symbol' if tag.nil? || !tag.is_a?(Symbol)
+        raise ArgumentError, 'name is not a String' if name.nil? || !name.is_a?(String)
 
         validate_triggers
         validate_stages
@@ -84,13 +75,11 @@ module Nanoci
       end
 
       def job_canceled(stage_tag, job_tag)
-        stage = find_stage(stage_tag)
-        stage.job_canceled(job_tag)
+        find_stage(stage_tag).job_canceled(job_tag)
       end
 
       def trigger_fired(trigger_tag, outputs)
-        trigger = find_trigger(trigger_tag)
-        trigger_downstream(trigger.full_tag, outputs)
+        trigger_downstream(trigger_tag, outputs)
       end
 
       def on_stage_complete(stage)
@@ -105,8 +94,7 @@ module Nanoci
 
       def memento=(value)
         value.fetch(:stages, {}).each do |tag, stage_memento|
-          stage = find_stage(tag.to_sym)
-          stage.memento = stage_memento unless stage.nil?
+          find_stage(tag.to_sym)&.memento = stage_memento
         end
       end
 
@@ -114,14 +102,12 @@ module Nanoci
 
       def trigger_downstream(upstream_stage_tag, outputs)
         pipes.fetch(upstream_stage_tag, []).each do |next_stage_tag|
-          next_stage = find_stage(next_stage_tag)
-          next_stage.trigger(outputs)
+          find_stage(next_stage_tag).trigger(outputs)
         end
       end
 
       def validate_triggers
-        raise ArgumentError, 'triggers is nil' if triggers.nil?
-        raise ArgumentError, 'triggers is not an Array' unless triggers.is_a? Array
+        raise ArgumentError, 'triggers is not an Array' if triggers.nil? || !triggers.is_a?(Array)
 
         triggers.each do |t|
           unless pipes.key?(t.full_tag)
