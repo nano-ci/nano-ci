@@ -24,14 +24,12 @@ RSpec.describe Nanoci::Core::PipelineEngine do
       pipes: {},
       hooks: {}
     )
-    expect(pipeline).to receive(:validate)
     project = Nanoci::Core::Project.new(name: 'abc', tag: :def, pipeline: pipeline)
     topics = {
-      stage_complete_topic: double(:stage_complete_topic),
-      job_complete_topic: double(:job_complete_topic),
-      run_stage_topic: double(:run_stage_topic)
+      job_complete_topic: double(:job_complete_topic)
     }
-    eng = Nanoci::Core::PipelineEngine.new(nil, nil, topics)
+    project_repository = double(:project_repository, save: nil)
+    eng = Nanoci::Core::PipelineEngine.new(nil, project_repository, topics)
     eng.run_project project
   end
 
@@ -78,7 +76,7 @@ RSpec.describe Nanoci::Core::PipelineEngine do
 
     project_repository = double(:project_repository)
     allow(project_repository).to receive(:find_by_tag).and_return(project)
-    expect(project_repository).to receive(:save)
+    expect(project_repository).to receive(:save).twice
 
     stage_complete_topic = double(:stage_complete_topic)
     allow(stage_complete_topic).to receive(:publish)
@@ -129,7 +127,7 @@ RSpec.describe Nanoci::Core::PipelineEngine do
 
     project_repository = double(:project_repository)
     allow(project_repository).to receive(:find_by_tag).and_return(project)
-    expect(project_repository).to receive(:save)
+    expect(project_repository).to receive(:save).twice
 
     topics = {
       stage_complete_topic: double(:stage_complete_topic),

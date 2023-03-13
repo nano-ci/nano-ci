@@ -12,9 +12,16 @@ class TestJobExecutor < Nanoci::Core::JobExecutor
 end
 
 RSpec.describe Nanoci::Core::JobExecutor do
-  it '#schedule_job_execution raises error NotImplementedError' do
+  it '#schedule_job_execution tracks running job' do
     executor = Nanoci::Core::JobExecutor.new(nil, nil)
-    expect { executor.schedule_job_execution(nil, nil, nil, nil, nil) }.to raise_error RuntimeError
+    project = double(:project)
+    allow(project).to receive(:tag).and_return(:project)
+    stage = double(:stage)
+    allow(stage).to receive(:tag).and_return(:stage)
+    job = double(:job)
+    allow(job).to receive(:tag).and_return(:job)
+    executor.schedule_job_execution(project, stage, job, nil, nil)
+    expect(executor.job_running?(project.tag, stage.tag, job.tag)).to be true
   end
 
   it '#publish raises event job_complete' do
