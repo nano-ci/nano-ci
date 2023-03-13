@@ -12,6 +12,7 @@ module Nanoci
       include Nanoci::Mixins::Logger
 
       def schedule_job_execution(project, stage, job, inputs, prev_inputs)
+        super
         log.info("executing job #{job} with inputs #{inputs}")
         job_outputs = execute_job(project, stage, job, inputs, prev_inputs)
         job_succeeded(project, stage, job, job_outputs)
@@ -20,6 +21,7 @@ module Nanoci
       end
 
       def schedule_hook_execution(project, stage, job, inputs, prev_inputs)
+        super
         execute_job(project, stage, job, inputs, prev_inputs)
       rescue StandardError => e
         log.error(error: e) { "failed to execute hook #{job}" }

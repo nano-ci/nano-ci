@@ -9,6 +9,7 @@ module Nanoci
     # A stage represents a collection of jobs.
     # Each job is executed concurrently on a free agent
     # All jobs must complete successfully before build proceeds to the next stage
+    # rubocop:disable Metrics:ClassLength
     class Stage
       include Nanoci::Mixins::Logger
 
@@ -17,13 +18,22 @@ module Nanoci
       # @return [Symbol]
       attr_reader :tag
 
+      # Gets project tag
+      # @return [Symbol]
+      attr_reader :project_tag
+
       # @return [Array<Symbol>]
       attr_reader :triggering_inputs
 
-      # Inputs used for the last successful stage execution
+      # Inputs used for the previous successful stage execution
       # @return [Hash{Symbol => String}]
       attr_reader :prev_inputs
 
+      # Pending inputs to be used when stage triggers next time
+      # @return [Hash{Symbol => String}]
+      attr_reader :pending_inputs
+
+      # Current inputs
       # @return [Hash{Symbol => String}]
       attr_reader :inputs
 
@@ -33,41 +43,57 @@ module Nanoci
       # @return [Array<Nanoci::Job>]
       attr_reader :jobs
 
-      # @return [Symbol]
-      attr_reader :downstream_trigger_rule
 
       attr_reader :state
+
+      def idle? = state == State::IDLE
+
+      def jobs_idle? = jobs.none?(&:active?)
+
+      def success? = jobs.all?(&:success?)
 
       # Initializes new instance of [Stage]
       # @param tag [Symbol] Stage tag
       # @param inputs [Array<Symbol>] Array of triggering inputs
       # @param jobs [Array<Job>] Array of stage jobs
       # @return [Stage]
-      def initialize(tag:, inputs:, jobs:, hooks:, downstream_trigger_rule: DownstreamTriggerRule.queue)
+      def initialize(tag:, project_tag:, inputs:, jobs:, hooks:)
         raise ArgumentError, 'tag is not a Symbol' unless tag.is_a? Symbol
 
-        @tag = tag.to_sym
+        @tag = tag
+        @project_tag = project_tag
         @triggering_inputs = inputs
         @jobs = jobs
-        @downstream_trigger_rule = downstream_trigger_rule || DownstreamTriggerRule.queue
         @hooks = hooks
         @inputs = {}
         @prev_inputs = {}
+        @pending_inputs = {}
+        @trigger_queue = []
         @outputs = {}
         @state = State::IDLE
       end
 
       def find_job(tag) = @jobs.select { |x| x.tag == tag }.first
 
-      # Gets pending outputs
-      # @return [Hash]
-      def pending_outputs = @jobs.map(&:outputs).reduce(:merge)
-
       # Determines if there are changes in stage triggering inputs
       # @param next_inputs [Hash{Symbol => String}]
       def should_trigger?(next_inputs)
         triggering_inputs.empty? || triggering_inputs.any? do |ti|
           next_inputs.key?(ti) && next_inputs[ti] != inputs.fetch(ti, nil)
+        end
+      end
+
+      def trigger(inputs)
+        @pending_inputs.merge!(inputs)
+
+        return unless should_trigger?(@pending_inputs)
+
+        next_inputs = @pending_inputs
+        @pending_inputs = {}
+        if idle?
+          run(next_inputs)
+        else
+          @trigger_queue.push(next_inputs)
         end
       end
 
@@ -81,22 +107,32 @@ module Nanoci
         @prev_inputs = @inputs
         @inputs = @inputs.merge(next_inputs)
         self.state = Stage::State::RUNNING
-        @jobs
+        @jobs.each(&:schedule)
       end
 
-      def job_complete(_job)
+      def job_complete(job_tag, outputs)
+        job = find_job(job_tag)
+        job.finalize(true, outputs)
+        finalize if jobs_idle?
+      end
+
+      def job_canceled(job_tag)
+        job = find_job(job_tag)
+        job.canceled
         finalize if jobs_idle?
       end
 
       def finalize
-        self.state = Stage::State::IDLE
-        @outputs = pending_outputs if jobs_idle?
+        return if state == State::IDLE
+
+        @outputs = @inputs.merge(@jobs.map(&:outputs).reduce(:merge)) if success?
         log.info "stage <#{tag}> is completed with outputs #{outputs}"
+        self.state = Stage::State::IDLE
+        return if @trigger_queue.empty?
+
+        next_inputs = @trigger_queue.shift
+        run(next_inputs)
       end
-
-      def jobs_idle? = jobs.none?(&:active?)
-
-      def success? = jobs.all?(&:success?)
 
       def validate
         validate_triggering_inputs
@@ -107,11 +143,12 @@ module Nanoci
         {
           tag: tag,
           state: state,
-          downstream_trigger_rule: @downstream_trigger_rule,
           jobs: @jobs.to_h { |j| [j.tag, j.memento] },
           inputs: @inputs,
           outputs: @outputs,
-          pending_outputs: @pending_outputs
+          pending_outputs: @pending_outputs,
+          pending_inputs: @pending_inputs,
+          trigger_queue: @trigger_queue
         }
       end
 
@@ -130,6 +167,8 @@ module Nanoci
         @inputs = memento.fetch(:inputs, {})
         @outputs = memento.fetch(:outputs, {})
         @pending_outputs = memento.fetch(:pending_outputs, {})
+        @pending_inputs = memento.fetch(:pending_inputs, {})
+        @trigger_queue = memento.fetch(:trigger_queue, [])
         memento.fetch(:jobs, {}).each { |tag, job_memento| find_job(tag)&.memento = job_memento }
       end
       # rubocop:enable Metrics:ABCSize
@@ -144,17 +183,11 @@ module Nanoci
         transition = [@state, next_state]
         @state = next_state
 
-        log.info "stage <#{tag}> state changed from #{transition[0]} to #{transition[1]}"
-
-        handle_state_transition transition
-      end
-
-      def handle_state_transition(transition)
         case transition
-        in [State::IDLE, State::RUNNING] then @pending_outputs = {}
-        in [State::RUNNING, State::IDLE]
-          @outputs = @pending_outputs.merge(@inputs) if success?
-          @pending_outputs = {}
+        in [State::IDLE, State::RUNNING] | [State::RUNNING, State::IDLE]
+          log.info "stage <#{tag}> state changed from #{transition[0]} to #{transition[1]}"
+        else
+          raise ArgumentError, "invalid Stage transition #{transition}"
         end
       end
 

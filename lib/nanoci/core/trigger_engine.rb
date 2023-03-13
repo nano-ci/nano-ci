@@ -12,10 +12,10 @@ module Nanoci
     class TriggerEngine
       # Initializes new instance of [Nanoci::Core::TriggerEngine]
       # @param trigger_repository [Nanoci::TriggerRepository]
-      # @param stage_complete_topic [Nanoci::Messaging::Topic]
-      def initialize(trigger_repository, stage_complete_topic)
+      # @param pipeline_engine [Nanoci::Core::PipelineEngine]
+      def initialize(trigger_repository, pipeline_engine)
         @trigger_repository = trigger_repository
-        @stage_complete_topic = stage_complete_topic
+        @pipeline_engine = pipeline_engine
         @enabled_projects = Set.new
       end
 
@@ -51,14 +51,12 @@ module Nanoci
         @trigger_repository.due_triggers?(due_ts: Time.now.utc, projects: @enabled_projects.to_a)
       end
 
-      # @param trigger [Nanoci::Core::trigger]
+      # @param trigger [Nanoci::Core::Trigger]
       def process_trigger(trigger)
         project_tag = trigger.project_tag
         trigger_tag = trigger.full_tag
         outputs = trigger.pulse
-        dtr = trigger.downstream_trigger_rule
-        message = Messages::StageCompleteMessage.new(project_tag, trigger_tag, outputs, dtr)
-        @stage_complete_topic.publish(message)
+        @pipeline_engine.trigger_fired(project_tag, trigger_tag, outputs)
       ensure
         store_and_release_trigger trigger
       end

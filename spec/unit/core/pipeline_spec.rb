@@ -47,6 +47,7 @@ RSpec.describe Nanoci::Core::Pipeline do
   it '#initialize sets stages array' do
     stage = Nanoci::Core::Stage.new(
       tag: :stage_tag,
+      project_tag: :project,
       inputs: [],
       jobs: [],
       hooks: {}
@@ -83,6 +84,7 @@ RSpec.describe Nanoci::Core::Pipeline do
     trigger = Nanoci::Core::Trigger.new(tag: :trigger_tag, project_tag: :project)
     stage = Nanoci::Core::Stage.new(
       tag: :stage_tag,
+      project_tag: :project,
       inputs: [],
       jobs: [],
       hooks: {}
@@ -103,12 +105,14 @@ RSpec.describe Nanoci::Core::Pipeline do
   it '#validate raises ArgumentError if pipeline contains duplicate stages' do
     stage_a = Nanoci::Core::Stage.new(
       tag: :stage_tag,
+      project_tag: :project,
       inputs: [],
       jobs: [],
       hooks: {}
     )
     stage_b = Nanoci::Core::Stage.new(
       tag: :stage_tag,
+      project_tag: :project,
       inputs: [],
       jobs: [],
       hooks: {}

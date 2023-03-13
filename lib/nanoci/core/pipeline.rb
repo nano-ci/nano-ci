@@ -51,11 +51,8 @@ module Nanoci
 
       # Validates the pipeline. Raises ArgumentError if there pipeline is invalid
       def validate
-        raise ArgumentError, 'tag is nil' if tag.nil?
-        raise ArgumentError, 'tag is not a Symbol' unless tag.is_a? Symbol
-
-        raise ArgumentError, 'name is nil' if name.nil?
-        raise ArgumentError, 'name is not a String' unless name.is_a? String
+        raise ArgumentError, 'tag is not a Symbol' if tag.nil? || !tag.is_a?(Symbol)
+        raise ArgumentError, 'name is not a String' if name.nil? || !name.is_a?(String)
 
         validate_triggers
         validate_stages
@@ -71,6 +68,24 @@ module Nanoci
         triggers.select { |t| t.full_tag == tag }.first
       end
 
+      def job_complete(stage_tag, job_tag, outputs)
+        stage = find_stage(stage_tag)
+        stage.job_complete(job_tag, outputs)
+        on_stage_complete(stage) if stage.success?
+      end
+
+      def job_canceled(stage_tag, job_tag)
+        find_stage(stage_tag).job_canceled(job_tag)
+      end
+
+      def trigger_fired(trigger_tag, outputs)
+        trigger_downstream(trigger_tag, outputs)
+      end
+
+      def on_stage_complete(stage)
+        trigger_downstream(stage.tag, stage.outputs)
+      end
+
       def memento
         {
           stages: @stages.to_h { |s| [s.tag, s.memento] }
@@ -79,16 +94,20 @@ module Nanoci
 
       def memento=(value)
         value.fetch(:stages, {}).each do |tag, stage_memento|
-          stage = find_stage(tag.to_sym)
-          stage.memento = stage_memento unless stage.nil?
+          find_stage(tag.to_sym)&.memento = stage_memento
         end
       end
 
       private
 
+      def trigger_downstream(upstream_stage_tag, outputs)
+        pipes.fetch(upstream_stage_tag, []).each do |next_stage_tag|
+          find_stage(next_stage_tag).trigger(outputs)
+        end
+      end
+
       def validate_triggers
-        raise ArgumentError, 'triggers is nil' if triggers.nil?
-        raise ArgumentError, 'triggers is not an Array' unless triggers.is_a? Array
+        raise ArgumentError, 'triggers is not an Array' if triggers.nil? || !triggers.is_a?(Array)
 
         triggers.each do |t|
           unless pipes.key?(t.full_tag)

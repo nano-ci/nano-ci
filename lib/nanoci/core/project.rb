@@ -49,6 +49,19 @@ module Nanoci
         @repos.select { |x| x.tag == tag }.first
       end
 
+      # Signals the project that a job successfully completed
+      def job_complete(stage_tag, job_tag, outputs)
+        pipeline.job_complete(stage_tag, job_tag, outputs)
+      end
+
+      def job_canceled(stage_tag, job_tag)
+        pipeline.job_canceled(stage_tag, job_tag)
+      end
+
+      def trigger_fired(trigger_tag, outputs)
+        pipeline.trigger_fired(trigger_tag, outputs)
+      end
+
       def memento
         {
           id: id,
