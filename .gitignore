@@ -18,4 +18,5 @@
 .vagrant
 *.gem
 *.key
+*.secret
 vagrant/**/*.nanoci

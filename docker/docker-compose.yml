@@ -1,4 +1,5 @@
 version: '3.4'
+
 services:
   mongo:
     image: mongo
@@ -6,6 +7,23 @@ services:
       - "27017:27017"
     volumes:
       - db-data:/data/db
+  postgresql:
+    image: postgres:15-bullseye
+    volumes:
+      - db-postgresql-data:/var/lib/postgresql/data/pgdata
+      - ./db/postgresql:/docker-entrypoint-initdb.d
+    secrets:
+      - postgres-passwd
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD_FILE=/run/secrets/postgres-passwd
+      - PGDATA=/var/lib/postgresql/data/pgdata
+
+secrets:
+  postgres-passwd:
+    file: ./secrets/postgres-passwd.secret
 
 volumes:
   db-data:
+  db-postgresql-data:
