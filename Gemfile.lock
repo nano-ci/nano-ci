@@ -129,8 +129,8 @@ DEPENDENCIES
   rake (~> 13.0)
   rspec (~> 3.0)
   rspec-mocks (~> 3.7)
-  rubocop (~> 1.20)
+  rubocop (~> 1.57)
   simplecov (~> 0.15)
 
 BUNDLED WITH
-   2.2.22
+   2.4.10
