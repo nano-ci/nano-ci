@@ -33,12 +33,4 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'mongo', '~> 2.18'
   spec.add_runtime_dependency 'precursor', '~> 0.9'
   spec.add_runtime_dependency 'ruby-enum', '~> 0.7'
-
-  spec.add_development_dependency 'code-scanning-rubocop', '~> 0.5'
-  spec.add_development_dependency 'grpc-tools', '1.43.1'
-  spec.add_development_dependency 'rake', '~> 13.0'
-  spec.add_development_dependency 'rspec', '~> 3.0'
-  spec.add_development_dependency 'rspec-mocks', '~> 3.7'
-  spec.add_development_dependency 'rubocop', '~> 1.57'
-  spec.add_development_dependency 'simplecov', '~> 0.15'
 end
