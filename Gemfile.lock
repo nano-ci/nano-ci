@@ -9,7 +9,7 @@ PATH
       intake (~> 0.2)
       mail (~> 2.7)
       mongo (~> 2.18)
-      precursor (~> 0.8)
+      precursor (~> 0.9)
       ruby-enum (~> 0.7)
 
 GEM
@@ -24,25 +24,13 @@ GEM
       concurrent-ruby (~> 1.1.6)
     concurrent-ruby-ext (1.1.10)
       concurrent-ruby (= 1.1.10)
-    concurrent-ruby-ext (1.1.10-x64-mingw32)
-      concurrent-ruby (= 1.1.10)
-    concurrent-ruby-ext (1.1.10-x64-mingw32)
-      concurrent-ruby (= 1.1.10)
     date (3.3.4)
     diff-lcs (1.5.0)
     docile (1.4.0)
-    google-protobuf (3.23.3)
-    google-protobuf (3.23.3-x64-mingw32)
-    google-protobuf (3.23.3-x86_64-linux)
-    googleapis-common-protos-types (1.6.0)
-      google-protobuf (~> 3.14)
-    grpc (1.56.0)
-      google-protobuf (~> 3.23)
-      googleapis-common-protos-types (~> 1.0)
-    grpc (1.56.0-x64-mingw32)
-      google-protobuf (~> 3.23)
-      googleapis-common-protos-types (~> 1.0)
-    grpc (1.56.0-x86_64-linux)
+    google-protobuf (3.25.0)
+    googleapis-common-protos-types (1.10.0)
+      google-protobuf (~> 3.18)
+    grpc (1.56.2)
       google-protobuf (~> 3.23)
       googleapis-common-protos-types (~> 1.0)
     grpc-tools (1.43.1)
@@ -65,7 +53,7 @@ GEM
     mini_mime (1.1.5)
     mongo (2.19.2)
       bson (>= 4.14.1, < 5.0.0)
-    net-imap (0.4.4)
+    net-imap (0.4.5)
       date
       net-protocol
     net-pop (0.1.2)
@@ -74,13 +62,13 @@ GEM
       timeout
     net-smtp (0.4.0)
       net-protocol
-    optparse (0.2.0)
+    optparse (0.4.0)
     parallel (1.23.0)
     parser (3.2.2.4)
       ast (~> 2.4.1)
       racc
-    precursor (0.8.3)
-      optparse (~> 0.2.0)
+    precursor (0.9.0)
+      optparse (~> 0.4.0)
     racc (1.7.3)
     rainbow (3.1.1)
     rake (13.1.0)
@@ -145,4 +133,4 @@ DEPENDENCIES
   simplecov (~> 0.15)
 
 BUNDLED WITH
-   2.4.10
+   2.4.22
