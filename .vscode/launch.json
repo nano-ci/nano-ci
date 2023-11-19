@@ -19,6 +19,7 @@
 			"name": "Debug - nano-ci",
 			"type": "rdbg",
 			"request": "launch",
+			"useTerminal": true,
 			"script": "${workspaceRoot}/bin/nano-ci",
 			"args": [
 				"--project=samples/nano-ci.nanoci",
