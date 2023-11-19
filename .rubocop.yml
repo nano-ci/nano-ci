@@ -6,3 +6,7 @@ AllCops:
 
 Layout/EndOfLine:
   EnforcedStyle: lf
+
+Metrics/BlockLength:
+  Exclude:
+   - '**/*.nanoci'
