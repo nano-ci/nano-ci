@@ -1,5 +1,7 @@
 version: '3.4'
 
+name: nano-ci
+
 services:
   mongo:
     image: mongo
