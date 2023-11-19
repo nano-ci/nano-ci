@@ -19,6 +19,7 @@ module Nanoci
       # @param project_repository [Nanoci::ProjectRepository]
       # @param topics [Hash{Symbol=>Nanoci::Messaging::Topic}]
       def initialize(job_executor, project_repository, topics)
+        @projects = {}
         @job_executor = job_executor
         @project_repository = project_repository
         # @type [Nanoci::Messaging::Topic]
@@ -56,12 +57,16 @@ module Nanoci
         tick_job_complete_queue
       end
 
-      # Runs the pipeline on the pipeline engine
-      # @param pipeline [Nanoci::Core::Project]
+      # Runs the project on the pipeline engine
+      # @param project [Nanoci::Core::Project]
       def run_project(project)
         log.info "preparing to run the project #{project}"
 
-        log.info 'checking for DNF jobs...'
+        if @projects.key? project.tag
+          log.warn "duplicate run of a project #{project}, ignoring..."
+          return
+        end
+        @projects[project.tag] = project
 
         cancel_dnf_jobs(project)
 
@@ -84,7 +89,7 @@ module Nanoci
       end
 
       def job_complete(project_tag, stage_tag, job_tag, outputs)
-        project = @project_repository.find_by_tag(project_tag)
+        project = @projects.fetch(project_tag)
         project.job_complete(stage_tag, job_tag, outputs)
 
         @project_repository.save(project)
@@ -93,7 +98,7 @@ module Nanoci
       end
 
       def trigger_fired(project_tag, trigger_tag, outputs)
-        project = @project_repository.find_by_tag(project_tag)
+        project = @projects.fetch(project_tag)
         project.trigger_fired(trigger_tag, outputs)
 
         @project_repository.save(project)
@@ -115,18 +120,19 @@ module Nanoci
       end
 
       def cancel_dnf_jobs(project)
-        project_tag = project.tag
+        log.info 'checking for DNF jobs...'
 
-        project.pipeline.stages.flat_map(&:jobs).each do |job|
-          stage_tag = job.stage_tag
-          job_tag = job.tag
-          job_didnt_finish = job.running? && !@job_executor.job_running?(project_tag, stage_tag, job_tag)
-          next unless job_didnt_finish
-
+        project.pipeline.stages
+               .flat_map(&:jobs)
+               .select { |j| job_running?(project.tag, j.stage_tag, j) }
+               .each do |job|
           log.info "job #{job} didn't finish, cancelling..."
-          project.job_canceled(stage_tag, job_tag)
-          log.info "job #{job} was canceled"
+          project.job_canceled(job.stage_tag, job.tag)
         end
+      end
+
+      def job_running?(project_tag, stage_tag, job)
+        job.running? && !@job_executor.job_running?(project_tag, stage_tag, job.tag)
       end
 
       def tick_job_complete_queue
@@ -141,7 +147,7 @@ module Nanoci
       end
 
       def on_job_scheduled_event(event)
-        project = @project_repository.find_by_tag(event.project_tag)
+        project = @projects.fetch(event.project_tag)
         stage = project.pipeline.find_stage(event.stage_tag)
         job = stage.find_job(event.job_tag)
         run_job(project, stage, job, stage.inputs, stage.prev_inputs)

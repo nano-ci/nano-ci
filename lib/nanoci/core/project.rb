@@ -66,15 +66,13 @@ module Nanoci
         {
           id: id,
           tag: tag,
-          pipeline: pipeline.memento,
-          src: @src
+          pipeline: pipeline.memento
         }
       end
 
       def memento=(value)
         @id = value[:id]
         @pipeline.memento = value.fetch(:pipeline, {})
-        @src = value[:src]
       end
 
       def to_s
