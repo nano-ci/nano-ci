@@ -54,12 +54,13 @@ RSpec.describe Nanoci::Core::PipelineEngine do
   end
 
   it '#job_complete finalizes job and stage if all jobs are done' do
+    project_tag = :tag
     stage_a_tag = :stage_tag
-    job = Nanoci::Core::Job.new(tag: :job_tab, stage_tag: stage_a_tag, project_tag: :project, body: -> {})
+    job = Nanoci::Core::Job.new(tag: :job_tab, stage_tag: stage_a_tag, project_tag: project_tag, body: -> {})
 
     stage_a = Nanoci::Core::Stage.new(
       tag: stage_a_tag,
-      project_tag: :project,
+      project_tag: project_tag,
       inputs: [],
       jobs: [job],
       hooks: {}
@@ -72,10 +73,9 @@ RSpec.describe Nanoci::Core::PipelineEngine do
       pipes: {},
       hooks: {}
     )
-    project = Nanoci::Core::Project.new(name: 'proj', tag: :tag, pipeline: pipeline)
+    project = Nanoci::Core::Project.new(name: 'proj', tag: project_tag, pipeline: pipeline)
 
     project_repository = double(:project_repository)
-    allow(project_repository).to receive(:find_by_tag).and_return(project)
     expect(project_repository).to receive(:save).twice
 
     stage_complete_topic = double(:stage_complete_topic)
@@ -145,10 +145,11 @@ RSpec.describe Nanoci::Core::PipelineEngine do
   end
 
   it 'pipeline engine runs the next stage when trigger pulses' do
-    trigger = PipelineTestTrigger.new(tag: :test_trigger, project_tag: :project)
+    project_tag = :tag
+    trigger = PipelineTestTrigger.new(tag: :test_trigger, project_tag: project_tag)
     stage = Nanoci::Core::Stage.new(
       tag: :stage_tag,
-      project_tag: :tag,
+      project_tag: project_tag,
       inputs: [],
       jobs: [],
       hooks: []
@@ -166,7 +167,7 @@ RSpec.describe Nanoci::Core::PipelineEngine do
       hooks: {}
     )
 
-    project = Nanoci::Core::Project.new(name: 'proj', tag: :tag, pipeline: pipeline)
+    project = Nanoci::Core::Project.new(name: 'proj', tag: project_tag, pipeline: pipeline)
 
     project_repository = double(:project_repository)
     allow(project_repository).to receive(:find_by_tag).and_return(project)

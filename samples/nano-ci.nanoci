@@ -16,7 +16,7 @@ project :'nano-ci', 'main nano-ci project' do
 
     stage :sense_tree_head do
       job :sense do
-        refs = git.ls_remote repos.sample
+        refs = git(repos.sample).ls_remote
         {
           :'git.heads.main' => refs['refs/heads/main']
         }
@@ -26,7 +26,7 @@ project :'nano-ci', 'main nano-ci project' do
     stage :build, inputs: [:'git.heads.main'] do
       job :build_job, work_dir: '.', env: -> { ENV.to_h } do |inputs|
         shell.run 'rm -Rf ./*'
-        git.clone repos.sample, inputs[:'git.heads.main']
+        git(repos.sample).clone(inputs[:'git.heads.main'])
         ruby.rspec.run
         {}
       end
