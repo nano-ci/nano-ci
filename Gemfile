@@ -14,3 +14,7 @@ gem 'rspec'
 gem 'rspec-mocks'
 gem 'rubocop'
 gem 'simplecov'
+
+group :development do
+  gem 'ruby-lsp-rspec', require: false
+end
