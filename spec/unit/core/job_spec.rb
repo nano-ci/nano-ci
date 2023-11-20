@@ -7,87 +7,77 @@ require 'nanoci/core/job_state'
 
 RSpec.describe Nanoci::Core::Job do
   it '#initialize sets tag' do
-    job = Nanoci::Core::Job.new(tag: :'build-job', stage_tag: :'stage-tag', project_tag: :'project-tag', body: nil)
+    job = Nanoci::Core::Job.new(tag: :'build-job', body: nil)
     expect(job.tag).to eq :'build-job'
   end
 
-  it '#initialize sets stage tag' do
-    job = Nanoci::Core::Job.new(tag: :'build-job', stage_tag: :'stage-tag', project_tag: :'project-tag', body: nil)
-    expect(job.stage_tag).to eq :'stage-tag'
-  end
-
-  it '#initialize sets project tag' do
-    job = Nanoci::Core::Job.new(tag: :'build-job', stage_tag: :'stage-tag', project_tag: :'project-tag', body: nil)
-    expect(job.project_tag).to eq :'project-tag'
-  end
-
   it '#initialize sets work_dir' do
-    job = Nanoci::Core::Job.new(tag: 'build-job', stage_tag: :stage, project_tag: :project, body: nil, work_dir: 'local')
+    job = Nanoci::Core::Job.new(tag: 'build-job', body: nil, work_dir: 'local')
     expect(job.work_dir).to eq 'local'
   end
 
   it '#initialize sets initial state to PENDING' do
-    job = Nanoci::Core::Job.new(tag: 'build-job', stage_tag: :stage, project_tag: :project, body: nil, work_dir: 'local')
+    job = Nanoci::Core::Job.new(tag: 'build-job', body: nil, work_dir: 'local')
     expect(job.state).to eq Nanoci::Core::Job::State::PENDING
   end
 
   it '#initialize raises error if tag is nil' do
-    expect { Nanoci::Core::Job.new(tag: nil, stage_tag: :stage, project_tag: :project, body: nil, work_dir: nil) }.to raise_error(ArgumentError)
+    expect { Nanoci::Core::Job.new(tag: nil, body: nil, work_dir: nil) }.to raise_error(ArgumentError)
   end
 
   it '#validate raises error if body is nil' do
-    job = Nanoci::Core::Job.new(tag: 'build-job', stage_tag: :stage, project_tag: :project, body: nil, work_dir: nil)
+    job = Nanoci::Core::Job.new(tag: 'build-job', body: nil, work_dir: nil)
     expect { job.validate }.to raise_error(ArgumentError)
   end
 
   it '#validate raises error if body is not a proc' do
-    job = Nanoci::Core::Job.new(tag: 'build-job', stage_tag: :stage, project_tag: :project, body: 'abc', work_dir: nil)
+    job = Nanoci::Core::Job.new(tag: 'build-job', body: 'abc', work_dir: nil)
     expect { job.validate }.to raise_error(ArgumentError)
   end
 
   it '#validate pass if body is a proc' do
-    job = Nanoci::Core::Job.new(tag: 'build-job', stage_tag: :stage, project_tag: :project, body: -> { 'abc' }, work_dir: nil)
+    job = Nanoci::Core::Job.new(tag: 'build-job', body: -> { 'abc' }, work_dir: nil)
     expect { job.validate }.to_not raise_error
   end
 
   it '#stage= raises error if value is not valid' do
-    job = Nanoci::Core::Job.new(tag: 'build-job', stage_tag: :stage, project_tag: :project, body: 'abc', work_dir: nil)
+    job = Nanoci::Core::Job.new(tag: 'build-job', body: 'abc', work_dir: nil)
     expect { job.state = 'abc' }.to raise_error(ArgumentError, 'invalid state abc')
   end
 
   it '#stage= sets valid value' do
-    job = Nanoci::Core::Job.new(tag: 'build-job', stage_tag: :stage, project_tag: :project, body: 'abc', work_dir: nil)
+    job = Nanoci::Core::Job.new(tag: 'build-job', body: 'abc', work_dir: nil)
     job.state = Nanoci::Core::Job::State::RUNNING
     expect(job.state).to eq Nanoci::Core::Job::State::RUNNING
   end
 
   it '#finalize raises error if success is not Boolean' do
-    job = Nanoci::Core::Job.new(tag: 'build-job', stage_tag: :stage, project_tag: :project, body: 'abc', work_dir: nil)
+    job = Nanoci::Core::Job.new(tag: 'build-job', body: 'abc', work_dir: nil)
     expect { job.finalize(:abc, nil) }.to raise_error ArgumentError
   end
 
   it '#finalize raises error if outputs is not a Hash' do
-    job = Nanoci::Core::Job.new(tag: 'build-job', stage_tag: :stage, project_tag: :project, body: 'abc', work_dir: nil)
+    job = Nanoci::Core::Job.new(tag: 'build-job', body: 'abc', work_dir: nil)
     expect { job.finalize(true, nil) }.to raise_error ArgumentError
   end
 
   [[true, :successful], [false, :failed]].each do |v, s|
     it "#finalize sets #success to passed value #{v}" do
-      job = Nanoci::Core::Job.new(tag: 'build-job', stage_tag: :stage, project_tag: :project, body: 'abc', work_dir: nil)
+      job = Nanoci::Core::Job.new(tag: 'build-job', body: 'abc', work_dir: nil)
       job.finalize(v, {})
       expect(job.state).to be s
     end
   end
 
   it '#finalize updates job outputs if successful' do
-    job = Nanoci::Core::Job.new(tag: 'build-job', stage_tag: :stage, project_tag: :project, body: 'abc', work_dir: nil)
+    job = Nanoci::Core::Job.new(tag: 'build-job', body: 'abc', work_dir: nil)
     expect(job.outputs.empty?).to be true
     job.finalize(true, { v: 123 })
     expect(job.outputs).to include({ v: 123 })
   end
 
   it '#finalize does not update job outputs if failed' do
-    job = Nanoci::Core::Job.new(tag: 'build-job', stage_tag: :stage, project_tag: :project, body: 'abc', work_dir: nil)
+    job = Nanoci::Core::Job.new(tag: 'build-job', body: 'abc', work_dir: nil)
     expect(job.outputs.empty?).to be true
     job.finalize(false, { v: 123 })
     expect(job.outputs.empty?).to be true

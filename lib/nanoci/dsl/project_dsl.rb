@@ -60,7 +60,7 @@ module Nanoci
       def pipeline(tag, name, &block)
         raise "pipeline #{name} is missing definition block" if block.nil?
 
-        @pipeline = PipelineDSL.new(tag, name, @tag)
+        @pipeline = PipelineDSL.new(tag, name)
 
         Symbol.class_eval do
           def >>(other)

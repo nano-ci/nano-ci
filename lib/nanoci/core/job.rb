@@ -11,11 +11,11 @@ module Nanoci
       # @return [Symbol]
       attr_reader :tag
 
-      # @return [Symbol]
-      attr_reader :stage_tag
+      # @return [Nanoci::Core::Stage]
+      attr_accessor :stage
 
-      # @return [Symbol]
-      attr_reader :project_tag
+      # @return [Nanoci::Core::Project]
+      attr_accessor :project
 
       # @return [String] Relative path to directory where the job should execute
       attr_reader :work_dir
@@ -44,22 +44,20 @@ module Nanoci
 
       # Initializes new instance of [Job]
       # @param tag [Symbol] The job tag
-      # @param stage_tag [Symbol] The stage tag
-      # @param project_tag [Symbol] The project tag
       # @param body [Block] The job body block
       # @param work_dir [String] The job work dir relative to build path
       # @param env [Hash|Proc] Job environment variables. Can be either a hash or proc that returns a hash
-      def initialize(tag:, stage_tag:, project_tag:, body:, work_dir: '.', env: nil)
+      def initialize(tag:, body:, work_dir: '.', env: nil)
         raise ArgumentError, 'tag is nil' if tag.nil?
 
         @tag = tag.to_sym
-        @stage_tag = stage_tag
-        @project_tag = project_tag
         @work_dir = work_dir
         @body = body
         @env = env
         @state = State::PENDING
         @outputs = {}
+        @stage = nil
+        @project = nil
       end
 
       def validate
@@ -71,7 +69,7 @@ module Nanoci
 
       def schedule
         self.state = Job::State::SCHEDULED
-        DomainEvents.instance.push(JobScheduledEvent.new(@project_tag, @stage_tag, tag))
+        DomainEvents.instance.push(JobScheduledEvent.new(@project.tag, @stage.tag, tag))
       end
 
       def finalize(success, outputs)
@@ -102,7 +100,7 @@ module Nanoci
         @outputs = memento.fetch(:outputs, {})
       end
 
-      def to_s = "<#{project_tag}.#{stage_tag}.#{tag}>"
+      def to_s = "<#{project.tag}.#{stage.tag}.#{tag}>"
     end
   end
 end

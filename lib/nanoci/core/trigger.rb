@@ -37,8 +37,8 @@ module Nanoci
       # @return [Symbol]
       attr_reader :tag
 
-      # @return [Symbol]
-      attr_reader :project_tag
+      # @return [Nanoci::Core::Project]
+      attr_accessor :project
 
       # Gets the fully formatted tag for pipeline pipes
       # @return [Symbol]
@@ -68,11 +68,9 @@ module Nanoci
 
       # Initializes new instance of [Trigger]
       # @param tag [Symbol] trigger tag
-      # @param project_tag [Symbol] project tag
       # @param options [Hahs] optional args
-      def initialize(tag:, project_tag:, options: {})
+      def initialize(tag:, options: {})
         @tag = tag
-        @project_tag = project_tag
         @options = options || {}
         @start_time = nil
         @end_time = nil
@@ -109,7 +107,7 @@ module Nanoci
         {
           id: id,
           tag: tag,
-          project_tag: project_tag,
+          project_tag: project.tag,
           options: @options,
           start_time: start_time,
           end_time: end_time,

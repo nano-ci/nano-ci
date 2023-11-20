@@ -124,15 +124,15 @@ module Nanoci
 
         project.pipeline.stages
                .flat_map(&:jobs)
-               .select { |j| job_running?(project.tag, j.stage_tag, j) }
+               .select { |j| job_running?(j) }
                .each do |job|
           log.info "job #{job} didn't finish, cancelling..."
           project.job_canceled(job.stage_tag, job.tag)
         end
       end
 
-      def job_running?(project_tag, stage_tag, job)
-        job.running? && !@job_executor.job_running?(project_tag, stage_tag, job.tag)
+      def job_running?(job)
+        job.running? && !@job_executor.job_running?(job)
       end
 
       def tick_job_complete_queue

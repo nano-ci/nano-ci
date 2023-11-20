@@ -25,8 +25,8 @@ module Nanoci
       # @param tag [Symbol] Trigger tag
       # @param project_tag [Symbol] Project tag
       # @param args [Hash] Optional args
-      def initialize(tag:, project_tag:, options:)
-        super(tag: tag, project_tag: project_tag, options: options)
+      def initialize(tag:, options:)
+        super(tag: tag, options: options)
         @interval = options[:interval]
         @previous_run_time = nil
         @next_run_time = Time.now.utc

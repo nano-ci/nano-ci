@@ -7,9 +7,8 @@ module Nanoci
   module DSL
     # TriggerDSL class contains methods to support nano-ci trigger DSL.
     class TriggerDSL
-      def initialize(tag, project_tag)
+      def initialize(tag)
         @tag = tag
-        @project_tag = project_tag
         @options = {}
       end
 
@@ -20,7 +19,7 @@ module Nanoci
       end
 
       def build
-        clazz.new(tag: @tag, project_tag: @project_tag, options: @options)
+        clazz.new(tag: @tag, options: @options)
       end
 
       protected

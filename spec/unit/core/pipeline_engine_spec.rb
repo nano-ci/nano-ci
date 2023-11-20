@@ -56,11 +56,10 @@ RSpec.describe Nanoci::Core::PipelineEngine do
   it '#job_complete finalizes job and stage if all jobs are done' do
     project_tag = :tag
     stage_a_tag = :stage_tag
-    job = Nanoci::Core::Job.new(tag: :job_tab, stage_tag: stage_a_tag, project_tag: project_tag, body: -> {})
+    job = Nanoci::Core::Job.new(tag: :job_tab, body: -> {})
 
     stage_a = Nanoci::Core::Stage.new(
       tag: stage_a_tag,
-      project_tag: project_tag,
       inputs: [],
       jobs: [job],
       hooks: {}
@@ -105,12 +104,11 @@ RSpec.describe Nanoci::Core::PipelineEngine do
   end
 
   it '#job_complete does not finalizes job and stage if not all jobs are done' do
-    job_a = Nanoci::Core::Job.new(tag: :job_idle, stage_tag: :stage, project_tag: :project, body: -> {})
-    job_b = Nanoci::Core::Job.new(tag: :job_running, stage_tag: :stage, project_tag: :project, body: -> {})
+    job_a = Nanoci::Core::Job.new(tag: :job_idle, body: -> {})
+    job_b = Nanoci::Core::Job.new(tag: :job_running, body: -> {})
 
     stage_a = Nanoci::Core::Stage.new(
       tag: :stage_tag,
-      project_tag: :project,
       inputs: [],
       jobs: [job_a, job_b],
       hooks: {}
@@ -146,10 +144,9 @@ RSpec.describe Nanoci::Core::PipelineEngine do
 
   it 'pipeline engine runs the next stage when trigger pulses' do
     project_tag = :tag
-    trigger = PipelineTestTrigger.new(tag: :test_trigger, project_tag: project_tag)
+    trigger = PipelineTestTrigger.new(tag: :test_trigger)
     stage = Nanoci::Core::Stage.new(
       tag: :stage_tag,
-      project_tag: project_tag,
       inputs: [],
       jobs: [],
       hooks: []
@@ -180,7 +177,7 @@ RSpec.describe Nanoci::Core::PipelineEngine do
     eng = Nanoci::Core::PipelineEngine.new(nil, project_repository, topics)
     eng.run_project(project)
     outputs = trigger.pulse
-    eng.trigger_fired(trigger.project_tag, trigger.full_tag, outputs)
+    eng.trigger_fired(trigger.project.tag, trigger.full_tag, outputs)
     expect(stage.state).to eq(Nanoci::Core::Stage::State::RUNNING)
   end
 end

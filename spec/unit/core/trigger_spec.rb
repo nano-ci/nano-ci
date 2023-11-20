@@ -17,17 +17,17 @@ RSpec.describe Nanoci::Core::Trigger do
   end
 
   it '#initialize sets #tag' do
-    trigger = Nanoci::Core::Trigger.new(tag: :'trigger-tag', project_tag: :project)
+    trigger = Nanoci::Core::Trigger.new(tag: :'trigger-tag')
     expect(trigger.tag).to be :'trigger-tag'
   end
 
   it '#full_tag returns fully formatted tag' do
-    trigger = Nanoci::Core::Trigger.new(tag: :'trigger-tag', project_tag: :project)
+    trigger = Nanoci::Core::Trigger.new(tag: :'trigger-tag')
     expect(trigger.full_tag).to be :'trigger.trigger-tag'
   end
 
   it '#pulse returns outputs' do
-    trigger = TestTrigger.new(tag: :'test-trigger', project_tag: :project)
+    trigger = TestTrigger.new(tag: :'test-trigger')
 
     outputs = trigger.invoke_pulse
     time_now = Time.now.utc.iso8601
@@ -37,7 +37,7 @@ RSpec.describe Nanoci::Core::Trigger do
   end
 
   it '#run does not throw errors' do
-    trigger = Nanoci::Core::Trigger.new(tag: :trigger, project_tag: :project)
+    trigger = Nanoci::Core::Trigger.new(tag: :trigger)
     expect { trigger.run }.to_not raise_error
   end
 end

@@ -26,12 +26,16 @@ module Nanoci
       attr_accessor :src
 
       # Initializes new instance of [Project]
-      # @param source [Hash] Hash with data from DSL
+      # @param name [String]
+      # @param tag [Symbol]
+      # @param pipeline [Nanoci::Core::Pipeline]
+      # @param repos [Array<Nanoci::Core::Repo>]
       def initialize(name:, tag:, pipeline:, repos: [], plugins: {})
         @name = name
         @tag = tag
         @repos = repos
         @pipeline = pipeline
+        @pipeline.project = self
         @plugins = plugins
 
         validate
@@ -48,6 +52,8 @@ module Nanoci
       def find_repo(tag)
         @repos.select { |x| x.tag == tag }.first
       end
+
+      def find_trigger(tag) = @pipeline.find_trigger_by_tag(tag)
 
       # Signals the project that a job successfully completed
       def job_complete(stage_tag, job_tag, outputs)

@@ -4,6 +4,8 @@ require 'nanoci/core/job'
 require 'nanoci/core/stage_state'
 require 'nanoci/mixins/logger'
 
+require_relative 'downstream_trigger_rule'
+
 module Nanoci
   module Core
     # A stage represents a collection of jobs.
@@ -19,8 +21,13 @@ module Nanoci
       attr_reader :tag
 
       # Gets project tag
-      # @return [Symbol]
-      attr_reader :project_tag
+      # @return [Nanoci::Core::Project]
+      attr_reader :project
+
+      def project=(value)
+        @project = value
+        @jobs.each { |j| j.project = @project }
+      end
 
       # @return [Array<Symbol>]
       attr_reader :triggering_inputs
@@ -57,13 +64,13 @@ module Nanoci
       # @param inputs [Array<Symbol>] Array of triggering inputs
       # @param jobs [Array<Job>] Array of stage jobs
       # @return [Stage]
-      def initialize(tag:, project_tag:, inputs:, jobs:, hooks:)
+      def initialize(tag:, inputs:, jobs:, hooks:)
         raise ArgumentError, 'tag is not a Symbol' unless tag.is_a? Symbol
 
         @tag = tag
-        @project_tag = project_tag
         @triggering_inputs = inputs
         @jobs = jobs
+        @jobs.each { |j| j.stage = self } if @jobs.is_a? Array
         @hooks = hooks
         @inputs = {}
         @prev_inputs = {}

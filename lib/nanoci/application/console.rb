@@ -117,11 +117,8 @@ module Nanoci
 
       def run_project(project)
         @project_repository.add(project)
-        project.pipeline.triggers.each do |x|
-          @trigger_repository.add(x)
-        end
         @pipeline_engine.run_project(project)
-        @trigger_engine.enable_project(project_tag: project.tag)
+        @trigger_engine.enable_project(project)
       end
     end
   end

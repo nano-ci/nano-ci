@@ -16,13 +16,18 @@ module Nanoci
       def initialize(trigger_repository, pipeline_engine)
         @trigger_repository = trigger_repository
         @pipeline_engine = pipeline_engine
-        @enabled_projects = Set.new
+        # @type [Hash<Symbol => Nanoci:Core::Project>]
+        @enabled_projects = {}
       end
 
       # Allows triggers of the given project to run on this trigger engine
-      # @param project_tag [Symbol]
-      def enable_project(project_tag:)
-        @enabled_projects << project_tag
+      # @param project [Nanoci::Core::Project]
+      def enable_project(project)
+        project.pipeline.triggers.each do |x|
+          @trigger_repository.add(x)
+        end
+
+        @enabled_projects[project.tag] = project
       end
 
       # Disables execution of project's triggers on this trigger engine
@@ -40,7 +45,14 @@ module Nanoci
       protected
 
       def read_and_lock_next_due_trigger
-        @trigger_repository.read_and_lock_next_due_trigger(due_ts: Time.now.utc, projects: @enabled_projects.to_a)
+        tm = @trigger_repository.read_and_lock_next_due_trigger(due_ts: Time.now.utc, projects: @enabled_projects.keys)
+        return nil if tm.nil?
+
+        # @type [Nanoci::Core::Project]
+        project = @enabled_projects.fetch(tm[:project_tag])
+        t = project.find_trigger(tm[:tag])
+        t.memento = tm
+        t
       end
 
       def store_and_release_trigger(trigger)
@@ -53,7 +65,7 @@ module Nanoci
 
       # @param trigger [Nanoci::Core::Trigger]
       def process_trigger(trigger)
-        project_tag = trigger.project_tag
+        project_tag = trigger.project.tag
         trigger_tag = trigger.full_tag
         outputs = trigger.pulse
         @pipeline_engine.trigger_fired(project_tag, trigger_tag, outputs)

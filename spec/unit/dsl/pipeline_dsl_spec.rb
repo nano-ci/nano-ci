@@ -11,20 +11,20 @@ RSpec.describe Nanoci::DSL::PipelineDSL do
   end
 
   it 'reads pipeline tag from DSL' do
-    dsl = Nanoci::DSL::PipelineDSL.new(:pipe, 'test pipeline', :project)
+    dsl = Nanoci::DSL::PipelineDSL.new(:pipe, 'test pipeline')
     pd = dsl.build
     expect(pd.tag).to eq :pipe
   end
 
   it 'reads pipeline name from DSL' do
-    dsl = Nanoci::DSL::PipelineDSL.new(:pipe, 'test pipeline', :project)
+    dsl = Nanoci::DSL::PipelineDSL.new(:pipe, 'test pipeline')
     pd = dsl.build
     expect(pd.name).to eq 'test pipeline'
   end
 
   it 'reads trigger from DSL' do
     Nanoci::DSL::PipelineDSL.dsl_types[:poll] = Nanoci::DSL::TriggerDSL
-    dsl = Nanoci::DSL::PipelineDSL.new(:pipe, 'test pipeline', :project)
+    dsl = Nanoci::DSL::PipelineDSL.new(:pipe, 'test pipeline')
     dsl.instance_eval do
       # rubocop:disable Lint/EmptyBlock
       trigger :poll, :poll do
@@ -37,7 +37,7 @@ RSpec.describe Nanoci::DSL::PipelineDSL do
   end
 
   it 'reads stage from DSL' do
-    dsl = Nanoci::DSL::PipelineDSL.new(:pipe, 'test pipeline', :project)
+    dsl = Nanoci::DSL::PipelineDSL.new(:pipe, 'test pipeline')
     dsl.instance_eval do
       # rubocop:disable Lint/EmptyBlock
       stage :test, inputs: [:'repo.abc'] do

@@ -33,11 +33,12 @@ module Nanoci
       trigger.memento = trigger_memento
     end
 
+    # @return [Hash] a trigger memento or nil if nothing is due
     def read_and_lock_next_due_trigger(due_ts:, projects:)
       doc = find_and_lock_due_doc(due_ts: due_ts, projects: projects, state: LOCK_WAITING)
       return nil if doc.nil?
 
-      hydrate_trigger(doc_to_memento(doc))
+      doc_to_memento(doc)
     end
 
     def update_and_release_trigger(trigger:)
@@ -97,7 +98,7 @@ module Nanoci
 
     def hydrate_trigger(memento)
       trigger_clazz = Nanoci::Core::Trigger.find_trigger_type memento[FIELD_TRIGGER_TYPE]
-      trigger = trigger_clazz.new(tag: memento[:tag], project_tag: memento[:project_tag], options: memento[:options])
+      trigger = trigger_clazz.new(tag: memento[:tag], options: memento[:options])
       trigger.memento = memento
       trigger
     end

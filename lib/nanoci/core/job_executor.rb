@@ -33,7 +33,7 @@ module Nanoci
       # @param inputs [Hash]
       # @param prev_inputs [Hash]
       def schedule_job_execution(project, stage, job, _inputs, _prev_inputs)
-        raise ArgumentError, "job #{job} is already running" if job_running?(project.tag, stage.tag, job.tag)
+        raise ArgumentError, "job #{job} is already running" if job_running?(job)
 
         identity = JobIdentity.new(project.tag, stage.tag, job.tag)
         @running_jobs.add(identity)
@@ -44,8 +44,8 @@ module Nanoci
         nil
       end
 
-      def job_running?(project_tag, stage_tag, job_tag)
-        identity = JobIdentity.new(project_tag, stage_tag, job_tag)
+      def job_running?(job)
+        identity = JobIdentity.new(job.project.tag, job.stage.tag, job.tag)
         @running_jobs.include? identity
       end
 

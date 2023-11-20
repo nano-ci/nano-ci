@@ -18,10 +18,9 @@ module Nanoci
         end
       end
 
-      def initialize(tag, name, project_tag)
+      def initialize(tag, name)
         @tag = tag
         @name = name
-        @project_tag = project_tag
         @triggers = []
         @stages = []
         @pipes = []
@@ -36,7 +35,7 @@ module Nanoci
         raise "trigger type #{type} is not supported" unless PipelineDSL.dsl_types.key?(type)
 
         trigger_dsl_class = PipelineDSL.dsl_types[type]
-        trigger_dsl = trigger_dsl_class.new(tag, @project_tag)
+        trigger_dsl = trigger_dsl_class.new(tag)
         trigger_dsl.instance_eval(&block)
         @triggers.push(trigger_dsl)
       end
@@ -44,7 +43,7 @@ module Nanoci
       def stage(tag, **params, &block)
         raise "stage #{tag} is missing definition block" if block.nil?
 
-        stage_dsl = StageDSL.new(@component_factory, tag, @project_tag, **params)
+        stage_dsl = StageDSL.new(@component_factory, tag, **params)
         stage_dsl.instance_eval(&block)
         @stages.push(stage_dsl)
       end

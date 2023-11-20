@@ -21,6 +21,14 @@ module Nanoci
       # @return [Array<Trigger>]
       attr_reader :triggers
 
+      attr_reader :project
+
+      def project=(value)
+        @project = value
+        @stages.each { |s| s.project = value }
+        @triggers.each { |t| t.project = value }
+      end
+
       # @return [Array<Stage>]
       attr_reader :stages
 
@@ -60,13 +68,11 @@ module Nanoci
         validate_hooks
       end
 
-      def find_stage(tag)
-        stages.select { |s| s.tag == tag }.first
-      end
+      def find_stage(tag) = stages.select { |s| s.tag == tag }.first
 
-      def find_trigger(tag)
-        triggers.select { |t| t.full_tag == tag }.first
-      end
+      def find_trigger(tag) = triggers.select { |t| t.full_tag == tag }.first
+
+      def find_trigger_by_tag(tag) = triggers.select { |t| t.tag == tag }.first
 
       def job_complete(stage_tag, job_tag, outputs)
         stage = find_stage(stage_tag)
@@ -138,9 +144,7 @@ module Nanoci
       end
 
       def validate_pipe_connections
-        pipes.each_pair do |key, value|
-          validate_pipe_pair key, value
-        end
+        pipes.each_pair { |key, value| validate_pipe_pair key, value }
       end
 
       def validate_pipe_pair(key, value)

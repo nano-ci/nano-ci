@@ -20,8 +20,10 @@ RSpec.describe Nanoci::Core::JobExecutor do
     allow(stage).to receive(:tag).and_return(:stage)
     job = double(:job)
     allow(job).to receive(:tag).and_return(:job)
+    allow(job).to receive(:project).and_return(project)
+    allow(job).to receive(:stage).and_return(stage)
     executor.schedule_job_execution(project, stage, job, nil, nil)
-    expect(executor.job_running?(project.tag, stage.tag, job.tag)).to be true
+    expect(executor.job_running?(job)).to be true
   end
 
   it '#publish raises event job_complete' do
