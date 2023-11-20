@@ -2,8 +2,6 @@
 
 require 'nanoci/core/job_state'
 
-require_relative 'domain_events'
-
 module Nanoci
   module Core
     # A job is a collection of tasks to run actions and produce artifacts
@@ -69,7 +67,6 @@ module Nanoci
 
       def schedule
         self.state = Job::State::SCHEDULED
-        DomainEvents.instance.push(JobScheduledEvent.new(@project.tag, @stage.tag, tag))
       end
 
       def finalize(success, outputs)

@@ -68,6 +68,8 @@ module Nanoci
         pipeline.trigger_fired(trigger_tag, outputs)
       end
 
+      def scheduled_jobs = pipeline.stages.flat_map(&:jobs).select { |j| j.state == Job::State::SCHEDULED }
+
       def memento
         {
           id: id,

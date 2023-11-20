@@ -2,7 +2,6 @@
 
 require_relative '../messaging/topic'
 require_relative '../messaging/subscription'
-require_relative 'domain_events'
 require_relative 'downstream_trigger_rule'
 require_relative 'messages/run_stage_message'
 require_relative 'messages/stage_complete_message'
@@ -25,9 +24,6 @@ module Nanoci
         # @type [Nanoci::Messaging::Topic]
         @job_complete_topic = topics.fetch(:job_complete_topic)
         @running = false
-        @domain_events_map = {
-          JobScheduledEvent => [method(:on_job_scheduled_event)]
-        }
       end
 
       def start
@@ -94,7 +90,7 @@ module Nanoci
 
         @project_repository.save(project)
 
-        dispatch_domain_events
+        run_scheduled_jobs
       end
 
       def trigger_fired(project_tag, trigger_tag, outputs)
@@ -103,18 +99,15 @@ module Nanoci
 
         @project_repository.save(project)
 
-        dispatch_domain_events
+        run_scheduled_jobs
       end
 
       private
 
-      def dispatch_domain_events
-        until DomainEvents.instance.empty?
-          e = DomainEvents.instance.shift
-          raise "unknown domain event class #{e.class}" unless @domain_events_map.key?(e.class)
-
-          @domain_events_map[e.class].each do |h|
-            h.call(e)
+      def run_scheduled_jobs
+        @projects.each_value do |p|
+          p.scheduled_jobs.each do |j|
+            run_job(p, j.stage, j, j.stage.inputs, j.stage.prev_inputs)
           end
         end
       end
@@ -144,13 +137,6 @@ module Nanoci
         message = jcm.message
         job_complete(message.project_tag, message.stage_tag, message.job_tag, message.outputs)
         jcm.ack
-      end
-
-      def on_job_scheduled_event(event)
-        project = @projects.fetch(event.project_tag)
-        stage = project.pipeline.find_stage(event.stage_tag)
-        job = stage.find_job(event.job_tag)
-        run_job(project, stage, job, stage.inputs, stage.prev_inputs)
       end
     end
   end
