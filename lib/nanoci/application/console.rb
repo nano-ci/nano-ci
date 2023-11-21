@@ -54,9 +54,7 @@ module Nanoci
         @trigger_engine = Core::TriggerEngine.new(@trigger_repository, @pipeline_engine)
       end
 
-      def setup_messaging
-        @job_complete_topic = Messaging::Topic.new('job_complete')
-      end
+      def setup_messaging; end
 
       def setup_db
         @db_provider_factory = DB::DBProviderFactory.new
@@ -66,17 +64,11 @@ module Nanoci
       end
 
       def setup_pipeline_engine
-        @pipeline_engine = Core::PipelineEngine.new(
-          @job_executor,
-          @project_repository,
-          {
-            job_complete_topic: @job_complete_topic
-          }
-        )
+        @pipeline_engine = Core::PipelineEngine.new( @job_executor, @project_repository)
       end
 
       def setup_job_executor
-        @job_executor = Components::SyncJobExecutor.new(@plugin_host, @job_complete_topic)
+        @job_executor = Components::SyncJobExecutor.new(@plugin_host)
       end
 
       # runs a nano-ci main service

@@ -56,12 +56,12 @@ module Nanoci
       def find_trigger(tag) = @pipeline.find_trigger_by_tag(tag)
 
       # Signals the project that a job successfully completed
-      def job_complete(stage_tag, job_tag, outputs)
-        pipeline.job_complete(stage_tag, job_tag, outputs)
+      def job_complete(job, outputs)
+        pipeline.job_complete(job.stage.tag, job.tag, outputs)
       end
 
-      def job_canceled(stage_tag, job_tag)
-        pipeline.job_canceled(stage_tag, job_tag)
+      def job_canceled(job)
+        pipeline.job_canceled(job)
       end
 
       def trigger_fired(trigger_tag, outputs)

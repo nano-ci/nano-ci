@@ -123,8 +123,7 @@ module Nanoci
         finalize if jobs_idle?
       end
 
-      def job_canceled(job_tag)
-        job = find_job(job_tag)
+      def job_canceled(job)
         job.canceled
         finalize if jobs_idle?
       end

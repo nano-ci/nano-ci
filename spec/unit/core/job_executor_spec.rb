@@ -6,29 +6,29 @@ require 'nanoci/core/job_executor'
 
 # JobExecutor implementation for tests
 class TestJobExecutor < Nanoci::Core::JobExecutor
-  def raise_publish(project, stage, job, outputs)
-    job_succeeded(project, stage, job, outputs)
+  def raise_publish(job, outputs)
+    job_succeeded(job, outputs)
   end
 end
 
 RSpec.describe Nanoci::Core::JobExecutor do
   it '#schedule_job_execution tracks running job' do
-    executor = Nanoci::Core::JobExecutor.new(nil, nil)
+    executor = Nanoci::Core::JobExecutor.new(nil)
     project = double(:project)
     allow(project).to receive(:tag).and_return(:project)
     stage = double(:stage)
     allow(stage).to receive(:tag).and_return(:stage)
     job = double(:job)
     allow(job).to receive(:tag).and_return(:job)
+    allow(job).to receive(:full_tag).and_return(:job)
     allow(job).to receive(:project).and_return(project)
     allow(job).to receive(:stage).and_return(stage)
-    executor.schedule_job_execution(project, stage, job, nil, nil)
+    executor.schedule_job_execution(job, nil, nil)
     expect(executor.job_running?(job)).to be true
   end
 
   it '#publish raises event job_complete' do
-    topic = double(:topic)
-    executor = TestJobExecutor.new(nil, topic)
+    executor = TestJobExecutor.new(nil)
 
     project = double(:project)
     allow(project).to receive(:tag).and_return(:project)
@@ -38,15 +38,13 @@ RSpec.describe Nanoci::Core::JobExecutor do
 
     job = double(:job)
     allow(job).to receive(:tag).and_return(:job)
+    allow(job).to receive(:full_tag).and_return(:full_tag)
 
-    expect(topic).to receive(:publish) do |m|
-      expect(m).to be_a(Nanoci::Core::Messages::JobCompleteMessage)
-      expect(m.project_tag).to eq(:project)
-      expect(m.stage_tag).to eq(:stage)
-      expect(m.job_tag).to eq(:job)
-      expect(m.outputs).to eq(:outputs)
-    end
+    executor.schedule_job_execution(job, {}, {})
+    executor.raise_publish(job, :outputs)
 
-    executor.raise_publish(project, stage, job, :outputs)
+    expect(executor.completed_jobs?).to be true
+    jr = executor.pull_completed_job
+    expect(jr.state).to eq(Nanoci::Core::Job::State::SUCCESSFUL)
   end
 end

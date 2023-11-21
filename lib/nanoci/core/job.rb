@@ -9,6 +9,8 @@ module Nanoci
       # @return [Symbol]
       attr_reader :tag
 
+      def full_tag = "#{project.tag}:#{stage.tag}:#{tag}".to_sym
+
       # @return [Nanoci::Core::Stage]
       attr_accessor :stage
 

@@ -11,27 +11,27 @@ module Nanoci
     class SyncJobExecutor < Nanoci::Core::JobExecutor
       include Nanoci::Mixins::Logger
 
-      def schedule_job_execution(project, stage, job, inputs, prev_inputs)
+      def schedule_job_execution(job, inputs, prev_inputs)
         super
         log.info("executing job #{job} with inputs #{inputs}")
-        job_outputs = execute_job(project, stage, job, inputs, prev_inputs)
-        job_succeeded(project, stage, job, job_outputs)
+        job_outputs = execute_job(job, inputs, prev_inputs)
+        job_succeeded(job, job_outputs)
       rescue StandardError => e
-        job_failed(project, stage, job, {}, e)
+        job_failed(job, {}, e)
       end
 
-      def schedule_hook_execution(project, stage, job, inputs, prev_inputs)
+      def schedule_hook_execution(job, inputs, prev_inputs)
         super
-        execute_job(project, stage, job, inputs, prev_inputs)
+        execute_job(job, inputs, prev_inputs)
       rescue StandardError => e
         log.error(error: e) { "failed to execute hook #{job}" }
       end
 
       private
 
-      def execute_job(project, stage, job, inputs, prev_inputs)
-        extension_point = build_extension_point(project)
-        command_host = CommandHost.new(project, stage, job, extension_point)
+      def execute_job(job, inputs, prev_inputs)
+        extension_point = build_extension_point(job.project)
+        command_host = CommandHost.new(job.project, job.stage, job, extension_point)
         command_host.run(inputs, prev_inputs)
       end
 
