@@ -12,12 +12,10 @@ module Nanoci
       # Initializes new instance of [Nanoci::Core::PipelineEngine]
       # @param job_executor [Nanoci::Core::JobExecutor]
       # @param project_repository [Nanoci::ProjectRepository]
-      # @param topics [Hash{Symbol=>Nanoci::Messaging::Topic}]
       def initialize(job_executor, project_repository)
         @projects = {}
         @job_executor = job_executor
         @project_repository = project_repository
-        # @type [Nanoci::Messaging::Topic]
         @running = false
       end
 

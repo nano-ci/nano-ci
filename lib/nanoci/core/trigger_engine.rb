@@ -3,7 +3,6 @@
 require 'set'
 
 require_relative 'messages/stage_complete_message'
-require_relative '../messaging/topic'
 require_relative '../system/event'
 
 module Nanoci

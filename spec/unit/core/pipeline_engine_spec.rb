@@ -67,8 +67,6 @@ RSpec.describe Nanoci::Core::PipelineEngine do
     project_repository = double(:project_repository)
     expect(project_repository).to receive(:save).twice
 
-    stage_complete_topic = double(:stage_complete_topic)
-    allow(stage_complete_topic).to receive(:publish)
     job_executor = double(:job_executor)
     allow(job_executor).to receive(:schedule_job_execution)
 
