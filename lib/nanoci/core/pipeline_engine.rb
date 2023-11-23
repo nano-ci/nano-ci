@@ -97,10 +97,8 @@ module Nanoci
       private
 
       def run_scheduled_jobs
-        @projects.each_value do |p|
-          p.scheduled_jobs.each do |j|
-            run_job(j, j.stage.inputs, j.stage.prev_inputs)
-          end
+        @projects.values.flat_map(&:scheduled_jobs).each do |j|
+          run_job(j, j.stage.inputs, j.stage.prev_inputs)
         end
       end
 
