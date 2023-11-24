@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    nanoci (0.1.0)
+    nanoci (0.3.0)
       bundler (~> 2.0)
       concurrent-ruby (~> 1.0)
       concurrent-ruby-edge (~> 0.4)
@@ -28,6 +28,7 @@ GEM
     diff-lcs (1.5.0)
     docile (1.4.0)
     google-protobuf (3.25.0)
+    google-protobuf (3.25.0-x86_64-linux)
     googleapis-common-protos-types (1.10.0)
       google-protobuf (~> 3.18)
     grpc (1.56.2)
