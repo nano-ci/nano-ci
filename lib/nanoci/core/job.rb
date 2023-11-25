@@ -26,7 +26,11 @@ module Nanoci
       # @return [Hash|Proc]
       attr_reader :env
 
+      # @return [Nanoci::Core::Job::State]
       attr_reader :state
+
+      # @return [String]
+      attr_reader :docker_image
 
       # Gets outputs of the most recent success job run
       # @return [Hash{Symbol => String}]
@@ -47,13 +51,14 @@ module Nanoci
       # @param body [Block] The job body block
       # @param work_dir [String] The job work dir relative to build path
       # @param env [Hash|Proc] Job environment variables. Can be either a hash or proc that returns a hash
-      def initialize(tag:, body:, work_dir: '.', env: nil)
+      def initialize(tag:, body:, work_dir: '.', env: nil, docker_image: nil)
         raise ArgumentError, 'tag is nil' if tag.nil?
 
         @tag = tag.to_sym
         @work_dir = work_dir
         @body = body
         @env = env
+        @docker_image = docker_image
         @state = State::PENDING
         @outputs = {}
         @stage = nil

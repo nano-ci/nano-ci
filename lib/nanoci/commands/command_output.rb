@@ -4,7 +4,9 @@ module Nanoci
   module Commands
     # Class that represents result of command execution
     class CommandOutput
-      attr_reader :exit_code, :stdout, :stderr
+      # @return [String]
+      attr_reader :stdout
+      attr_reader :exit_code, :stderr
 
       def initialize(exit_code, stdout, stderr)
         @exit_code = exit_code

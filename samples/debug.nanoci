@@ -4,6 +4,7 @@
 
 project :'debug-sample', 'main nano-ci project' do
   plugin :'command.git', '0.1.0'
+  plugin :'command.docker', '0.1.0'
 
   repo :sample do
     type :git
@@ -19,7 +20,11 @@ project :'debug-sample', 'main nano-ci project' do
     end
 
     stage :debug do
-      job :build_job, work_dir: 'test' do |inputs|
+      job :build_job, docker_image: 'ruby:latest', work_dir: 'test' do |inputs|
+        docker.rm 'test_container_2' if docker.ps.any? { |x| x['Names'] == 'test_container_2' }
+
+        res = docker.image('ruby:3').run(options: '--name test_container_2', command: 'echo abc')
+        pp(res)
         shell.run 'rm -Rf ./*'
         result = git(repos.sample).clone
         {
