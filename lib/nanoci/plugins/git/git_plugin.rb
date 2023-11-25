@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 require 'nanoci/plugins/plugin_base'
-require 'nanoci/plugins/git/git_command'
+
+require_relative 'git_command'
 
 module Nanoci
   module Plugins

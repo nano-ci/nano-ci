@@ -2,7 +2,7 @@
 
 require_relative '../core/downstream_trigger_rule'
 require_relative '../core/stage'
-require 'nanoci/dsl/job_dsl'
+require_relative 'job_dsl'
 
 module Nanoci
   module DSL

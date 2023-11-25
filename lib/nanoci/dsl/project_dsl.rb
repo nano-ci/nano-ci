@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
 require 'nanoci//core/project'
-require 'nanoci/dsl/pipeline_dsl'
-require 'nanoci/dsl/repo_dsl'
+
+require_relative 'pipeline_dsl'
+require_relative 'repo_dsl'
 
 module Nanoci
   module DSL

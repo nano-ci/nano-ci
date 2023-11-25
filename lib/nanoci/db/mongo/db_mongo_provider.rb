@@ -2,7 +2,7 @@
 
 require 'mongo'
 
-require_relative './mongo_project_repository'
+require_relative 'mongo_project_repository'
 require_relative 'mongo_trigger_repository'
 require_relative '../../config/ucs'
 

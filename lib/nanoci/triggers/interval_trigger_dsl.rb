@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 require 'nanoci/dsl/trigger_dsl'
-require 'nanoci/triggers/interval_trigger'
+
+require_relative 'interval_trigger'
 
 module Nanoci
   # Defines and registers IntervalTriggerDSL

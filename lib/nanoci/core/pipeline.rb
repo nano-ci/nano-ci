@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
-require 'nanoci/core/stage'
-require 'nanoci/core/trigger'
 require 'nanoci/mixins/logger'
+
+require_relative 'stage'
+require_relative 'trigger'
 
 module Nanoci
   module Core

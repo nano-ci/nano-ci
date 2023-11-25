@@ -1,3 +1,3 @@
 # frozen_string_literal: true
 
-require 'nanoci/triggers/interval_trigger'
+require_relative 'interval_trigger'

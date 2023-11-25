@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'nanoci/core/job_complete_event_args'
 require 'nanoci/mixins/logger'
 require 'nanoci/not_implemented_error'
 require 'nanoci/system/event'

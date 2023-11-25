@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
 require 'nanoci'
-require 'nanoci/core/pipeline'
-require 'nanoci/core/repo'
 require 'nanoci/mixins/logger'
+
+require_relative 'pipeline'
+require_relative 'repo'
 
 module Nanoci
   module Core

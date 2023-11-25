@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'nanoci/core/job_state'
+require_relative 'job_state'
 
 module Nanoci
   module Core

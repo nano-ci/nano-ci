@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
-require_relative 'downstream_trigger_rule'
 require 'nanoci/mixins/logger'
+
+require_relative 'downstream_trigger_rule'
 
 module Nanoci
   module Core

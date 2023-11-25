@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require 'nanoci/core/job'
-require 'nanoci/core/stage_state'
 require 'nanoci/mixins/logger'
 
 require_relative 'downstream_trigger_rule'
+require_relative 'job'
+require_relative 'stage_state'
 
 module Nanoci
   module Core

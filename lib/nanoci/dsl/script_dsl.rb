@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'nanoci/dsl/project_dsl'
+require_relative 'project_dsl'
 
 module Nanoci
   module DSL

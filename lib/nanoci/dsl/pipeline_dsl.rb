@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
 require 'nanoci/core/pipeline'
-require 'nanoci/dsl/stage_dsl'
-require 'nanoci/dsl/trigger_dsl'
+
+require_relative 'stage_dsl'
+require_relative 'trigger_dsl'
 
 module Nanoci
   module DSL
