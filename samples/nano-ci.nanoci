@@ -25,7 +25,7 @@ project :'nano-ci', 'main nano-ci project' do
 
     stage :build, inputs: [:'git.heads.main'] do
       job :build_job, work_dir: '.', env: -> { ENV.to_h } do |inputs|
-        shell.run 'rm -Rf ./*'
+        sh 'rm -Rf ./*'
         git(repos.sample).clone(inputs[:'git.heads.main'])
         ruby.rspec.run
         {}

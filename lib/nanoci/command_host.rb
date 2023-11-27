@@ -70,6 +70,8 @@ module Nanoci
 
     private
 
+    def sh(line) = execute_shell(line)
+
     def shell
       Commands::Shell.new(self)
     end

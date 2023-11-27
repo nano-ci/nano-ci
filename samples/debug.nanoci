@@ -25,7 +25,7 @@ project :'debug-sample', 'main nano-ci project' do
 
         res = docker.image('ruby:3').run(options: '--name test_container_2', command: 'echo abc')
         pp(res)
-        shell.run 'rm -Rf ./*'
+        sh 'rm -Rf ./*'
         result = git(repos.sample).clone
         {
           stdout: result.stdout,
