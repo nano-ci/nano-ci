@@ -1,11 +1,10 @@
 # frozen_string_literal: true
 
 require 'nanoci/commands/shell'
-require 'nanoci/commands/command_output'
 require 'nanoci/core/project_repo_locator'
 require 'nanoci/mixins/logger'
 
-require_relative 'shell_cmd'
+require_relative 'shell_spawn'
 
 module Nanoci
   # [CommandHost] is a class that executes Job's commands.
@@ -52,10 +51,9 @@ module Nanoci
       job_env.merge!(env) if env
       log.debug { "shell: \"#{line}\" at \"#{job_work_dir}\"" }
       FileUtils.mkpath job_work_dir
-      tool = ShellCmd.new(line, cwd: job_work_dir, env: job_env)
-      tool.run
+      tool = ShellSpawn.run(line, cwd: job_work_dir, env: job_env)
       log.debug { "shell: exit code - #{tool.status}" }
-      Commands::CommandOutput.new(tool.status, tool.stdout, tool.stderr)
+      tool
     end
 
     def method_missing(method_name, *args, &block)

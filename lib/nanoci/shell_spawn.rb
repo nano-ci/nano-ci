@@ -4,14 +4,34 @@ require 'stringio'
 
 module Nanoci
   # Executes a command in shell. Optionally, provides IO-like interface to stdin, stdout, and stderr
-  class ShellCmd
+  class ShellSpawn
     READ_TIMEOUT = 600
     READ_WAIT_TIME = 0.01
     READ_BUFFER_SIZE = 4096
 
     attr_reader :status
 
-    # Initializes new instance of [ShellCmd]
+    # @return [IO]
+    def stdout_io = @stdout
+
+    def stdout = @stdout.string
+
+    # @return [IO]
+    def stderr_io = @stderr
+
+    def stderr = @stderr.string
+
+    class << self
+      def run(cmd, opts = {})
+        spawn = ShellSpawn.new(cmd, opts)
+        spawn.send(:exec)
+        spawn
+      end
+    end
+
+    private
+
+    # Initializes new instance of [Process]
     # @param cmd [String] command to execute
     # @param opts [Hash] options
     # @option opts [String] :input input string to pass to child process' stdin. Ignored if :live_stdin is set
@@ -34,11 +54,7 @@ module Nanoci
       @stderr = StringIO.new
     end
 
-    def stdout = @stdout.string
-
-    def stderr = @stderr.string
-
-    def run
+    def exec
       setup_ipc
 
       @status = nil
@@ -54,8 +70,6 @@ module Nanoci
       @open_io = [@live_stdin, @stdout_pipe[0], @stderr_pipe[0]].compact
       drive_io
     end
-
-    private
 
     def drive_io
       until @status
