@@ -4,7 +4,7 @@ require 'nanoci/commands/shell'
 require 'nanoci/core/project_repo_locator'
 require 'nanoci/mixins/logger'
 
-require_relative 'shell_process'
+require_relative 'shell_host'
 
 module Nanoci
   # [CommandHost] is a class that executes Job's commands.
@@ -46,14 +46,7 @@ module Nanoci
 
     # Executes passed command line
     def execute_shell(line, env: nil)
-      job_work_dir = work_dir(@stage, @job)
-      job_env = build_job_env(@job)
-      job_env.merge!(env) if env
-      log.debug { "shell: \"#{line}\" at \"#{job_work_dir}\"" }
-      FileUtils.mkpath job_work_dir
-      tool = ShellProcess.run(line, cwd: job_work_dir, env: job_env)
-      log.debug { "shell: exit code - #{tool.status}" }
-      tool
+      ShellHost.new.run(line, work_dir(@stage, @job), env: build_job_env(@job, env))
     end
 
     def method_missing(method_name, *args, &block)
@@ -87,7 +80,9 @@ module Nanoci
       File.join(@root_work_dir, stage.tag.to_s, job.tag.to_s, job.work_dir)
     end
 
-    def build_job_env(job)
+    # Builds environment for the job
+    # @param job [Nanoci::Core::Job]
+    def build_job_env(job, command_env)
       job_env = job.env
 
       job_env = case job_env
@@ -97,6 +92,7 @@ module Nanoci
                 end
       raise 'env is not a Hash' unless job_env.nil? || job_env.is_a?(Hash)
 
+      job_env = job_env.merge(command_env) unless command_env.nil?
       job_env
     end
   end
