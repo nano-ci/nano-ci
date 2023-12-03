@@ -4,7 +4,7 @@ require 'nanoci/commands/shell'
 require 'nanoci/core/project_repo_locator'
 require 'nanoci/mixins/logger'
 
-require_relative 'shell_spawn'
+require_relative 'shell_process'
 
 module Nanoci
   # [CommandHost] is a class that executes Job's commands.
@@ -51,7 +51,7 @@ module Nanoci
       job_env.merge!(env) if env
       log.debug { "shell: \"#{line}\" at \"#{job_work_dir}\"" }
       FileUtils.mkpath job_work_dir
-      tool = ShellSpawn.run(line, cwd: job_work_dir, env: job_env)
+      tool = ShellProcess.run(line, cwd: job_work_dir, env: job_env)
       log.debug { "shell: exit code - #{tool.status}" }
       tool
     end

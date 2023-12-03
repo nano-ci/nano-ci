@@ -4,7 +4,7 @@ require 'stringio'
 
 module Nanoci
   # Executes a command in shell. Optionally, provides IO-like interface to stdin, stdout, and stderr
-  class ShellSpawn
+  class ShellProcess
     READ_TIMEOUT = 600
     READ_WAIT_TIME = 0.01
     READ_BUFFER_SIZE = 4096
@@ -23,7 +23,7 @@ module Nanoci
 
     class << self
       def run(cmd, opts = {})
-        spawn = ShellSpawn.new(cmd, opts)
+        spawn = ShellProcess.new(cmd, opts)
         spawn.send(:exec)
         spawn
       end
