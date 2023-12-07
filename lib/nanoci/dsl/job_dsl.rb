@@ -26,6 +26,7 @@ module Nanoci
           tag: @tag,
           body: @block,
           work_dir: @work_dir,
+          docker_image: @docker_image,
           env: @env
         )
       end
