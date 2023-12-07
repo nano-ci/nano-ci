@@ -4,6 +4,7 @@ require 'nanoci/commands/shell'
 require 'nanoci/core/project_repo_locator'
 require 'nanoci/mixins/logger'
 
+require_relative 'docker_shell_host'
 require_relative 'shell_host'
 
 module Nanoci
@@ -24,6 +25,8 @@ module Nanoci
       @project = project
       @stage = stage
       @job = job
+      # @type [ShellHost]
+      @shell_host = nil
       @extension_point = extension_point
     end
 
@@ -35,6 +38,7 @@ module Nanoci
     # @param inputs [Hash]
     # @param prev_inputs [Hash]
     def run(inputs, prev_inputs)
+      @shell_host = setup_shell_host(@job)
       block = @job.body
       case block.arity
       when 0 then instance_exec(&block)
@@ -42,11 +46,13 @@ module Nanoci
       when 2 then instance_exec(inputs, prev_inputs, &block)
       else raise ArgumentError, "job body block has invalid number of arguments (got #{block.arity}, expected 0..2)"
       end
+    ensure
+      @shell_host&.dispose
     end
 
     # Executes passed command line
     def execute_shell(line, env: nil)
-      ShellHost.new.run(line, work_dir(@stage, @job), env: build_job_env(@job, env))
+      @shell_host.run(line, work_dir(@stage, @job), env: build_job_env(@job, env))
     end
 
     def method_missing(method_name, *args, &block)
@@ -71,6 +77,14 @@ module Nanoci
 
     def repos
       Core::ProjectRepoLocator.new(@project)
+    end
+
+    def setup_shell_host(job)
+      if job.docker_image.nil?
+        ShellHost.new
+      else
+        DockerShellHost.new(job)
+      end
     end
 
     # Returns work directory for the job

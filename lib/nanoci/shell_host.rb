@@ -18,14 +18,20 @@ module Nanoci
     def run(cmd, work_dir, env: nil)
       raise ArgumentError, 'work_dir must be absolute path' unless File.absolute_path?(work_dir)
 
-      log.debug { "shell: \"#{cmd}\" at \"#{work_dir}\"" }
       ensure_work_dir(work_dir)
+      execute_shell(cmd, work_dir, env: env)
+    end
+
+    def dispose; end
+
+    protected
+
+    def execute_shell(cmd, work_dir, env: nil)
+      log.debug { "shell: \"#{cmd}\" at \"#{work_dir}\"" }
       tool = ShellProcess.run(cmd, cwd: work_dir, env: env)
       log.debug { "shell: exit code - #{tool.status}" }
       tool
     end
-
-    protected
 
     def ensure_work_dir(work_dir)
       FileUtils.mkpath work_dir
