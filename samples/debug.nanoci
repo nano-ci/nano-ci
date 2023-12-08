@@ -21,16 +21,20 @@ project :'debug-sample', 'main nano-ci project' do
 
     stage :debug do
       job :build_job, docker_image: 'ruby:latest', work_dir: 'test' do |inputs|
-        docker.rm 'test_container_2' if docker.ps.any? { |x| x['Names'] == 'test_container_2' }
-
-        res = docker.image('ruby:3').run(options: '--name test_container_2', command: 'echo abc')
-        pp(res)
         sh 'rm -Rf ./*'
         result = git(repos.sample).clone
         {
           stdout: result.stdout,
           stderr: result.stderr
         }
+      end
+
+      job :run_docker_commans do |inputs|
+        docker.rm 'test_container_2' if docker.ps.any? { |x| x['Names'] == 'test_container_2' }
+
+        res = docker.image('ruby:3').run(options: '--name test_container_2', command: 'echo abc')
+        pp(res)
+        { done: true }
       end
 
       job :do_or_fail do |inputs|
