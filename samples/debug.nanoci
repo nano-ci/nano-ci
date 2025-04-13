@@ -20,7 +20,7 @@ project :'debug-sample', 'main nano-ci project' do
     end
 
     stage :debug do
-      job :build_job, docker_image: 'ruby:latest', work_dir: 'test' do |inputs|
+      job :build_job, docker_image: 'ruby:latest', docker_volume: 'abc:/var/abc', work_dir: 'test' do |inputs|
         sh 'rm -Rf ./*'
         result = git(repos.sample).clone
         {
