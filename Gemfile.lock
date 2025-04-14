@@ -82,8 +82,6 @@ GEM
     racc (1.8.1)
     rainbow (3.1.1)
     rake (13.2.1)
-    rbs (3.9.2)
-      logger
     rbtree (0.4.6)
     regexp_parser (2.10.0)
     rspec (3.13.0)
@@ -115,13 +113,6 @@ GEM
       prism (~> 1.4)
     ruby-enum (0.9.0)
       i18n
-    ruby-lsp (0.23.14)
-      language_server-protocol (~> 3.17.0)
-      prism (>= 1.2, < 2.0)
-      rbs (>= 3, < 4)
-      sorbet-runtime (>= 0.5.10782)
-    ruby-lsp-rspec (0.1.22)
-      ruby-lsp (~> 0.23.0)
     ruby-progressbar (1.13.0)
     set (1.1.1)
     simplecov (0.22.0)
@@ -130,7 +121,6 @@ GEM
       simplecov_json_formatter (~> 0.1)
     simplecov-html (0.13.1)
     simplecov_json_formatter (0.1.4)
-    sorbet-runtime (0.5.12010)
     sorted_set (1.0.3)
       rbtree
       set (~> 1.0)
@@ -152,7 +142,6 @@ DEPENDENCIES
   rspec
   rspec-mocks
   rubocop
-  ruby-lsp-rspec
   simplecov
 
 BUNDLED WITH
