@@ -17,25 +17,25 @@ project :'nano-ci', 'main nano-ci project' do
       interval 5
     end
 
-    stage :build, inputs: [:'trigger.pipeline_trigger.trigger_time', :'repo.abc'] do
+    stage :build, inputs: %i[trigger.pipeline_trigger.trigger_time repo.abc] do
       job :build_job, work_dir: './repo/abc' do |inputs|
-        VCS.checkout(:abc, "#{inputs.repo.abc}")
+        VCS.checkout(:abc, inputs.repo.abc.to_s)
         Ruby.rake :build
         Ruby.rake :test
         Pipeline.output :'abc.gem.version', Ruby.gem.version
       end
     end
 
-    stage :'test.integration', inputs: [:'abc.gem.version', :'trigger.pipeline_trigger.trigger_time'] do
+    stage :'test.integration', inputs: %i[abc.gem.version trigger.pipeline_trigger.trigger_time] do
       job :api_tests do |inputs|
         Ruby.gem.install 'abc', inputs.abc.gem.version
         Ruby.rake :api_tests
       end
     end
 
-    stage :'deploy.prod', inputs: [:'abc.gem.version', :'trigger.pipeline_trigger.trigger_time'] do
-      job :deploy do |inputs|
-        Shell.run "deploy.sh"
+    stage :'deploy.prod', inputs: %i[abc.gem.version trigger.pipeline_trigger.trigger_time] do
+      job :deploy do |_inputs|
+        Shell.run 'deploy.sh'
       end
     end
 
