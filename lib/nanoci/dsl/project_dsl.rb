@@ -62,16 +62,7 @@ module Nanoci
         raise "pipeline #{name} is missing definition block" if block.nil?
 
         @pipeline = PipelineDSL.new(tag, name)
-
-        Symbol.class_eval do
-          def >>(other)
-            (to_s << '>>' << other.to_s).to_sym
-          end
-        end
-
         @pipeline.instance_eval(&block)
-
-        Symbol.remove_method(:>>)
       end
 
       # Builds and returns [Hash] from DSL

@@ -50,6 +50,8 @@ module Nanoci
       # @return [Array<Nanoci::Job>]
       attr_reader :jobs
 
+      # @return [Array<Symbol>]
+      attr_reader :downstream
 
       attr_reader :state
 
@@ -64,13 +66,14 @@ module Nanoci
       # @param inputs [Array<Symbol>] Array of triggering inputs
       # @param jobs [Array<Job>] Array of stage jobs
       # @return [Stage]
-      def initialize(tag:, inputs:, jobs:, hooks:)
+      def initialize(tag:, inputs:, jobs:, downstream:, hooks:)
         raise ArgumentError, 'tag is not a Symbol' unless tag.is_a? Symbol
 
         @tag = tag
         @triggering_inputs = inputs
         @jobs = jobs
         @jobs.each { |j| j.stage = self } if @jobs.is_a? Array
+        @downstream = downstream
         @hooks = hooks
         @inputs = {}
         @prev_inputs = {}

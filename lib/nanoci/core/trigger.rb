@@ -40,6 +40,9 @@ module Nanoci
       # @return [Nanoci::Core::Project]
       attr_accessor :project
 
+      # @return [Array<Symbol>]
+      attr_reader :downstream
+
       # Gets the fully formatted tag for pipeline pipes
       # @return [Symbol]
       def full_tag
@@ -68,9 +71,11 @@ module Nanoci
 
       # Initializes new instance of [Trigger]
       # @param tag [Symbol] trigger tag
+      # @param downstream [Array<Symbol>] list of downstream stages`` tags
       # @param options [Hahs] optional args
-      def initialize(tag:, options: {})
+      def initialize(tag:, downstream:, options: {})
         @tag = tag
+        @downstream = downstream
         @options = options || {}
         @start_time = nil
         @end_time = nil
@@ -129,14 +134,14 @@ module Nanoci
       protected
 
       def format_tag(tag)
-        "trigger.#{tag}".to_sym
+        :"trigger.#{tag}"
       end
 
       # Formats output tag by adding trigger prefix
       # @param output_tag [Symbol]
       # @return [Symbol]
       def format_output(output_tag)
-        "#{format_tag(tag)}.#{output_tag}".to_sym
+        :"#{format_tag(tag)}.#{output_tag}"
       end
     end
   end

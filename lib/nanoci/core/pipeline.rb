@@ -45,14 +45,12 @@ module Nanoci
       # @param name [String] Pipeline name
       # @param triggers [Array<Trigger>] Array of pipeline triggers
       # @param stages [Array<Stage>] Array of pipeline stages
-      # @param pipes [Hash{Symbol -> Array<Symbol>}] Hash of pipeline pipes
       # @param hooks [Hash{Symbol -> Proc}] Hash of pipeline hooks
-      def initialize(tag:, name:, triggers:, stages:, pipes:, hooks:) # rubocop:disable Metrics/ParameterLists All 6 arguments are required to set initial object state
+      def initialize(tag:, name:, triggers:, stages:, hooks:) # All 6 arguments are required to set initial object state
         @tag = tag
         @name = name
         @triggers = triggers
         @stages = stages
-        @pipes = pipes
         @hooks = hooks
 
         validate
@@ -65,7 +63,6 @@ module Nanoci
 
         validate_triggers
         validate_stages
-        validate_pipes
         validate_hooks
       end
 
@@ -108,7 +105,8 @@ module Nanoci
       private
 
       def trigger_downstream(upstream_stage_tag, outputs)
-        pipes.fetch(upstream_stage_tag, []).each do |next_stage_tag|
+        upstream = find_stage(upstream_stage_tag) || find_trigger(upstream_stage_tag)
+        upstream.downstream.each do |next_stage_tag|
           find_stage(next_stage_tag).trigger(outputs)
         end
       end
@@ -117,7 +115,7 @@ module Nanoci
         raise ArgumentError, 'triggers is not an Array' if triggers.nil? || !triggers.is_a?(Array)
 
         triggers.each do |t|
-          unless pipes.key?(t.full_tag)
+          if t.downstream.empty?
             log.warn("trigger #{t.tag} output is not connected to any of stage inputs")
             return false
           end

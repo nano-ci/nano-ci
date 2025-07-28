@@ -8,18 +8,28 @@ module Nanoci
   module DSL
     # StageDSL class contains methods to support nano-ci stage DSL.
     class StageDSL
+      attr_reader :tag
+
       def initialize(component_factory, tag, inputs: [])
         @component_factory = component_factory
         @tag = tag
         @inputs = inputs
         @jobs = []
         @hooks = {}
+        @downstream = []
       end
 
       def downstream_trigger_rule(rule)
         raise "invalid downstream_trigger_rule value: #{rule}" unless Core::DownstreamTriggerRule.key?(rule)
 
         @downstream_trigger_rule = rule
+      end
+
+      def >>(other)
+        raise "#{other} is not a Stage" unless other.is_a? StageDSL
+
+        @downstream.push(other.tag)
+        other
       end
 
       def job(tag, **params, &block)
@@ -47,6 +57,7 @@ module Nanoci
           tag: @tag,
           inputs: @inputs,
           jobs: @jobs.collect(&:build),
+          downstream: @downstream,
           hooks: pipeline_hooks.select { |k, _| Core::Stage::STAGE_HOOKS.include? k }.merge(@hooks)
         )
       end

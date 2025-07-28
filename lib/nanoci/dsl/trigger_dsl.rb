@@ -10,6 +10,7 @@ module Nanoci
       def initialize(tag)
         @tag = tag
         @options = {}
+        @downstream = []
       end
 
       def downstream_trigger_rule(rule)
@@ -18,8 +19,15 @@ module Nanoci
         @options[:downstream_trigger_rule] = rule
       end
 
+      def >>(other)
+        raise "#{other} is not a Stage" unless other.is_a? StageDSL
+
+        @downstream.push(other.tag)
+        other
+      end
+
       def build
-        clazz.new(tag: @tag, options: @options)
+        clazz.new(tag: @tag, downstream: @downstream, options: @options)
       end
 
       protected

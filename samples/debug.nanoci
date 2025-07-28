@@ -15,12 +15,12 @@ project :'debug-sample', 'main nano-ci project' do
   end
 
   pipeline :pipeline, 'web service pipeline' do
-    trigger :pipeline_trigger, :interval do
+    trigger_pipeline = trigger :pipeline_trigger, :interval do
       interval 5
     end
 
-    stage :debug do
-      job :build_job, docker_image: 'ruby:latest', docker_volume: 'abc:/var/abc', work_dir: 'test' do |inputs|
+    stage_debug = stage :debug do
+      job :build_job, docker_image: 'ruby:latest', work_dir: 'test' do |inputs|
         sh 'rm -Rf ./*'
         result = git(repos.sample).clone
         {
@@ -43,14 +43,21 @@ project :'debug-sample', 'main nano-ci project' do
       end
     end
 
-    stage :report do
+    stage_report = stage :report do
       job :print_report do |inputs|
         puts 'pipeline complete'
         { done: true }
       end
     end
 
-    pipe :'trigger.pipeline_trigger' >> :debug >> :report
+    stage_done = stage :done do
+      job :print_done do |_inputs|
+        puts 'done done!'
+        { done: true }
+      end
+    end
+
+    trigger_pipeline >> stage_debug >> stage_report >> stage_done
   end
 end
 

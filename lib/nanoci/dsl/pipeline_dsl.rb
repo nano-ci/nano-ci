@@ -24,7 +24,6 @@ module Nanoci
         @name = name
         @triggers = []
         @stages = []
-        @pipes = []
         @hooks = {}
       end
 
@@ -39,6 +38,7 @@ module Nanoci
         trigger_dsl = trigger_dsl_class.new(tag)
         trigger_dsl.instance_eval(&block)
         @triggers.push(trigger_dsl)
+        trigger_dsl
       end
 
       def stage(tag, **params, &block)
@@ -47,10 +47,7 @@ module Nanoci
         stage_dsl = StageDSL.new(@component_factory, tag, **params)
         stage_dsl.instance_eval(&block)
         @stages.push(stage_dsl)
-      end
-
-      def pipe(pipe)
-        @pipes.push(pipe)
+        stage_dsl
       end
 
       %i[after_failure].each do |hook|
@@ -69,7 +66,6 @@ module Nanoci
           name: @name,
           triggers: @triggers.collect(&:build),
           stages: @stages.collect { |x| x.build(@hooks) },
-          pipes: read_pipes(@pipes),
           hooks: @hooks
         )
       end
