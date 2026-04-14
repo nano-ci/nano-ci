@@ -4,13 +4,6 @@ require 'spec_helper'
 
 require 'nanoci/core/job_executor'
 
-# JobExecutor implementation for tests
-class TestJobExecutor < Nanoci::Core::JobExecutor
-  def raise_publish(job, outputs)
-    job_succeeded(job, outputs)
-  end
-end
-
 RSpec.describe Nanoci::Core::JobExecutor do
   it '#schedule_job_execution tracks running job' do
     executor = Nanoci::Core::JobExecutor.new(nil)
@@ -28,7 +21,13 @@ RSpec.describe Nanoci::Core::JobExecutor do
   end
 
   it '#publish raises event job_complete' do
-    executor = TestJobExecutor.new(nil)
+    test_executor_class = Class.new(Nanoci::Core::JobExecutor) do
+      def raise_publish(job, outputs)
+        job_succeeded(job, outputs)
+      end
+    end
+
+    executor = test_executor_class.new(nil)
 
     project = double(:project)
     allow(project).to receive(:tag).and_return(:project)

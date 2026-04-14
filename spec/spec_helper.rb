@@ -6,6 +6,21 @@ SimpleCov.start do
 end
 
 require 'bundler/setup'
+require 'rspec'
+
+if ENV['RUBY_LSP_TEST_RUNNER']
+  # Ruby LSP's default reporters are for minitest/test-unit. For RSpec suites,
+  # notify the test runner explicitly so VS Code can finalize test execution.
+  at_exit do
+    if defined?(RubyLsp::LspReporter)
+      begin
+        RubyLsp::LspReporter.instance.shutdown
+      rescue StandardError => e
+        warn "[nano-ci][ruby-lsp] shutdown raised #{e.class}: #{e.message}"
+      end
+    end
+  end
+end
 # require 'rspec/logging_helper'
 
 require 'nanoci'

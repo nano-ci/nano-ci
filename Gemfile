@@ -13,6 +13,7 @@ gem 'rake'
 gem 'rspec'
 gem 'rspec-mocks'
 gem 'rubocop'
+gem 'ruby-lsp-rspec'
 gem 'simplecov'
 
 group :development do
