@@ -6,39 +6,39 @@ require 'nanoci/core'
 
 RSpec.describe Nanoci::Core::Stage do
   it '#initialize sets #tag' do
-    stage = Nanoci::Core::Stage.new(tag: :'stage-tag', inputs: [], jobs: [], hooks: {})
+    stage = Nanoci::Core::Stage.new(tag: :'stage-tag', inputs: [], jobs: [], downstream: [], hooks: {})
     expect(stage.tag).to be(:'stage-tag')
   end
 
   it '#initialize sets #triggering_inputs' do
-    stage = Nanoci::Core::Stage.new(tag: :'stage-tag', inputs: [:abc], jobs: [], hooks: {})
+    stage = Nanoci::Core::Stage.new(tag: :'stage-tag', inputs: [:abc], jobs: [], downstream: [], hooks: {})
     expect(stage.triggering_inputs).to include(:abc)
   end
 
   it '#initialize sets #jobs' do
     job = Nanoci::Core::Job.new(tag: 'build-job', body: nil, work_dir: 'local')
-    stage = Nanoci::Core::Stage.new(tag: :'stage-tag', inputs: [], jobs: [job], hooks: {})
+    stage = Nanoci::Core::Stage.new(tag: :'stage-tag', inputs: [], jobs: [job], downstream: [], hooks: {})
     expect(stage.jobs).to include(job)
   end
 
   it '#initialize sets stage state to IDLE' do
-    stage = Nanoci::Core::Stage.new(tag: :'stage-tag', inputs: [], jobs: [], hooks: {})
+    stage = Nanoci::Core::Stage.new(tag: :'stage-tag', inputs: [], jobs: [], downstream: [], hooks: {})
     expect(stage.state).to be(Nanoci::Core::Stage::State::IDLE)
   end
 
   it '#should_trigger? returns true if triggering_inputs is empty' do
-    stage = Nanoci::Core::Stage.new(tag: :'stage-tag', inputs: [], jobs: [], hooks: {})
+    stage = Nanoci::Core::Stage.new(tag: :'stage-tag', inputs: [], jobs: [], downstream: [], hooks: {})
     expect(stage.should_trigger?({ abc: 0 })).to be true
   end
 
   it '#should_trigger? returns true if current inputs has no value' do
-    stage = Nanoci::Core::Stage.new(tag: :'stage-tag', inputs: [:abc], jobs: [], hooks: {})
+    stage = Nanoci::Core::Stage.new(tag: :'stage-tag', inputs: [:abc], jobs: [], downstream: [], hooks: {})
     expect(stage.inputs).not_to include(:abc)
     expect(stage.should_trigger?({ abc: 1 })).to be true
   end
 
   it '#should_trigger? returns true if next input is not equal to current inputs' do
-    stage = Nanoci::Core::Stage.new(tag: :'stage-tag', inputs: [:abc], jobs: [], hooks: {})
+    stage = Nanoci::Core::Stage.new(tag: :'stage-tag', inputs: [:abc], jobs: [], downstream: [], hooks: {})
     memento = {
       tag: :'stage-tag',
       state: :idle,
@@ -52,7 +52,7 @@ RSpec.describe Nanoci::Core::Stage do
   end
 
   it '#should_trigger? returns true if next input is equal to current inputs' do
-    stage = Nanoci::Core::Stage.new(tag: :'stage-tag', inputs: [:abc], jobs: [], hooks: {})
+    stage = Nanoci::Core::Stage.new(tag: :'stage-tag', inputs: [:abc], jobs: [], downstream: [], hooks: {})
     memento = {
       tag: :'stage-tag',
       state: :idle,
@@ -66,7 +66,7 @@ RSpec.describe Nanoci::Core::Stage do
   end
 
   it '#run stores current inputs to prev_inputs and merge next_inputs into current' do
-    stage = Nanoci::Core::Stage.new(tag: :'stage-tag', inputs: [:abc], jobs: [], hooks: {})
+    stage = Nanoci::Core::Stage.new(tag: :'stage-tag', inputs: [:abc], jobs: [], downstream: [], hooks: {})
     memento = {
       tag: :'stage-tag',
       state: :idle,
@@ -82,7 +82,7 @@ RSpec.describe Nanoci::Core::Stage do
   end
 
   it '#run sets state to RUNNING' do
-    stage = Nanoci::Core::Stage.new(tag: :'stage-tag', inputs: [:abc], jobs: [], hooks: {})
+    stage = Nanoci::Core::Stage.new(tag: :'stage-tag', inputs: [:abc], jobs: [], downstream: [], hooks: {})
     memento = {
       tag: :'stage-tag',
       state: :idle,
@@ -97,7 +97,7 @@ RSpec.describe Nanoci::Core::Stage do
 
   it '#run calls pipeline_engine to run jobs' do
     job = Nanoci::Core::Job.new(tag: :job, body: -> {})
-    stage = Nanoci::Core::Stage.new(tag: :'stage-tag', inputs: [:abc], jobs: [job], hooks: {})
+    stage = Nanoci::Core::Stage.new(tag: :'stage-tag', inputs: [:abc], jobs: [job], downstream: [], hooks: {})
     memento = {
       tag: :'stage-tag',
       state: :idle,
@@ -106,7 +106,7 @@ RSpec.describe Nanoci::Core::Stage do
       }
     }
     stage.memento = memento
-    pipeline = Nanoci::Core::Pipeline.new(tag: :abc, name: 'any', triggers: [], stages: [stage], pipes: {}, hooks: {})
+    pipeline = Nanoci::Core::Pipeline.new(tag: :abc, name: 'any', triggers: [], stages: [stage], hooks: {})
     project = Nanoci::Core::Project.new(name: 'abc', tag: :tag, pipeline: pipeline)
     stage.project = project
 
@@ -115,7 +115,7 @@ RSpec.describe Nanoci::Core::Stage do
 
   it '#finalize sets stage state to IDLE' do
     job = Nanoci::Core::Job.new(tag: :job, body: -> {})
-    stage = Nanoci::Core::Stage.new(tag: :'stage-tag', inputs: [:abc], jobs: [job], hooks: {})
+    stage = Nanoci::Core::Stage.new(tag: :'stage-tag', inputs: [:abc], jobs: [job], downstream: [], hooks: {})
     memento = {
       tag: :'stage-tag',
       state: :idle,
@@ -145,7 +145,7 @@ RSpec.describe Nanoci::Core::Stage do
     allow(job).to receive(:outputs).and_return({ def: 321 })
     allow(job).to receive(:state).and_return(Nanoci::Core::Job::State::SUCCESSFUL)
     allow(job).to receive(:stage=)
-    stage = Nanoci::Core::Stage.new(tag: :'stage-tag', inputs: [], jobs: [job], hooks: {})
+    stage = Nanoci::Core::Stage.new(tag: :'stage-tag', inputs: [], jobs: [job], downstream: [], hooks: {})
     stage.run({ abc: 1 })
 
     expect(stage.outputs.empty?).to be true
@@ -160,7 +160,7 @@ RSpec.describe Nanoci::Core::Stage do
     allow(job).to receive(:state).and_return(Nanoci::Core::Job::State::PENDING)
     allow(job).to receive(:active?).and_return(false)
     allow(job).to receive(:stage=)
-    stage = Nanoci::Core::Stage.new(tag: :'stage-tag', inputs: [:abc], jobs: [job], hooks: {})
+    stage = Nanoci::Core::Stage.new(tag: :'stage-tag', inputs: [:abc], jobs: [job], downstream: [], hooks: {})
     expect(stage.jobs_idle?).to be true
   end
 
@@ -173,35 +173,39 @@ RSpec.describe Nanoci::Core::Stage do
     allow(job2).to receive(:state).and_return(Nanoci::Core::Job::State::RUNNING)
     allow(job2).to receive(:active?).and_return(true)
     allow(job2).to receive(:stage=)
-    stage = Nanoci::Core::Stage.new(tag: :'stage-tag', inputs: [:abc], jobs: [job1, job2], hooks: {})
+    stage = Nanoci::Core::Stage.new(tag: :'stage-tag', inputs: [:abc], jobs: [job1, job2], downstream: [], hooks: {})
     expect(stage.jobs_idle?).to be false
   end
 
   it '#initialize raises ArgumentError if #tag is nil' do
-    expect { Nanoci::Core::Stage.new(tag: nil, inputs: [], jobs: [], hooks: {}) }.to raise_error ArgumentError
+    expect do
+      Nanoci::Core::Stage.new(tag: nil, inputs: [], jobs: [], downstream: [], hooks: {})
+    end.to raise_error ArgumentError
   end
 
   it '#initialize raises ArgumentError if #tag is not a Symbol' do
-    expect { Nanoci::Core::Stage.new(tag: 123, inputs: [], jobs: [], hooks: {}) }.to raise_error ArgumentError
+    expect do
+      Nanoci::Core::Stage.new(tag: 123, inputs: [], jobs: [], downstream: [], hooks: {})
+    end.to raise_error ArgumentError
   end
 
   it '#validate raises ArgumentError if #triggering_inputs is nil' do
-    stage = Nanoci::Core::Stage.new(tag: :tag, inputs: nil, jobs: [], hooks: {})
+    stage = Nanoci::Core::Stage.new(tag: :tag, inputs: nil, jobs: [], downstream: [], hooks: {})
     expect { stage.validate }.to raise_error ArgumentError
   end
 
   it '#validate raises ArgumentError if #triggering_inputs is not an Array' do
-    stage = Nanoci::Core::Stage.new(tag: :tag, inputs: 123, jobs: [], hooks: {})
+    stage = Nanoci::Core::Stage.new(tag: :tag, inputs: 123, jobs: [], downstream: [], hooks: {})
     expect { stage.validate }.to raise_error ArgumentError
   end
 
   it '#validate raises ArgumentError if #jobs is nil' do
-    stage = Nanoci::Core::Stage.new(tag: :tag, inputs: [], jobs: nil, hooks: {})
+    stage = Nanoci::Core::Stage.new(tag: :tag, inputs: [], jobs: nil, downstream: [], hooks: {})
     expect { stage.validate }.to raise_error ArgumentError
   end
 
   it '#validate raises ArgumentError if #jobs is not an Array' do
-    stage = Nanoci::Core::Stage.new(tag: :tag, inputs: [], jobs: 123, hooks: {})
+    stage = Nanoci::Core::Stage.new(tag: :tag, inputs: [], jobs: 123, downstream: [], hooks: {})
     expect { stage.validate }.to raise_error ArgumentError
   end
 end

@@ -11,7 +11,6 @@ RSpec.describe Nanoci::Core::Pipeline do
       name: 'pipe name',
       triggers: [],
       stages: [],
-      pipes: {},
       hooks: {}
     )
 
@@ -24,7 +23,6 @@ RSpec.describe Nanoci::Core::Pipeline do
       name: 'pipe name',
       triggers: [],
       stages: [],
-      pipes: {},
       hooks: {}
     )
 
@@ -37,7 +35,6 @@ RSpec.describe Nanoci::Core::Pipeline do
       name: 'pipe name',
       triggers: [],
       stages: [],
-      pipes: {},
       hooks: {}
     )
 
@@ -49,6 +46,7 @@ RSpec.describe Nanoci::Core::Pipeline do
       tag: :stage_tag,
       inputs: [],
       jobs: [],
+      downstream: [],
       hooks: {}
     )
 
@@ -57,7 +55,6 @@ RSpec.describe Nanoci::Core::Pipeline do
       name: 'pipe name',
       triggers: [],
       stages: [stage],
-      pipes: {},
       hooks: {}
     )
 
@@ -65,26 +62,26 @@ RSpec.describe Nanoci::Core::Pipeline do
   end
 
   it '#initialize sets triggers array' do
-    trigger = Nanoci::Core::Trigger.new(tag: :trigger_tag)
+    trigger = Nanoci::Core::Trigger.new(tag: :trigger_tag, downstream: [])
 
     pipeline = Nanoci::Core::Pipeline.new(
       tag: :pipe_tag,
       name: 'pipe name',
       triggers: [trigger],
       stages: [],
-      pipes: {},
       hooks: {}
     )
 
     expect(pipeline.triggers).to include trigger
   end
 
-  it '#initialize sets pipes' do
-    trigger = Nanoci::Core::Trigger.new(tag: :trigger_tag)
+  it '#initialize sets downstream on trigger and stage' do
+    trigger = Nanoci::Core::Trigger.new(tag: :trigger_tag, downstream: [:stage_tag])
     stage = Nanoci::Core::Stage.new(
       tag: :stage_tag,
       inputs: [],
       jobs: [],
+      downstream: [],
       hooks: {}
     )
 
@@ -93,11 +90,10 @@ RSpec.describe Nanoci::Core::Pipeline do
       name: 'pipe name',
       triggers: [trigger],
       stages: [stage],
-      pipes: { 'trigger.trigger_tag': [:stage_tag] },
       hooks: {}
     )
 
-    expect(pipeline.pipes).to include({ 'trigger.trigger_tag': [:stage_tag] })
+    expect(pipeline.triggers.first.downstream).to include(:stage_tag)
   end
 
   it '#validate raises ArgumentError if pipeline contains duplicate stages' do
@@ -105,18 +101,20 @@ RSpec.describe Nanoci::Core::Pipeline do
       tag: :stage_tag,
       inputs: [],
       jobs: [],
+      downstream: [],
       hooks: {}
     )
     stage_b = Nanoci::Core::Stage.new(
       tag: :stage_tag,
       inputs: [],
       jobs: [],
+      downstream: [],
       hooks: {}
     )
 
     stages = [stage_a, stage_b]
 
-    expect { Nanoci::Core::Pipeline.new(tag: :p, name: 'p', triggers: [], stages: stages, pipes: {}, hooks: {}) }
+    expect { Nanoci::Core::Pipeline.new(tag: :p, name: 'p', triggers: [], stages: stages, hooks: {}) }
       .to raise_error(ArgumentError)
   end
 end

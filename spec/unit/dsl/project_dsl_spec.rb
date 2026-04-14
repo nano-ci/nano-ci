@@ -59,20 +59,21 @@ RSpec.describe Nanoci::DSL::ProjectDSL do
     expect(project.pipeline).not_to be nil
   end
 
-  it 'enables operator >> for Symbols' do
+  it 'enables operator >> for stages' do
     dsl = Nanoci::DSL::ProjectDSL.new(:project_tag, 'project name')
     dsl.instance_eval do
       pipeline :pipe, 'project pipeline' do
         # rubocop:disable Lint/EmptyBlock
-        stage :abc do
+        stage_abc = stage :abc do
         end
-        stage :def do
+        stage_def = stage :def do
         end
         # rubocop:enable Lint/EmptyBlock
-        pipe :abc >> :def
+        stage_abc >> stage_def
       end
     end
     project = dsl.build
-    expect(project.pipeline.pipes).to include(abc: [:def])
+    stage = project.pipeline.find_stage(:abc)
+    expect(stage.downstream).to include(:def)
   end
 end

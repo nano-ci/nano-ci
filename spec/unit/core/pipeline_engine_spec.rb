@@ -21,7 +21,6 @@ RSpec.describe Nanoci::Core::PipelineEngine do
       name: 'pipe name',
       triggers: [],
       stages: [],
-      pipes: {},
       hooks: {}
     )
     project = Nanoci::Core::Project.new(name: 'abc', tag: :def, pipeline: pipeline)
@@ -52,6 +51,7 @@ RSpec.describe Nanoci::Core::PipelineEngine do
       tag: stage_a_tag,
       inputs: [],
       jobs: [job],
+      downstream: [],
       hooks: {}
     )
     pipeline = Nanoci::Core::Pipeline.new(
@@ -59,7 +59,6 @@ RSpec.describe Nanoci::Core::PipelineEngine do
       name: 'pipe name',
       triggers: [],
       stages: [stage_a],
-      pipes: {},
       hooks: {}
     )
     project = Nanoci::Core::Project.new(name: 'proj', tag: project_tag, pipeline: pipeline)
@@ -92,6 +91,7 @@ RSpec.describe Nanoci::Core::PipelineEngine do
       tag: :stage_tag,
       inputs: [],
       jobs: [job_a, job_b],
+      downstream: [],
       hooks: {}
     )
     pipeline = Nanoci::Core::Pipeline.new(
@@ -99,7 +99,6 @@ RSpec.describe Nanoci::Core::PipelineEngine do
       name: 'pipe name',
       triggers: [],
       stages: [stage_a],
-      pipes: {},
       hooks: {}
     )
     project = Nanoci::Core::Project.new(name: 'proj', tag: :tag, pipeline: pipeline)
@@ -120,11 +119,12 @@ RSpec.describe Nanoci::Core::PipelineEngine do
 
   it 'pipeline engine runs the next stage when trigger pulses' do
     project_tag = :tag
-    trigger = PipelineTestTrigger.new(tag: :test_trigger)
+    trigger = PipelineTestTrigger.new(tag: :test_trigger, downstream: [:stage_tag])
     stage = Nanoci::Core::Stage.new(
       tag: :stage_tag,
       inputs: [],
       jobs: [],
+      downstream: [],
       hooks: []
     )
     memento = stage.memento
@@ -136,7 +136,6 @@ RSpec.describe Nanoci::Core::PipelineEngine do
       name: 'pipeline name',
       triggers: [trigger],
       stages: [stage],
-      pipes: { 'trigger.test_trigger': [:stage_tag] },
       hooks: {}
     )
 
