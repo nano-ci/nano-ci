@@ -6,7 +6,7 @@ PATH
       concurrent-ruby (~> 1.0)
       concurrent-ruby-edge (~> 0.4)
       docker-api (~> 2.0)
-      grpc (>= 1.51, < 1.57)
+      grpc (~> 1.80)
       intake (~> 0.2)
       mail (~> 2.7)
       mongo (~> 2.18)
@@ -17,6 +17,7 @@ GEM
   remote: https://rubygems.org/
   specs:
     ast (2.4.3)
+    bigdecimal (4.1.1)
     bson (5.0.2)
     code-scanning-rubocop (0.6.1)
       rubocop (~> 1.0)
@@ -33,13 +34,27 @@ GEM
       multi_json
     excon (1.2.5)
       logger
-    google-protobuf (3.25.6)
-    googleapis-common-protos-types (1.19.0)
-      google-protobuf (>= 3.18, < 5.a)
-    grpc (1.56.2)
-      google-protobuf (~> 3.23)
+    google-protobuf (4.33.6)
+      bigdecimal
+      rake (>= 13)
+    google-protobuf (4.33.6-arm64-darwin)
+      bigdecimal
+      rake (>= 13)
+    google-protobuf (4.33.6-x86_64-linux-gnu)
+      bigdecimal
+      rake (>= 13)
+    googleapis-common-protos-types (1.22.0)
+      google-protobuf (~> 4.26)
+    grpc (1.80.0)
+      google-protobuf (>= 3.25, < 5.0)
       googleapis-common-protos-types (~> 1.0)
-    grpc-tools (1.71.0)
+    grpc (1.80.0-arm64-darwin)
+      google-protobuf (>= 3.25, < 5.0)
+      googleapis-common-protos-types (~> 1.0)
+    grpc (1.80.0-x86_64-linux-gnu)
+      google-protobuf (>= 3.25, < 5.0)
+      googleapis-common-protos-types (~> 1.0)
+    grpc-tools (1.80.0)
     i18n (1.14.7)
       concurrent-ruby (~> 1.0)
     immutable-ruby (0.1.0)
@@ -130,6 +145,7 @@ GEM
     unicode-emoji (4.0.4)
 
 PLATFORMS
+  arm64-darwin
   ruby
   x64-mingw32
   x86_64-linux
